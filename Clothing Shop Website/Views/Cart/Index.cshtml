@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVA — Giỏ hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--muted:#888;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+a{text-decoration:none;color:inherit}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px;color:var(--white)}
+.nav-links{display:flex;gap:36px}.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
+.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-icons a:hover{color:var(--gold)}
+.page-header{padding:56px 60px 44px;background:linear-gradient(160deg,var(--dark2),var(--black));border-bottom:1px solid var(--border)}
+.page-title{font-family:var(--font-display);font-size:52px;font-weight:400}.page-title em{font-style:italic;color:var(--gold)}
+.page-sub{font-size:10px;letter-spacing:2px;color:rgba(250,248,242,0.3);margin-top:8px}
+.cart-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:32px 60px 80px;max-width:1320px;margin:0 auto}
+.cart-box{background:var(--dark);border:1px solid var(--border)}
+.cart-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 44px;padding:14px 24px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.5)}
+.cart-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 44px;padding:22px 24px;border-bottom:1px solid var(--border);align-items:center;gap:8px;transition:background 0.2s}
+.cart-row:last-child{border-bottom:none}
+.cart-row:hover{background:rgba(201,168,76,0.02)}
+.cart-product{display:flex;align-items:center;gap:16px}
+.cart-thumb{width:70px;height:85px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}.t2{background:linear-gradient(160deg,#14181e,#080c12)}.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
+.cart-pname{font-family:var(--font-alt);font-size:15px;font-style:italic;margin-bottom:5px}
+.cart-pmeta{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.35)}
+.cart-price{font-size:14px;font-weight:300;letter-spacing:1px}
+.qty-row{display:flex;align-items:center;gap:6px}
+.qbtn{width:30px;height:30px;border:1px solid var(--border);background:transparent;color:var(--white);font-size:16px;cursor:none;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s}.qbtn:hover{border-color:var(--gold)}
+.qval{width:36px;height:30px;border:1px solid var(--border);background:var(--dark2);text-align:center;font-size:13px;font-family:var(--font-body);color:var(--white)}
+.cart-total{font-size:14px;font-weight:400;letter-spacing:1px;color:var(--gold)}
+.cart-remove{color:rgba(250,248,242,0.2);cursor:none;font-size:18px;text-align:center;transition:color 0.2s}.cart-remove:hover{color:#c9544c}
+.summary-side{position:sticky;top:90px}
+.coupon-box{background:var(--dark);border:1px solid var(--border);padding:20px 24px;margin-bottom:12px}
+.box-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.coup-row{display:flex;gap:8px}
+.coup-in{flex:1;padding:11px 14px;border:1px solid var(--border);background:var(--dark2);font-size:11px;letter-spacing:2px;font-family:var(--font-body);color:var(--white);text-transform:uppercase}.coup-in:focus{outline:none;border-color:var(--gold)}
+.coup-btn{padding:11px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body)}
+.summary-box{background:var(--dark);border:1px solid var(--border);padding:28px 24px;margin-bottom:12px}
+.summary-title{font-family:var(--font-display);font-size:26px;font-weight:400;margin-bottom:26px;font-style:italic;color:var(--white)}
+.srow{display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;font-weight:200;letter-spacing:1px}
+.srow.total{font-size:17px;font-weight:400;padding-top:18px;border-top:1px solid var(--border);margin-top:6px;color:var(--gold)}
+.slabel{color:rgba(250,248,242,0.4)}
+.ship-note{background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.04));border:1px solid var(--border);padding:14px 18px;font-size:11px;letter-spacing:1px;color:var(--gold);margin-bottom:12px}
+.btn-checkout{width:100%;padding:18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);margin-bottom:10px;transition:opacity 0.2s}.btn-checkout:hover{opacity:0.85}
+.btn-continue{width:100%;padding:14px;background:transparent;color:rgba(250,248,242,0.4);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);text-align:center;display:block;transition:border-color 0.2s}.btn-continue:hover{border-color:var(--gold);color:var(--gold)}
+.secure{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.2);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+<nav>
+  <a href="/" class="nav-logo">NEVA</a>
+  <div class="nav-links"><a href="/Product">Bộ sưu tập</a><a href="/Product">Nam</a><a href="/Product">Nữ</a></div>
+  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+</nav>
+<div class="page-header">
+  <h1 class="page-title">Giỏ <em>hàng</em></h1>
+  <p class="page-sub">3 sản phẩm được chọn</p>
+</div>
+<div class="cart-layout">
+  <div>
+    <div class="cart-box">
+      <div class="cart-head"><span>Sản phẩm</span><span>Đơn giá</span><span>Số lượng</span><span>Tổng</span><span></span></div>
+      <div class="cart-row">
+        <div class="cart-product"><div class="cart-thumb t1">👕</div><div><div class="cart-pname">Áo thun basic oversize</div><div class="cart-pmeta">Đen · Size M</div></div></div>
+        <div class="cart-price">320.000 ₫</div>
+        <div class="qty-row"><button class="qbtn">−</button><span class="qval">2</span><button class="qbtn">+</button></div>
+        <div class="cart-total">640.000 ₫</div>
+        <div class="cart-remove">×</div>
+      </div>
+      <div class="cart-row">
+        <div class="cart-product"><div class="cart-thumb t2">👖</div><div><div class="cart-pname">Quần cargo wide leg</div><div class="cart-pmeta">Xanh rêu · Size 30</div></div></div>
+        <div class="cart-price">480.000 ₫</div>
+        <div class="qty-row"><button class="qbtn">−</button><span class="qval">1</span><button class="qbtn">+</button></div>
+        <div class="cart-total">480.000 ₫</div>
+        <div class="cart-remove">×</div>
+      </div>
+      <div class="cart-row">
+        <div class="cart-product"><div class="cart-thumb t3">🧣</div><div><div class="cart-pname">Khăn wool blend cao cấp</div><div class="cart-pmeta">Màu kem</div></div></div>
+        <div class="cart-price">210.000 ₫</div>
+        <div class="qty-row"><button class="qbtn">−</button><span class="qval">1</span><button class="qbtn">+</button></div>
+        <div class="cart-total">210.000 ₫</div>
+        <div class="cart-remove">×</div>
+      </div>
+    </div>
+  </div>
+  <div class="summary-side">
+    <div class="ship-note">✦ Thêm <strong>170.000 ₫</strong> để được miễn phí vận chuyển</div>
+    <div class="coupon-box">
+      <div class="box-title">◆ Mã giảm giá</div>
+      <div class="coup-row"><input class="coup-in" type="text" placeholder="Nhập mã ưu đãi..."><button class="coup-btn">Áp dụng</button></div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-title">Tóm tắt đơn</div>
+      <div class="srow"><span class="slabel">Tạm tính (3 sản phẩm)</span><span>1.330.000 ₫</span></div>
+      <div class="srow"><span class="slabel">Phí vận chuyển</span><span>30.000 ₫</span></div>
+      <div class="srow"><span class="slabel">Giảm giá</span><span style="color:#6aad6a">— 0 ₫</span></div>
+      <div class="srow total"><span>Tổng cộng</span><span>1.360.000 ₫</span></div>
+    </div>
+    <button class="btn-checkout" onclick="window.location='/Order/Checkout'">Thanh toán ngay →</button>
+    <a href="/Product" class="btn-continue">← Tiếp tục mua sắm</a>
+    <p class="secure">◆ Thanh toán an toàn & bảo mật</p>
+  </div>
+</div>
+<script>
+const c=document.getElementById('cursor'),r=document.getElementById('ring');
+document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
+</script>
+</body></html>

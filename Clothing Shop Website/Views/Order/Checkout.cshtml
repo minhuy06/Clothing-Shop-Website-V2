@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVA — Thanh toán</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--muted:#888;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+a{text-decoration:none;color:inherit}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px;color:var(--white)}
+.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
+
+.steps{display:flex;justify-content:center;gap:0;padding:20px 60px;background:var(--dark);border-bottom:1px solid var(--border)}
+.step{display:flex;align-items:center;gap:10px}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:300;letter-spacing:1px}
+.step.done .step-num{background:var(--gold);color:var(--black)}
+.step.active .step-num{border:1px solid var(--gold);color:var(--gold)}
+.step:not(.done):not(.active) .step-num{border:1px solid var(--border);color:rgba(250,248,242,0.25)}
+.step-label{font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.step.active .step-label{color:var(--gold)}
+.step:not(.done):not(.active) .step-label{color:rgba(250,248,242,0.2)}
+.step.done .step-label{color:rgba(201,168,76,0.6)}
+.step-line{width:60px;height:1px;margin:0 14px}
+.step-line.done{background:var(--gold);opacity:0.4}
+.step-line:not(.done){background:var(--border)}
+
+.checkout-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:32px 60px 80px;max-width:1320px;margin:0 auto}
+.form-box{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:14px}
+.form-box-title{font-family:var(--font-display);font-size:22px;font-weight:400;font-style:italic;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.form-box-title span{font-size:20px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.frow.full{grid-template-columns:1fr}
+.fgroup{display:flex;flex-direction:column;gap:7px}
+.flabel{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.6)}
+.finput{padding:12px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);letter-spacing:0.5px;transition:border-color 0.2s}.finput:focus{outline:none;border-color:var(--gold)}
+.fselect{padding:12px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);color:var(--white);cursor:none}
+.pay-options{display:flex;flex-direction:column;gap:10px}
+.pay-opt{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--border);cursor:none;transition:border-color 0.2s}
+.pay-opt.selected{border-color:var(--gold);background:rgba(201,168,76,0.03)}
+.pay-opt:hover{border-color:rgba(201,168,76,0.4)}
+.pay-radio{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color 0.2s}
+.pay-opt.selected .pay-radio{border-color:var(--gold)}
+.pay-opt.selected .pay-radio::after{content:'';width:8px;height:8px;background:var(--gold);border-radius:50%}
+.pay-icon{font-size:22px}
+.pay-name{font-size:13px;font-weight:300;letter-spacing:0.5px}
+.pay-desc{font-size:11px;letter-spacing:0.5px;color:rgba(250,248,242,0.3);margin-top:2px}
+
+.order-side{position:sticky;top:24px}
+.summary-box{background:var(--dark);border:1px solid var(--border);padding:28px;margin-bottom:12px}
+.summary-title{font-family:var(--font-display);font-size:24px;font-weight:400;font-style:italic;margin-bottom:22px}
+.sitem{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sthumb{width:50px;height:62px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative}
+.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}.t2{background:linear-gradient(160deg,#14181e,#080c12)}.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
+.sqbadge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-size:9px;color:var(--black);display:flex;align-items:center;justify-content:center}
+.sname{font-size:12px;font-weight:200;letter-spacing:0.5px;margin-bottom:2px}
+.smeta{font-size:10px;color:rgba(250,248,242,0.3);letter-spacing:1px}
+.sprice{font-size:13px;font-weight:400;letter-spacing:0.5px;margin-left:auto;flex-shrink:0}
+.sdiv{border:none;border-top:1px solid var(--border);margin:16px 0}
+.srow{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;font-weight:200;letter-spacing:0.5px}
+.srow.total{font-size:17px;font-weight:400;padding-top:14px;border-top:1px solid var(--border);color:var(--gold)}
+.slabel{color:rgba(250,248,242,0.4)}
+.btn-order{width:100%;padding:18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);margin-top:8px;transition:opacity 0.2s}.btn-order:hover{opacity:0.85}
+.secure{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.2);margin-top:12px}
+
+/* SUCCESS */
+.success-screen{display:none;position:fixed;inset:0;background:var(--black);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:40px}
+.success-screen.show{display:flex}
+.success-ornament{font-size:60px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
+.success-title{font-family:var(--font-display);font-size:64px;font-weight:400;text-align:center;line-height:1;margin-bottom:14px}
+.success-title em{font-style:italic;color:var(--gold)}
+.success-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto}
+.success-sub{font-size:13px;font-weight:200;letter-spacing:1.5px;color:rgba(250,248,242,0.45);text-align:center;max-width:420px;line-height:2;margin-bottom:8px}
+.success-code{font-size:12px;letter-spacing:3px;color:var(--gold);margin-bottom:40px}
+.success-btns{display:flex;gap:14px}
+.btn-track{padding:14px 34px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body)}
+.btn-shop{padding:14px 32px;background:transparent;color:rgba(250,248,242,0.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);transition:border-color 0.2s}.btn-shop:hover{border-color:var(--gold);color:var(--gold)}
+@@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+<nav>
+  <a href="/" class="nav-logo">NEVA</a>
+  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+</nav>
+<div class="steps">
+  <div class="step done"><div class="step-num">✓</div><div class="step-label">Giỏ hàng</div></div>
+  <div class="step-line done"></div>
+  <div class="step active"><div class="step-num">2</div><div class="step-label">Thanh toán</div></div>
+  <div class="step-line"></div>
+  <div class="step"><div class="step-num">3</div><div class="step-label">Xác nhận</div></div>
+</div>
+<div class="checkout-layout">
+  <div>
+    <div class="form-box">
+      <div class="form-box-title"><span>📦</span> Thông tin giao hàng</div>
+      <div class="frow">
+        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" type="text" value="Nguyễn Thị B"></div>
+        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" type="tel" value="0901 234 567"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label><select class="fselect"><option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option></select></div>
+        <div class="fgroup"><label class="flabel">Quận / Huyện</label><select class="fselect"><option>Hải Châu</option><option>Thanh Khê</option><option>Ngũ Hành Sơn</option></select></div>
+      </div>
+      <div class="frow full">
+        <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" type="text" placeholder="Số nhà, tên đường, phường/xã..."></div>
+      </div>
+      <div class="frow full">
+        <div class="fgroup"><label class="flabel">Ghi chú (không bắt buộc)</label><input class="finput" type="text" placeholder="VD: Giao giờ hành chính, gọi trước khi giao..."></div>
+      </div>
+    </div>
+    <div class="form-box">
+      <div class="form-box-title"><span>💳</span> Phương thức thanh toán</div>
+      <div class="pay-options">
+        <div class="pay-opt selected" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">💵</div><div><div class="pay-name">Tiền mặt khi nhận hàng (COD)</div><div class="pay-desc">Thanh toán khi nhận được sản phẩm</div></div></div>
+        <div class="pay-opt" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">🏦</div><div><div class="pay-name">Chuyển khoản ngân hàng</div><div class="pay-desc">Vietcombank · Techcombank · MB Bank</div></div></div>
+        <div class="pay-opt" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">📱</div><div><div class="pay-name">Ví điện tử</div><div class="pay-desc">MoMo · ZaloPay · VNPay</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="order-side">
+    <div class="summary-box">
+      <div class="summary-title">Đơn hàng</div>
+      <div class="sitem"><div class="sthumb t1">👕<span class="sqbadge">2</span></div><div style="flex:1"><div class="sname">Áo thun basic oversize</div><div class="smeta">Đen · M</div></div><span class="sprice">640.000 ₫</span></div>
+      <div class="sitem"><div class="sthumb t2">👖<span class="sqbadge">1</span></div><div style="flex:1"><div class="sname">Quần cargo wide leg</div><div class="smeta">Xanh rêu · 30</div></div><span class="sprice">480.000 ₫</span></div>
+      <div class="sitem"><div class="sthumb t3">🧣<span class="sqbadge">1</span></div><div style="flex:1"><div class="sname">Khăn wool blend</div><div class="smeta">Kem</div></div><span class="sprice">210.000 ₫</span></div>
+      <hr class="sdiv">
+      <div class="srow"><span class="slabel">Tạm tính</span><span>1.330.000 ₫</span></div>
+      <div class="srow"><span class="slabel">Vận chuyển</span><span>30.000 ₫</span></div>
+      <div class="srow"><span class="slabel">Giảm giá</span><span style="color:#6aad6a">—0 ₫</span></div>
+      <div class="srow total"><span>Tổng cộng</span><span>1.360.000 ₫</span></div>
+    </div>
+    <button class="btn-order" onclick="showSuccess()">Đặt hàng ngay →</button>
+    <p class="secure">◆ Thông tin được bảo mật tuyệt đối</p>
+  </div>
+</div>
+<div class="success-screen" id="successScreen">
+  <div class="success-ornament">✦</div>
+  <h1 class="success-title">Đặt hàng<br><em>thành công</em></h1>
+  <div class="success-line"></div>
+  <p class="success-sub">Cảm ơn bạn đã tin tưởng NEVA. Đơn hàng của bạn đang được chuẩn bị và sẽ được giao trong 2–4 ngày làm việc.</p>
+  <div class="success-code"># NV-20250507-0042</div>
+  <div class="success-btns">
+    <button class="btn-track" onclick="window.location='/Order/History'">Theo dõi đơn hàng</button>
+    <button class="btn-shop" onclick="window.location='/'">Tiếp tục mua sắm</button>
+  </div>
+</div>
+<script>
+const c=document.getElementById('cursor'),r=document.getElementById('ring');
+document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
+function selPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function showSuccess(){document.getElementById('successScreen').classList.add('show')}
+</script>
+</body>
+</html>

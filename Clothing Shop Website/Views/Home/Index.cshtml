@@ -1,8 +1,665 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVA — Haute Couture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;
+  --gold2:#e8c96a;
+  --gold3:#f5e6a3;
+  --black:#080808;
+  --dark:#111;
+  --dark2:#1a1a1a;
+  --dark3:#242424;
+  --white:#faf8f2;
+  --muted:#888;
+  --border:rgba(201,168,76,0.2);
+  --font-display:'Playfair Display',serif;
+  --font-body:'Josefin Sans',sans-serif;
+  --font-alt:'EB Garamond',serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);overflow-x:hidden;cursor:none}
+
+/* CUSTOM CURSOR */
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.1s;mix-blend-mode:difference}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s ease;opacity:0.6}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:28px 60px;
+  transition:all 0.4s;
+}
+nav.scrolled{background:rgba(8,8,8,0.95);backdrop-filter:blur(20px);padding:18px 60px;border-bottom:1px solid var(--border)}
+.nav-logo{
+  font-family:var(--font-display);font-size:26px;font-weight:400;
+  letter-spacing:10px;color:var(--white);text-decoration:none;
+  position:relative;
+}
+.nav-logo::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0);transition:transform 0.4s;
+}
+.nav-logo:hover::after{transform:scaleX(1)}
+.nav-links{display:flex;gap:40px;align-items:center}
+.nav-links a{
+  font-size:11px;font-weight:300;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(250,248,242,0.6);text-decoration:none;transition:color 0.3s;
+  position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;
+  background:var(--gold);transform:scaleX(0);transition:transform 0.3s;transform-origin:left;
+}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-icons{display:flex;gap:24px;align-items:center}
+.nav-icons a{color:rgba(250,248,242,0.6);font-size:16px;text-decoration:none;transition:color 0.3s;position:relative}
+.nav-icons a:hover{color:var(--gold)}
+.cart-badge{
+  position:absolute;top:-7px;right:-7px;
+  width:16px;height:16px;
+  background:var(--gold);border-radius:50%;
+  font-size:9px;font-weight:400;color:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-body);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+/* HERO */
+.hero{
+  height:100vh;display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  background:var(--black);
+}
+.hero-grain{
+  position:absolute;inset:0;z-index:1;opacity:0.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:200px;
+}
+.hero-lines{
+  position:absolute;inset:0;z-index:1;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(201,168,76,0.04) 80px);
+}
+.hero-glow{
+  position:absolute;top:20%;right:10%;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);
+  z-index:1;animation:pulse 4s ease-in-out infinite;
+}
+.hero-content{
+  position:relative;z-index:2;
+  padding:0 60px;max-width:800px;
+  animation:heroIn 1.2s cubic-bezier(0.16,1,0.3,1) both;
+}
+.hero-eyebrow{
+  display:flex;align-items:center;gap:16px;margin-bottom:32px;
+}
+.hero-line{width:40px;height:1px;background:var(--gold)}
+.hero-eyebrow-text{
+  font-size:10px;letter-spacing:5px;text-transform:uppercase;
+  color:var(--gold);font-weight:300;
+}
+.hero-title{
+  font-family:var(--font-display);
+  font-size:clamp(72px,9vw,140px);
+  font-weight:400;line-height:0.88;
+  margin-bottom:36px;
+}
+.hero-title .line1{display:block;color:var(--white)}
+.hero-title .line2{display:block;font-style:italic;color:var(--gold);margin-left:60px}
+.hero-title .line3{display:block;color:rgba(250,248,242,0.3);font-size:0.6em;letter-spacing:4px;font-style:normal;font-family:var(--font-body);font-weight:200;margin-top:8px;margin-left:4px}
+.hero-sub{
+  font-size:13px;font-weight:200;letter-spacing:2px;
+  color:rgba(250,248,242,0.45);line-height:2;
+  max-width:360px;margin-bottom:56px;
+}
+.hero-actions{display:flex;gap:24px;align-items:center}
+.btn-gold{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:16px 40px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--black);
+  font-size:10px;font-weight:400;letter-spacing:4px;text-transform:uppercase;
+  text-decoration:none;border:none;cursor:none;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.btn-gold::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold2),var(--gold3));
+  opacity:0;transition:opacity 0.3s;
+}
+.btn-gold:hover::before{opacity:1}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(201,168,76,0.3)}
+.btn-gold span{position:relative;z-index:1}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(250,248,242,0.5);text-decoration:none;
+  border-bottom:1px solid rgba(201,168,76,0.3);
+  padding-bottom:2px;transition:all 0.3s;
+}
+.btn-outline:hover{color:var(--gold);border-color:var(--gold)}
+
+.hero-scroll{
+  position:absolute;bottom:40px;left:60px;z-index:2;
+  display:flex;align-items:center;gap:12px;
+  font-size:9px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(250,248,242,0.25);
+}
+.hero-scroll-line{
+  width:1px;height:50px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:scrollLine 1.5s ease-in-out infinite;
+}
+
+/* MARQUEE */
+.marquee-wrap{
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:14px 0;overflow:hidden;
+  background:linear-gradient(90deg,var(--dark),var(--dark2),var(--dark));
+}
+.marquee-inner{display:inline-block;animation:marquee 20s linear infinite;white-space:nowrap}
+.marquee-inner span{
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);font-weight:300;padding:0 48px;
+  font-family:var(--font-body);
+}
+.marquee-inner .dot{color:rgba(201,168,76,0.4);padding:0 8px}
+
+/* SECTION */
+.section{padding:120px 60px}
+.section-meta{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.section-num{font-size:10px;letter-spacing:3px;color:rgba(201,168,76,0.5);font-family:var(--font-body)}
+.section-line{flex:1;max-width:60px;height:1px;background:var(--border)}
+.section-tag{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold)}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:70px}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(40px,5vw,72px);font-weight:400;
+  line-height:1;color:var(--white);
+}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-link{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(250,248,242,0.4);text-decoration:none;
+  display:flex;align-items:center;gap:10px;transition:color 0.3s;
+}
+.section-link::after{content:'→';transition:transform 0.3s}
+.section-link:hover{color:var(--gold)}
+.section-link:hover::after{transform:translateX(5px)}
+
+/* CATEGORIES */
+.cat-grid{
+  display:grid;
+  grid-template-columns:1.6fr 1fr 1fr;
+  grid-template-rows:400px 240px;
+  gap:2px;
+}
+.cat-card{
+  position:relative;overflow:hidden;cursor:none;
+  background:var(--dark2);
+}
+.cat-card:first-child{grid-row:span 2}
+.cat-bg{
+  position:absolute;inset:0;
+  transition:transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.cat-card:hover .cat-bg{transform:scale(1.06)}
+.cat-card:nth-child(1) .cat-bg{background:linear-gradient(160deg,#1e1a10 0%,#0a0800 100%)}
+.cat-card:nth-child(2) .cat-bg{background:linear-gradient(160deg,#1a1e1a 0%,#080a08 100%)}
+.cat-card:nth-child(3) .cat-bg{background:linear-gradient(160deg,#1a1018 0%,#0a0608 100%)}
+.cat-card:nth-child(4) .cat-bg{background:linear-gradient(160deg,#101a1e 0%,#06080a 100%)}
+.cat-card:nth-child(5) .cat-bg{background:linear-gradient(160deg,#1a1a10 0%,#0a0a06 100%)}
+.cat-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,8,8,0.85) 0%,rgba(8,8,8,0.1) 60%);
+  display:flex;align-items:flex-end;padding:32px;
+}
+.cat-content{}
+.cat-icon{font-size:36px;margin-bottom:10px;display:block;filter:drop-shadow(0 0 20px rgba(201,168,76,0.3))}
+.cat-name{
+  font-family:var(--font-display);font-size:28px;font-weight:400;
+  color:var(--white);display:block;margin-bottom:4px;
+}
+.cat-count{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.cat-card::after{
+  content:'';position:absolute;inset:0;
+  border:1px solid rgba(201,168,76,0);
+  transition:border-color 0.3s;pointer-events:none;
+}
+.cat-card:hover::after{border-color:rgba(201,168,76,0.3)}
+
+/* PRODUCTS */
+.products-section{padding:120px 60px;background:var(--dark)}
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
+.product-card{
+  background:var(--dark2);cursor:none;
+  position:relative;overflow:hidden;
+  transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.product-card:hover{transform:translateY(-6px)}
+.product-card:hover .product-quick{opacity:1;transform:translateY(0)}
+.product-card:hover .product-img-inner{transform:scale(1.04)}
+.product-thumb{
+  aspect-ratio:3/4;position:relative;overflow:hidden;
+}
+.product-img-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.p1{background:linear-gradient(160deg,#1e1c14 0%,#0e0c08 100%)}
+.p2{background:linear-gradient(160deg,#141820 0%,#080c12 100%)}
+.p3{background:linear-gradient(160deg,#1a1018 0%,#0c080e 100%)}
+.p4{background:linear-gradient(160deg,#141e14 0%,#08100a 100%)}
+.product-icon{font-size:64px;filter:drop-shadow(0 0 30px rgba(201,168,76,0.15))}
+.product-badge{
+  position:absolute;top:16px;left:16px;
+  padding:4px 12px;
+  font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  font-family:var(--font-body);font-weight:300;
+}
+.badge-new{background:var(--gold);color:var(--black)}
+.badge-sale{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.product-wish{
+  position:absolute;top:16px;right:16px;
+  width:36px;height:36px;
+  border:1px solid rgba(201,168,76,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:none;
+  transition:all 0.3s;
+  background:rgba(8,8,8,0.5);
+}
+.product-wish:hover{border-color:var(--gold);background:rgba(201,168,76,0.1)}
+.product-quick{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--black);
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  padding:14px;text-align:center;cursor:none;
+  opacity:0;transform:translateY(8px);
+  transition:all 0.3s;
+}
+.product-info{padding:18px 20px 22px;border-top:1px solid var(--border)}
+.product-cat{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:6px}
+.product-name{font-family:var(--font-alt);font-size:16px;color:var(--white);margin-bottom:10px;font-style:italic}
+.price-row{display:flex;align-items:center;gap:10px}
+.price{font-size:15px;font-weight:300;letter-spacing:1px;color:var(--white)}
+.price-old{font-size:12px;color:rgba(250,248,242,0.3);text-decoration:line-through}
+.sizes{display:flex;gap:4px;margin-top:8px}
+.sz{
+  font-size:9px;letter-spacing:1px;padding:3px 7px;
+  border:1px solid rgba(201,168,76,0.2);color:rgba(250,248,242,0.4);
+}
+
+/* MID BANNER */
+.mid-banner{
+  display:grid;grid-template-columns:1fr 1fr;min-height:560px;
+  position:relative;overflow:hidden;
+}
+.mid-banner-visual{
+  background:var(--dark2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.mid-banner-bg-text{
+  font-family:var(--font-display);
+  font-size:200px;font-weight:700;
+  color:rgba(201,168,76,0.04);
+  letter-spacing:-10px;
+  user-select:none;
+  position:absolute;
+}
+.mid-banner-icon{font-size:100px;position:relative;z-index:1;filter:drop-shadow(0 0 60px rgba(201,168,76,0.2))}
+.mid-banner-content{
+  background:linear-gradient(135deg,#0e0c06 0%,#1a1608 100%);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:90px 80px;
+  position:relative;overflow:hidden;
+}
+.mid-banner-content::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.mid-banner-tag{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:24px}
+.mid-banner-title{
+  font-family:var(--font-display);font-size:52px;font-weight:400;
+  color:var(--white);line-height:1.05;margin-bottom:24px;
+}
+.mid-banner-title em{font-style:italic;color:var(--gold)}
+.mid-banner-desc{
+  font-size:12px;font-weight:200;letter-spacing:1.5px;
+  color:rgba(250,248,242,0.45);line-height:2;
+  max-width:320px;margin-bottom:44px;
+}
+.gold-divider{
+  width:60px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin-bottom:44px;
+}
+
+/* FOOTER */
+footer{
+  background:var(--dark);padding:90px 60px 40px;
+  border-top:1px solid var(--border);
+}
+.footer-top{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:70px;
+  margin-bottom:70px;
+}
+.footer-logo{
+  font-family:var(--font-display);font-size:36px;font-weight:400;
+  letter-spacing:8px;color:var(--white);display:block;margin-bottom:20px;
+}
+.footer-tagline{
+  font-size:12px;font-weight:200;letter-spacing:1.5px;
+  color:rgba(250,248,242,0.3);line-height:2;max-width:220px;
+}
+.footer-col-title{
+  font-size:9px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:24px;
+}
+.footer-col a{
+  display:block;font-size:12px;font-weight:200;letter-spacing:1.5px;
+  color:rgba(250,248,242,0.35);text-decoration:none;
+  margin-bottom:12px;transition:color 0.2s;
+}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{
+  display:flex;justify-content:space-between;
+  padding-top:30px;border-top:1px solid var(--border);
+  font-size:10px;letter-spacing:2px;
+  color:rgba(250,248,242,0.2);
+}
+.footer-gold-line{
+  height:1px;margin-bottom:70px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:0.3;
+}
+
+/* ANIMATIONS */
+@@keyframes heroIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}
+@@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@@keyframes scrollLine{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(30px)}}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="mainNav">
+  <a href="/" class="nav-logo">NEVA</a>
+  <div class="nav-links">
+    <a href="/Product">Bộ sưu tập</a>
+    <a href="/Product">Nam</a>
+    <a href="/Product">Nữ</a>
+    <a href="/Product">Sale</a>
+  </div>
+  <div class="nav-icons">
+    <a href="/Product">🔍</a>
+    <a href="/Account/Profile">👤</a>
+    <a href="/Cart" style="position:relative">🛒<span class="cart-badge">2</span></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grain"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="hero-line"></div>
+      <span class="hero-eyebrow-text">Bộ sưu tập 2025 · Haute Couture</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line1">Nghệ thuật</span>
+      <span class="line2">thời trang</span>
+      <span class="line3">NEVA · LUXURY FASHION HOUSE</span>
+    </h1>
+    <p class="hero-sub">Từng đường may là một tuyên ngôn. Từng chất liệu là một trải nghiệm. Chúng tôi tạo ra những tác phẩm để bạn mang trên người.</p>
+    <div class="hero-actions">
+      <a href="/Product" class="btn-gold"><span>Khám phá bộ sưu tập</span></a>
+      <a href="#" class="btn-outline">Xem lookbook →</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span>Cuộn xuống</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    <span>Miễn phí vận chuyển toàn quốc</span><span class="dot">◆</span>
+    <span>Chất liệu cao cấp được tuyển chọn</span><span class="dot">◆</span>
+    <span>Đổi trả trong 30 ngày</span><span class="dot">◆</span>
+    <span>Thiết kế độc quyền</span><span class="dot">◆</span>
+    <span>Miễn phí vận chuyển toàn quốc</span><span class="dot">◆</span>
+    <span>Chất liệu cao cấp được tuyển chọn</span><span class="dot">◆</span>
+    <span>Đổi trả trong 30 ngày</span><span class="dot">◆</span>
+    <span>Thiết kế độc quyền</span><span class="dot">◆</span>
+  </div>
 </div>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-meta">
+        <span class="section-num">01</span>
+        <div class="section-line"></div>
+        <span class="section-tag">Danh mục</span>
+      </div>
+      <h2 class="section-title">Khám phá<br>theo <em>phong cách</em></h2>
+    </div>
+    <a href="/Product" class="section-link">Xem tất cả</a>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card">
+      <div class="cat-bg"></div>
+      <div class="cat-overlay">
+        <div class="cat-content">
+          <span class="cat-icon">🧥</span>
+          <span class="cat-name">Áo khoác</span>
+          <span class="cat-count">24 tác phẩm</span>
+        </div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg"></div>
+      <div class="cat-overlay">
+        <div class="cat-content">
+          <span class="cat-icon">👖</span>
+          <span class="cat-name">Quần</span>
+          <span class="cat-count">18 tác phẩm</span>
+        </div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg"></div>
+      <div class="cat-overlay">
+        <div class="cat-content">
+          <span class="cat-icon">👕</span>
+          <span class="cat-name">Áo thun</span>
+          <span class="cat-count">32 tác phẩm</span>
+        </div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg"></div>
+      <div class="cat-overlay">
+        <div class="cat-content">
+          <span class="cat-icon">👗</span>
+          <span class="cat-name">Váy & Đầm</span>
+          <span class="cat-count">15 tác phẩm</span>
+        </div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg"></div>
+      <div class="cat-overlay">
+        <div class="cat-content">
+          <span class="cat-icon">🧣</span>
+          <span class="cat-name">Phụ kiện</span>
+          <span class="cat-count">10 tác phẩm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="products-section">
+  <div class="section-header">
+    <div>
+      <div class="section-meta">
+        <span class="section-num" style="color:rgba(201,168,76,0.5)">02</span>
+        <div class="section-line"></div>
+        <span class="section-tag">Nổi bật</span>
+      </div>
+      <h2 class="section-title">Được yêu<br><em>thích nhất</em></h2>
+    </div>
+    <a href="/Product" class="section-link">Xem tất cả</a>
+  </div>
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="product-thumb">
+        <div class="product-img-inner p1"><span class="product-icon">👕</span></div>
+        <span class="product-badge badge-new">Mới</span>
+        <div class="product-wish">♡</div>
+        <div class="product-quick">Xem nhanh</div>
+      </div>
+      <div class="product-info">
+        <div class="product-cat">Áo thun · Premium</div>
+        <div class="product-name">Áo thun basic oversize</div>
+        <div class="price-row"><span class="price">320.000 ₫</span></div>
+        <div class="sizes"><span class="sz">S</span><span class="sz">M</span><span class="sz">L</span><span class="sz">XL</span></div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-thumb">
+        <div class="product-img-inner p2"><span class="product-icon">👖</span></div>
+        <span class="product-badge badge-sale">−20%</span>
+        <div class="product-wish">♡</div>
+        <div class="product-quick">Xem nhanh</div>
+      </div>
+      <div class="product-info">
+        <div class="product-cat">Quần · Exclusive</div>
+        <div class="product-name">Quần cargo wide leg</div>
+        <div class="price-row"><span class="price">480.000 ₫</span><span class="price-old">600.000 ₫</span></div>
+        <div class="sizes"><span class="sz">28</span><span class="sz">30</span><span class="sz">32</span></div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-thumb">
+        <div class="product-img-inner p3"><span class="product-icon">🧥</span></div>
+        <div class="product-wish">♡</div>
+        <div class="product-quick">Xem nhanh</div>
+      </div>
+      <div class="product-info">
+        <div class="product-cat">Áo khoác · Signature</div>
+        <div class="product-name">Áo khoác linen nhẹ</div>
+        <div class="price-row"><span class="price">750.000 ₫</span></div>
+        <div class="sizes"><span class="sz">S</span><span class="sz">M</span><span class="sz">L</span></div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-thumb">
+        <div class="product-img-inner p4"><span class="product-icon">👗</span></div>
+        <span class="product-badge badge-new">Mới</span>
+        <div class="product-wish">♡</div>
+        <div class="product-quick">Xem nhanh</div>
+      </div>
+      <div class="product-info">
+        <div class="product-cat">Váy · Collection</div>
+        <div class="product-name">Váy midi dáng A-line</div>
+        <div class="price-row"><span class="price">520.000 ₫</span></div>
+        <div class="sizes"><span class="sz">S</span><span class="sz">M</span><span class="sz">L</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MID BANNER -->
+<div class="mid-banner">
+  <div class="mid-banner-visual">
+    <div class="mid-banner-bg-text">NEVA</div>
+    <div class="mid-banner-icon">✦</div>
+  </div>
+  <div class="mid-banner-content">
+    <span class="mid-banner-tag">Triết lý thương hiệu</span>
+    <h2 class="mid-banner-title">Đơn giản<br>là <em>đỉnh cao</em><br>của xa xỉ.</h2>
+    <div class="gold-divider"></div>
+    <p class="mid-banner-desc">NEVA tin rằng sự sang trọng thực sự không cần phô trương. Mỗi sản phẩm là một tuyên ngôn về gu thẩm mỹ và sự tinh tế vượt thời gian.</p>
+    <a href="#" class="btn-gold"><span>Tìm hiểu thêm</span></a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-gold-line"></div>
+  <div class="footer-top">
+    <div>
+      <span class="footer-logo">NEVA</span>
+      <p class="footer-tagline">Nghệ thuật thời trang. Mỗi sản phẩm là một tác phẩm được tạo ra để tồn tại vượt thời gian.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Khám phá</div>
+      <a href="/Product">Bộ sưu tập mới</a>
+      <a href="/Product">Nam</a>
+      <a href="/Product">Nữ</a>
+      <a href="/Product">Sale</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Hỗ trợ</div>
+      <a href="#">Hướng dẫn size</a>
+      <a href="#">Chính sách đổi trả</a>
+      <a href="/Order/History">Theo dõi đơn hàng</a>
+      <a href="#">Liên hệ</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Theo dõi</div>
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">Facebook</a>
+      <a href="#">Pinterest</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 NEVA Fashion House. All rights reserved.</span>
+    <span>Da Nang · Vietnam</span>
+  </div>
+</footer>
+
+<script>
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursorRing');
+document.addEventListener('mousemove',e=>{
+  cursor.style.left=e.clientX-4+'px';
+  cursor.style.top=e.clientY-4+'px';
+  ring.style.left=e.clientX-18+'px';
+  ring.style.top=e.clientY-18+'px';
+});
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='scale(1.8)';cursor.style.transform='scale(0.5)'});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='scale(1)';cursor.style.transform='scale(1)'});
+});
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>50);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVA — Tài khoản</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--muted:#888;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+a{text-decoration:none;color:inherit}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px}
+.nav-links{display:flex;gap:36px}.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
+.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
+
+.account-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;padding:40px 60px 80px;max-width:1280px;margin:0 auto}
+
+.sidebar{}
+.profile-card{background:var(--dark);border:1px solid var(--border);padding:30px 24px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--dark2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--gold);margin:0 auto 16px}
+.profile-name{font-family:var(--font-display);font-size:20px;font-weight:400;font-style:italic;margin-bottom:4px}
+.profile-email{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.35);margin-bottom:16px}
+.profile-points{background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05));border:1px solid var(--border);padding:10px;font-size:11px;letter-spacing:1.5px;color:var(--gold)}
+
+.sidebar-nav{background:var(--dark);border:1px solid var(--border);overflow:hidden}
+.snav-item{display:flex;align-items:center;gap:12px;padding:15px 20px;font-size:11px;letter-spacing:1.5px;cursor:none;border-bottom:1px solid var(--border);color:rgba(250,248,242,0.4);transition:all 0.2s}
+.snav-item:last-child{border-bottom:none}
+.snav-item:hover,.snav-item.active{color:var(--gold);background:rgba(201,168,76,0.03)}
+.snav-item.active{border-left:2px solid var(--gold);padding-left:18px}
+
+.account-main{}
+.tab-content{display:none}.tab-content.active{display:block}
+.section-box{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:14px;position:relative;overflow:hidden}
+.section-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4}
+.section-box-title{font-family:var(--font-display);font-size:24px;font-weight:400;font-style:italic;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.btn-edit{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.6);border:1px solid var(--border);padding:7px 16px;background:none;cursor:none;font-family:var(--font-body);transition:all 0.2s}.btn-edit:hover{border-color:var(--gold);color:var(--gold)}
+.btn-save{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--black);background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;padding:10px 24px;cursor:none;font-family:var(--font-body)}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.info-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.5);margin-bottom:6px}
+.info-value{font-size:14px;font-weight:200;letter-spacing:0.5px}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.frow.full{grid-template-columns:1fr}
+.fgroup{display:flex;flex-direction:column;gap:7px}
+.flabel{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.5)}
+.finput{padding:11px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);transition:border-color 0.2s}.finput:focus{outline:none;border-color:var(--gold)}
+
+.addr-card{border:1px solid var(--border);padding:20px;margin-bottom:10px;position:relative;transition:border-color 0.2s}
+.addr-card.default{border-color:rgba(201,168,76,0.5)}
+.addr-card:hover{border-color:rgba(201,168,76,0.3)}
+.addr-default{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--black);font-size:9px;letter-spacing:1.5px;padding:3px 10px}
+.addr-name{font-size:14px;font-weight:300;margin-bottom:5px}
+.addr-text{font-size:12px;font-weight:200;color:rgba(250,248,242,0.4);letter-spacing:0.5px;line-height:1.7}
+.addr-actions{display:flex;gap:16px;margin-top:12px}
+.addr-action{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.3);cursor:none;border-bottom:1px solid transparent;transition:all 0.2s}.addr-action:hover{color:var(--gold);border-color:var(--gold)}
+.addr-action.danger:hover{color:#c9544c;border-color:#c9544c}
+.btn-add-addr{width:100%;padding:14px;border:1px dashed var(--border);background:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.25);cursor:none;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}.btn-add-addr:hover{border-color:var(--gold);color:var(--gold)}
+
+.pass-hint{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.25);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+<nav>
+  <a href="/" class="nav-logo">NEVA</a>
+  <div class="nav-links"><a href="/Product">Bộ sưu tập</a><a href="/Product">Nam</a><a href="/Product">Nữ</a></div>
+  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+</nav>
+<div class="account-layout">
+  <aside>
+    <div class="profile-card">
+      <div class="profile-avatar">NT</div>
+      <div class="profile-name">Nguyễn Thị B</div>
+      <div class="profile-email">nguyenthib@email.com</div>
+      <div class="profile-points">✦ 1.250 điểm tích lũy</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="snav-item active" onclick="switchTab('profile',this)"><span>👤</span> Thông tin cá nhân</div>
+      <div class="snav-item" onclick="switchTab('address',this)"><span>📍</span> Địa chỉ giao hàng</div>
+      <div class="snav-item" onclick="switchTab('password',this)"><span>🔒</span> Đổi mật khẩu</div>
+      <div class="snav-item" onclick="window.location='/Order/History'"><span>📦</span> Lịch sử đơn hàng</div>
+      <div class="snav-item" style="color:#c9544c" onclick="window.location='/Account/Login'"><span>🚪</span> Đăng xuất</div>
+    </nav>
+  </aside>
+  <main class="account-main">
+    <div class="tab-content active" id="profileTab">
+      <div class="section-box">
+        <div class="section-box-title">Thông tin cá nhân <button class="btn-edit" onclick="toggleEdit()">Chỉnh sửa</button></div>
+        <div id="infoView">
+          <div class="info-grid">
+            <div><div class="info-label">Họ và tên</div><div class="info-value">Nguyễn Thị B</div></div>
+            <div><div class="info-label">Email</div><div class="info-value">nguyenthib@email.com</div></div>
+            <div><div class="info-label">Số điện thoại</div><div class="info-value">0901 234 567</div></div>
+            <div><div class="info-label">Ngày sinh</div><div class="info-value">01/01/2000</div></div>
+            <div><div class="info-label">Giới tính</div><div class="info-value">Nữ</div></div>
+            <div><div class="info-label">Thành viên từ</div><div class="info-value">Tháng 3, 2024</div></div>
+          </div>
+        </div>
+        <div id="infoEdit" style="display:none">
+          <div class="frow"><div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" value="Nguyễn Thị B"></div><div class="fgroup"><label class="flabel">Email</label><input class="finput" value="nguyenthib@email.com"></div></div>
+          <div class="frow"><div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" value="0901 234 567"></div><div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" value="2000-01-01"></div></div>
+          <button class="btn-save" onclick="toggleEdit()">Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+    <div class="tab-content" id="addressTab">
+      <div class="section-box">
+        <div class="section-box-title">Địa chỉ giao hàng</div>
+        <div class="addr-card default"><div class="addr-default">Mặc định</div><div class="addr-name">Nguyễn Thị B · 0901 234 567</div><div class="addr-text">123 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng</div><div class="addr-actions"><span class="addr-action">Chỉnh sửa</span><span class="addr-action danger">Xóa</span></div></div>
+        <div class="addr-card"><div class="addr-name">Nguyễn Thị B · 0901 234 567</div><div class="addr-text">456 Nguyễn Văn Linh, Thạc Gián, Thanh Khê, Đà Nẵng</div><div class="addr-actions"><span class="addr-action">Chỉnh sửa</span><span class="addr-action">Đặt mặc định</span><span class="addr-action danger">Xóa</span></div></div>
+        <button class="btn-add-addr">+ Thêm địa chỉ mới</button>
+      </div>
+    </div>
+    <div class="tab-content" id="passwordTab">
+      <div class="section-box">
+        <div class="section-box-title">Đổi mật khẩu</div>
+        <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu hiện tại</label><input class="finput" type="password" placeholder="••••••••"></div></div>
+        <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu mới</label><input class="finput" type="password" placeholder="Tối thiểu 8 ký tự"><div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div></div></div>
+        <div class="frow full"><div class="fgroup"><label class="flabel">Xác nhận mật khẩu mới</label><input class="finput" type="password" placeholder="Nhập lại mật khẩu mới"></div></div>
+        <button class="btn-save">Cập nhật mật khẩu</button>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+const c=document.getElementById('cursor'),r=document.getElementById('ring');
+document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
+let ed=false;
+function toggleEdit(){ed=!ed;document.getElementById('infoView').style.display=ed?'none':'block';document.getElementById('infoEdit').style.display=ed?'block':'none'}
+function switchTab(t,el){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.snav-item').forEach(i=>i.classList.remove('active'));document.getElementById(t+'Tab').classList.add('active');el.classList.add('active')}
+</script>
+</body>
+</html>

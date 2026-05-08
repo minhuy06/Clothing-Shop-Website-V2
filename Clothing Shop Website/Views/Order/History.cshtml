@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVA — Lịch sử đơn hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+a{text-decoration:none;color:inherit}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px}
+.nav-links{display:flex;gap:36px}.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
+.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
+
+.orders-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;padding:40px 60px 80px;max-width:1280px;margin:0 auto}
+.profile-card{background:var(--dark);border:1px solid var(--border);padding:30px 24px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--dark2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--gold);margin:0 auto 16px}
+.profile-name{font-family:var(--font-display);font-size:20px;font-style:italic;margin-bottom:4px}
+.profile-email{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.35);margin-bottom:16px}
+.profile-points{background:rgba(201,168,76,0.07);border:1px solid var(--border);padding:10px;font-size:11px;letter-spacing:1.5px;color:var(--gold)}
+.sidebar-nav{background:var(--dark);border:1px solid var(--border);overflow:hidden}
+.snav-item{display:flex;align-items:center;gap:12px;padding:15px 20px;font-size:11px;letter-spacing:1.5px;cursor:none;border-bottom:1px solid var(--border);color:rgba(250,248,242,0.4);transition:all 0.2s}
+.snav-item:last-child{border-bottom:none}
+.snav-item:hover,.snav-item.active{color:var(--gold);background:rgba(201,168,76,0.03)}
+.snav-item.active{border-left:2px solid var(--gold);padding-left:18px}
+
+.orders-main{}
+.orders-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.orders-title{font-family:var(--font-display);font-size:36px;font-weight:400;font-style:italic}
+.filter-tabs{display:flex;gap:0;border:1px solid var(--border);overflow:hidden}
+.ftab{padding:9px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:none;cursor:none;font-family:var(--font-body);color:rgba(250,248,242,0.3);border-right:1px solid var(--border);transition:all 0.2s}
+.ftab:last-child{border-right:none}
+.ftab.active,.ftab:hover{background:var(--gold);color:var(--black)}
+
+.order-card{background:var(--dark);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s;position:relative}
+.order-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0}
+.order-card:hover{border-color:rgba(201,168,76,0.4)}
+.order-card:hover::before{opacity:0.5}
+.order-head{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.02)}
+.order-id{font-size:12px;font-weight:300;letter-spacing:2px;color:var(--gold)}
+.order-date{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.3);margin-top:2px}
+.status-pill{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border:1px solid}
+.sp-pending{border-color:rgba(201,168,76,0.4);color:var(--gold)}
+.sp-shipping{border-color:rgba(106,173,106,0.4);color:#6aad6a}
+.sp-done{border-color:rgba(150,100,200,0.4);color:#b06ae8}
+.sp-cancel{border-color:rgba(201,84,76,0.4);color:#c9544c}
+
+.order-body{padding:18px 22px}
+.order-items{display:flex;gap:10px;margin-bottom:16px}
+.oi-thumb{width:56px;height:68px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}.t2{background:linear-gradient(160deg,#14181e,#080c12)}.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
+.oi-name{font-family:var(--font-alt);font-size:13px;font-style:italic;margin-bottom:3px}
+.oi-meta{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.3)}
+.oi-more{font-size:11px;color:rgba(250,248,242,0.25);align-self:center}
+.order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border)}
+.order-total{font-size:18px;font-weight:300;letter-spacing:1px;color:var(--gold)}
+.order-total-label{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,0.3);margin-bottom:3px}
+.order-actions{display:flex;gap:8px}
+.btn-oa{padding:8px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:none;font-family:var(--font-body);transition:all 0.2s}
+.btn-primary-oa{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);border:none}
+.btn-outline-oa{background:transparent;color:rgba(250,248,242,0.4);border:1px solid var(--border)}.btn-outline-oa:hover{border-color:var(--gold);color:var(--gold)}
+
+.order-timeline{padding:14px 22px 18px;background:rgba(201,168,76,0.02);border-top:1px solid var(--border)}
+.timeline{display:flex;align-items:center}
+.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.tl-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:calc(50% + 14px);right:calc(-50% + 14px);height:1px}
+.tl-step.done:not(:last-child)::after{background:var(--gold);opacity:0.3}
+.tl-step:not(.done):not(:last-child)::after{background:var(--border)}
+.tl-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-bottom:6px;z-index:1}
+.tl-step.done .tl-dot{background:var(--gold);color:var(--black)}
+.tl-step.current .tl-dot{border:1px solid var(--gold);color:var(--gold);background:rgba(201,168,76,0.1)}
+.tl-step:not(.done):not(.current) .tl-dot{border:1px solid var(--border);color:rgba(250,248,242,0.2)}
+.tl-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;text-align:center}
+.tl-step.done .tl-label,.tl-step.current .tl-label{color:var(--gold);opacity:0.7}
+.tl-step:not(.done):not(.current) .tl-label{color:rgba(250,248,242,0.2)}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+<nav>
+  <a href="/" class="nav-logo">NEVA</a>
+  <div class="nav-links"><a href="/Product">Bộ sưu tập</a></div>
+  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+</nav>
+<div class="orders-layout">
+  <aside>
+    <div class="profile-card">
+      <div class="profile-avatar">NT</div>
+      <div class="profile-name">Nguyễn Thị B</div>
+      <div class="profile-email">nguyenthib@email.com</div>
+      <div class="profile-points">✦ 1.250 điểm tích lũy</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>👤</span> Thông tin cá nhân</div>
+      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>📍</span> Địa chỉ giao hàng</div>
+      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>🔒</span> Đổi mật khẩu</div>
+      <div class="snav-item active"><span>📦</span> Lịch sử đơn hàng</div>
+      <div class="snav-item" style="color:#c9544c"><span>🚪</span> Đăng xuất</div>
+    </nav>
+  </aside>
+  <main class="orders-main">
+    <div class="orders-toolbar">
+      <div class="orders-title">Đơn hàng</div>
+      <div class="filter-tabs">
+        <button class="ftab active">Tất cả</button>
+        <button class="ftab">Chờ duyệt</button>
+        <button class="ftab">Đang giao</button>
+        <button class="ftab">Đã giao</button>
+        <button class="ftab">Đã hủy</button>
+      </div>
+    </div>
+    <div class="order-card">
+      <div class="order-head">
+        <div><div class="order-id"># NV-20250507-0042</div><div class="order-date">07/05/2025 · 14:23</div></div>
+        <span class="status-pill sp-shipping">🚚 Đang giao hàng</span>
+      </div>
+      <div class="order-body">
+        <div class="order-items">
+          <div class="oi-thumb t1">👕</div><div style="flex:1"><div class="oi-name">Áo thun basic oversize × 2</div><div class="oi-meta">Đen · Size M · 320.000 ₫</div></div>
+          <div class="oi-thumb t2">👖</div><div style="flex:1"><div class="oi-name">Quần cargo wide leg × 1</div><div class="oi-meta">Xanh rêu · Size 30 · 480.000 ₫</div></div>
+          <div class="oi-more">+1</div>
+        </div>
+        <div class="order-footer">
+          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">1.360.000 ₫</div></div>
+          <div class="order-actions"><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
+        </div>
+      </div>
+      <div class="order-timeline">
+        <div class="timeline">
+          <div class="tl-step done"><div class="tl-dot">✓</div><div class="tl-label">Đặt hàng</div></div>
+          <div class="tl-step done"><div class="tl-dot">✓</div><div class="tl-label">Xác nhận</div></div>
+          <div class="tl-step current"><div class="tl-dot">✦</div><div class="tl-label">Đang giao</div></div>
+          <div class="tl-step"><div class="tl-dot">4</div><div class="tl-label">Đã giao</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="order-card">
+      <div class="order-head">
+        <div><div class="order-id"># NV-20250420-0031</div><div class="order-date">20/04/2025 · 09:15</div></div>
+        <span class="status-pill sp-done">✅ Đã giao hàng</span>
+      </div>
+      <div class="order-body">
+        <div class="order-items">
+          <div class="oi-thumb t3">🧥</div><div style="flex:1"><div class="oi-name">Áo khoác linen nhẹ × 1</div><div class="oi-meta">Trắng kem · Size S · 750.000 ₫</div></div>
+        </div>
+        <div class="order-footer">
+          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">780.000 ₫</div></div>
+          <div class="order-actions"><button class="btn-oa btn-primary-oa">Mua lại</button><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="order-card">
+      <div class="order-head">
+        <div><div class="order-id"># NV-20250310-0018</div><div class="order-date">10/03/2025 · 16:40</div></div>
+        <span class="status-pill sp-cancel">✕ Đã hủy</span>
+      </div>
+      <div class="order-body">
+        <div class="order-items">
+          <div class="oi-thumb t1">👗</div><div style="flex:1"><div class="oi-name">Váy midi dáng A-line × 1</div><div class="oi-meta">Xanh nhạt · Size S · 520.000 ₫</div></div>
+        </div>
+        <div class="order-footer">
+          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">550.000 ₫</div></div>
+          <div class="order-actions"><button class="btn-oa btn-primary-oa">Đặt lại</button><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+const c=document.getElementById('cursor'),r=document.getElementById('ring');
+document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
+document.querySelectorAll('.ftab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));t.classList.add('active')}));
+</script>
+</body>
+</html>

@@ -23,12 +23,12 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cursor-ring{position:fixed;width:30px;height:30px;border:1px solid rgba(201,168,76,0.65);border-radius:50%;pointer-events:none;z-index:9998;transition:left 0.07s,top 0.07s;opacity:0.7}
 
 /* ── NAV ── */
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
-.nav-mid{display:flex;align-items:center}
-.nl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.42);padding:0 14px;cursor:none;transition:color 0.2s}
-.nl:hover,.nl.active{color:var(--gold)}
-.nl.g{color:var(--gold)}
+nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white);justify-self:start}
+.nav-mid{display:flex;align-items:center;justify-content:center}
+.nl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.7);padding:0 16px;cursor:none;transition:color 0.2s}
+.nl:hover{color:var(--white)}
+.nl.active{color:var(--gold)}
 .nd{color:rgba(250,248,242,0.14);font-size:10px}
 /* Search bar in nav */
 .nav-search{display:flex;align-items:center;gap:0;border:1px solid var(--border);background:rgba(201,168,76,0.04);transition:border-color 0.2s}
@@ -39,7 +39,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 44px
 .nav-search-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:none;color:rgba(250,248,242,0.4);transition:color 0.2s;background:transparent;border:none}
 .nav-search-btn:hover{color:var(--gold)}
 .nav-search-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-.nav-right{display:flex;gap:14px;align-items:center}
+.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
 .ni{cursor:none;color:rgba(250,248,242,0.5);transition:color 0.2s;display:flex;align-items:center}
 .ni:hover{color:var(--gold)}
 .ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -198,11 +198,11 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 44px
   <div class="nav-mid">
     <a href="/Product" class="nl active">Bộ sưu tập</a>
     <span class="nd">|</span>
-    <a href="#haute" class="nl g">Haute Couture</a>
+    <a href="#haute" class="nl">Haute Couture</a>
     <span class="nd">|</span>
     <a href="/Account/Login" class="nl" id="navAccount">Tài khoản</a>
   </div>
-  <div class="nav-right">
+  <div class="nav-right" style="justify-self:end">
     <div class="nav-search">
       <input type="text" id="searchInput" placeholder="Tìm sản phẩm..." oninput="doSearch()">
       <button class="nav-search-btn" onclick="doSearch()">
@@ -542,7 +542,14 @@ function closeModal(){document.getElementById('mo').classList.remove('open');doc
 function selSize(el){document.querySelectorAll('.msz').forEach(s=>s.classList.remove('on'));el.classList.add('on')}
 function selColor(el){document.querySelectorAll('.mc-item').forEach(s=>s.classList.remove('on'));el.classList.add('on')}
 function chQty(d){const i=document.getElementById('qtyIn');let v=parseInt(i.value)+d;if(v<1)v=1;i.value=v}
-function addCart(){closeModal();window.location='/Cart'}
+function addCart(){
+  const sz=document.querySelector('.msz.on');
+  const cl=document.querySelector('.mc-item.on .mc-name');
+  if(!sz){toast('Vui lòng chọn size!','info');return}
+  const qty=parseInt(document.getElementById('qtyIn').value)||1;
+  closeModal();
+  toast(`✦ Đã thêm ${qty} sản phẩm vào giỏ hàng!`,'ok');
+}
 function toggleWishModal(){
   if(currentModalId===null) return;
   toggleWish(currentModalId);

@@ -1,116 +1,320 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEVA — Đăng nhập</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;cursor:none}
-.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
-.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;border-bottom:1px solid var(--border)}
-.nav-logo{font-family:var(--font-display);font-size:24px;letter-spacing:8px;color:var(--white)}
-.auth-layout{display:grid;grid-template-columns:1fr 1fr;flex:1}
-
-/* LEFT */
-.auth-visual{
-  background:linear-gradient(160deg,#120f06 0%,#080808 100%);
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:70px;min-height:calc(100vh - 68px);
-  border-right:1px solid var(--border);position:relative;overflow:hidden;
+:root{
+  --gold:#c9a84c;--gold2:#e8c96a;--gold3:#f0d87a;
+  --black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;
+  --border:rgba(201,168,76,0.25);
+  --font-display:'Playfair Display',serif;
+  --font-body:'Josefin Sans',sans-serif;
+  --font-alt:'EB Garamond',serif;
 }
-.auth-visual-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
-.auth-visual-glow{position:absolute;bottom:20%;left:20%;width:400px;height:400px;background:radial-gradient(circle,rgba(201,168,76,0.06),transparent 70%)}
-.auth-visual-ornament{position:absolute;top:60px;right:60px;font-family:var(--font-display);font-size:120px;font-weight:700;color:rgba(201,168,76,0.04);letter-spacing:-8px;user-select:none}
-.auth-quote{position:relative;z-index:1}
-.auth-quote-text{font-family:var(--font-display);font-size:48px;font-weight:400;line-height:1.05;margin-bottom:18px}
-.auth-quote-text em{font-style:italic;color:var(--gold)}
-.auth-quote-sub{font-size:11px;letter-spacing:2px;color:rgba(250,248,242,0.3);font-weight:200}
-.auth-quote-line{width:50px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:18px}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;cursor:none;overflow:hidden}
+.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.1s}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.15s;opacity:0.6}
+nav{display:none}
+.nav-logo{display:none}
+.visual-top-logo{font-family:var(--font-display);font-size:18px;font-weight:400;letter-spacing:8px;color:rgba(250,248,242,0.85);text-decoration:none;border-bottom:1px solid rgba(250,235,150,0.4);padding-bottom:2px;position:absolute;top:28px;left:48px;z-index:10;text-shadow:0 1px 8px rgba(0,0,0,0.2)}
+.auth-layout{display:grid;grid-template-columns:1fr 1fr;height:100vh}
+
+/* LEFT — gold panel */
+.auth-visual{
+  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#c49a35 0%,#8a6420 30%,#6b4e18 55%,#3d2c0a 100%);
+}
+.auth-visual::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse 130% 70% at 50% 20%,rgba(245,220,110,0.22) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 15% 85%,rgba(40,22,2,0.45) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 40% at 85% 70%,rgba(30,15,0,0.3) 0%,transparent 60%);
+}
+.auth-visual::after{
+  content:'';position:absolute;inset:0;z-index:2;opacity:0.06;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
+}
+.visual-content{
+  position:relative;z-index:3;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:90px 48px 60px;gap:0;
+}
+
+/* CREST */
+.crest-area{display:flex;flex-direction:column;align-items:center;margin-bottom:60px}
+.crest{width:168px;height:168px;position:relative;display:flex;align-items:center;justify-content:center}
+.crest-outer-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1.5px solid rgba(250,235,160,0.45);
+}
+.crest-inner-ring{
+  position:absolute;inset:14px;border-radius:50%;
+  border:1px solid rgba(250,235,160,0.25);
+}
+/* Top arc text */
+.crest-top-text{
+  position:absolute;top:4px;left:50%;transform:translateX(-50%);
+  font-size:8px;letter-spacing:5px;text-transform:uppercase;
+  color:rgba(250,235,155,0.65);font-family:var(--font-body);font-weight:200;
+  white-space:nowrap;
+}
+.crest-bottom-text{
+  position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  font-size:8px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(250,235,155,0.45);font-family:var(--font-body);font-weight:200;
+  white-space:nowrap;
+}
+/* Side ornaments */
+.crest-side-l,.crest-side-r{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:16px;height:1px;background:rgba(250,235,160,0.35);
+}
+.crest-side-l{left:8px}.crest-side-r{right:8px}
+
+.crest-body{
+  width:116px;height:116px;border-radius:50%;
+  background:linear-gradient(160deg,rgba(245,215,90,0.12) 0%,rgba(80,48,8,0.35) 100%);
+  border:1.5px solid rgba(250,235,150,0.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;position:relative;z-index:1;
+  box-shadow:inset 0 2px 20px rgba(0,0,0,0.2),0 0 40px rgba(200,160,60,0.1);
+}
+.crest-n{
+  font-family:var(--font-display);font-size:46px;font-weight:500;
+  color:rgba(250,235,155,0.88);line-height:1;
+  text-shadow:0 2px 16px rgba(0,0,0,0.35);
+  letter-spacing:-1px;
+}
+.crest-name{
+  font-size:8px;letter-spacing:5px;text-transform:uppercase;
+  color:rgba(250,235,150,0.55);font-family:var(--font-body);font-weight:200;
+}
+/* Deco under crest */
+.crest-deco{
+  display:flex;align-items:center;gap:10px;margin-top:12px;
+}
+.cdl{width:32px;height:1px;background:rgba(250,235,150,0.3)}
+.cdd{width:5px;height:5px;border:1px solid rgba(250,235,150,0.4);transform:rotate(45deg)}
+
+/* Quote */
+.visual-quote{align-self:flex-start;margin-top:auto;padding-bottom:48px}
+.vq-line{width:34px;height:1px;background:rgba(250,235,150,0.5);margin-bottom:14px}
+.vq-text{
+  font-family:var(--font-display);font-size:40px;font-weight:400;
+  line-height:1.05;color:rgba(250,248,242,0.92);
+  text-shadow:0 2px 24px rgba(0,0,0,0.28);
+}
+.vq-text em{font-style:italic;color:rgba(252,238,140,0.96)}
+.vq-sub{
+  font-size:11px;letter-spacing:1.5px;font-weight:200;
+  color:rgba(250,248,242,0.4);margin-top:12px;line-height:1.9;
+  max-width:300px;
+}
 
 /* RIGHT */
-.auth-form-side{background:var(--dark);display:flex;align-items:center;justify-content:center;padding:60px}
-.auth-box{width:100%;max-width:420px}
-.auth-tabs{display:flex;margin-bottom:40px;border-bottom:1px solid var(--border)}
-.auth-tab{flex:1;padding:14px;text-align:center;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(250,248,242,0.3);cursor:none;background:none;border:none;font-family:var(--font-body);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s}
+.auth-form-side{
+  background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  padding:80px 52px;overflow-y:auto;
+}
+.auth-box{width:100%;max-width:380px}
+
+.auth-tabs{display:flex;margin-bottom:34px;border-bottom:1px solid var(--border)}
+.auth-tab{
+  flex:1;padding:12px;text-align:center;
+  font-size:10px;font-weight:300;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(250,248,242,0.3);cursor:none;
+  background:none;border:none;font-family:var(--font-body);
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.25s;
+}
 .auth-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-.auth-panel{display:none}.auth-panel.active{display:block}
-.auth-title{font-family:var(--font-display);font-size:36px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:6px}
-.auth-sub{font-size:11px;letter-spacing:1.5px;color:rgba(250,248,242,0.3);margin-bottom:34px;font-weight:200}
-.fgroup{margin-bottom:18px}
-.flabel{display:block;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:8px}
-.finput{width:100%;padding:13px 16px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);letter-spacing:0.5px;transition:border-color 0.2s}.finput:focus{outline:none;border-color:var(--gold)}
+.auth-tab:hover:not(.active){color:rgba(250,248,242,0.55)}
+
+.auth-panel{display:none}
+.auth-panel.active{display:block}
+
+.auth-title{font-family:var(--font-display);font-size:36px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:6px;line-height:1.1}
+.auth-sub{font-size:11px;letter-spacing:1.5px;font-weight:200;color:rgba(250,248,242,0.3);margin-bottom:28px}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.fgroup{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.flabel{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.65)}
+.finput{
+  width:100%;padding:11px 14px;
+  border:1px solid var(--border);
+  background:rgba(201,168,76,0.04);
+  font-size:13px;font-family:var(--font-body);font-weight:200;
+  color:var(--white);letter-spacing:0.5px;
+  transition:border-color 0.25s,background 0.25s;outline:none;
+}
+.finput:focus{border-color:var(--gold);background:rgba(201,168,76,0.07)}
+.finput::placeholder{color:rgba(250,248,242,0.18)}
 .finput-wrap{position:relative}
-.finput-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:rgba(250,248,242,0.3);cursor:none;font-size:14px}
-.form-footer-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.finput-wrap .finput{padding-right:40px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:none;color:rgba(250,248,242,0.3);font-size:13px;transition:color 0.2s;padding:4px}
+.eye-btn:hover{color:var(--gold)}
+
+.form-extra{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
 .remember{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1px;color:rgba(250,248,242,0.35);cursor:none}
-.remember input{accent-color:var(--gold)}
-.forgot{font-size:11px;letter-spacing:1px;color:rgba(201,168,76,0.6);border-bottom:1px solid rgba(201,168,76,0.3);padding-bottom:1px}
-.btn-submit{width:100%;padding:16px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);margin-bottom:18px;transition:opacity 0.2s}.btn-submit:hover{opacity:0.85}
-.or-divider{display:flex;align-items:center;gap:12px;margin:18px 0}
-.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.or-divider span{font-size:10px;letter-spacing:2px;color:rgba(250,248,242,0.2)}
-.social-btn{width:100%;padding:13px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:200;letter-spacing:1px;cursor:none;font-family:var(--font-body);color:rgba(250,248,242,0.5);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;transition:border-color 0.2s}.social-btn:hover{border-color:var(--gold);color:var(--gold)}
-.terms{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.25);text-align:center;line-height:1.8;margin-top:16px}
-.terms a{color:rgba(201,168,76,0.5)}
-.strength-bar{height:2px;background:var(--border);margin-top:6px;overflow:hidden}
+.remember input{accent-color:var(--gold);width:14px;height:14px}
+.forgot{font-size:11px;letter-spacing:1px;color:rgba(201,168,76,0.6);border-bottom:1px solid rgba(201,168,76,0.3);padding-bottom:1px;transition:color 0.2s}
+.forgot:hover{color:var(--gold)}
+
+.btn-submit{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--black);font-size:10px;font-weight:400;letter-spacing:3.5px;text-transform:uppercase;
+  border:none;cursor:none;font-family:var(--font-body);margin-bottom:18px;
+  transition:opacity 0.2s,transform 0.2s;position:relative;overflow:hidden;
+}
+.btn-submit:hover{opacity:0.9;transform:translateY(-1px)}
+
+.or-div{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border)}
+.or-div span{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.2)}
+
+.social-btn{
+  width:100%;padding:11px;border:1px solid var(--border);background:transparent;
+  font-size:11px;font-weight:200;letter-spacing:1px;cursor:none;font-family:var(--font-body);
+  color:rgba(250,248,242,0.4);display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-bottom:8px;transition:border-color 0.2s,color 0.2s;
+}
+.social-btn:hover{border-color:var(--gold);color:var(--gold)}
+.si{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.g{background:#fff;color:#4285F4}.fb{background:#1877F2;color:#fff}
+
+.terms{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.2);text-align:center;line-height:1.9;margin-top:14px}
+.terms a{color:rgba(201,168,76,0.5)}.terms a:hover{color:var(--gold)}
+
+.strength-bar{height:2px;background:var(--border);margin-top:5px;overflow:hidden}
 .strength-fill{height:100%;width:0%;transition:width 0.3s,background 0.3s}
+.strength-hint{font-size:9px;letter-spacing:1.5px;margin-top:4px;color:rgba(250,248,242,0.22)}
 </style>
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="ring"></div>
-<nav><a href="/" class="nav-logo">NEVA</a></nav>
 <div class="auth-layout">
+  <!-- LEFT gold panel -->
   <div class="auth-visual">
-    <div class="auth-visual-grid"></div>
-    <div class="auth-visual-glow"></div>
-    <div class="auth-visual-ornament">N</div>
-    <div class="auth-quote">
-      <div class="auth-quote-line"></div>
-      <div class="auth-quote-text">Phong cách<br>bắt đầu từ<br><em>bên trong.</em></div>
-      <p class="auth-quote-sub">Đăng nhập để khám phá trải nghiệm mua sắm được cá nhân hóa dành riêng cho bạn.</p>
+    <a href="/" class="visual-top-logo">NEVA</a>
+    <div class="visual-content">
+      <div class="crest-area">
+        <div class="crest">
+          <div class="crest-outer-ring"></div>
+          <div class="crest-inner-ring"></div>
+          <span class="crest-top-text">Haute Couture</span>
+          <span class="crest-bottom-text">Est. 2025</span>
+          <div class="crest-side-l"></div>
+          <div class="crest-side-r"></div>
+          <div class="crest-body">
+            <div class="crest-n">N</div>
+            <div class="crest-name">NEVA</div>
+          </div>
+        </div>
+        <div class="crest-deco">
+          <div class="cdl"></div><div class="cdd"></div><div class="cdl"></div>
+        </div>
+      </div>
+      <div class="visual-quote">
+        <div class="vq-line"></div>
+        <div class="vq-text">Phong cách<br>bắt đầu từ<br><em>bên trong.</em></div>
+        <p class="vq-sub">Đăng nhập để khám phá trải nghiệm mua sắm được cá nhân hóa dành riêng cho bạn.</p>
+      </div>
     </div>
   </div>
+
+  <!-- RIGHT form -->
   <div class="auth-form-side">
     <div class="auth-box">
       <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchTab('login',this)">Đăng nhập</button>
-        <button class="auth-tab" onclick="switchTab('register',this)">Đăng ký</button>
+        <button class="auth-tab active" onclick="sw('login',this)">Đăng nhập</button>
+        <button class="auth-tab" onclick="sw('register',this)">Đăng ký</button>
       </div>
+
+      <!-- LOGIN -->
       <div class="auth-panel active" id="loginPanel">
         <h1 class="auth-title">Chào mừng trở lại</h1>
         <p class="auth-sub">Đăng nhập để tiếp tục trải nghiệm NEVA</p>
-        <div class="fgroup"><label class="flabel">Email</label><input class="finput" type="email" placeholder="your@email.com"></div>
-        <div class="fgroup"><label class="flabel">Mật khẩu</label><div class="finput-wrap"><input class="finput" type="password" id="lpass" placeholder="••••••••"><span class="finput-icon" onclick="toggleP('lpass')">👁</span></div></div>
-        <div class="form-footer-row"><label class="remember"><input type="checkbox"> Ghi nhớ tôi</label><a href="#" class="forgot">Quên mật khẩu?</a></div>
+        <div class="fgroup">
+          <label class="flabel">Email</label>
+          <input class="finput" type="email" placeholder="your@email.com">
+        </div>
+        <div class="fgroup">
+          <label class="flabel">Mật khẩu</label>
+          <div class="finput-wrap">
+            <input class="finput" type="password" id="lp" placeholder="••••••••">
+            <button class="eye-btn" onclick="tp('lp')" type="button">👁</button>
+          </div>
+        </div>
+        <div class="form-extra">
+          <label class="remember"><input type="checkbox"> Ghi nhớ tôi</label>
+          <a href="#" class="forgot">Quên mật khẩu?</a>
+        </div>
         <button class="btn-submit" onclick="window.location='/'">Đăng nhập</button>
-        <div class="or-divider"><span>hoặc</span></div>
-        <button class="social-btn">🇬 Tiếp tục với Google</button>
-        <button class="social-btn">📘 Tiếp tục với Facebook</button>
+        <div class="or-div"><span>hoặc đăng nhập với</span></div>
+        <button class="social-btn"><span class="si g">G</span>Tiếp tục với Google</button>
+        <button class="social-btn"><span class="si fb">f</span>Tiếp tục với Facebook</button>
       </div>
+
+      <!-- REGISTER -->
       <div class="auth-panel" id="registerPanel">
         <h1 class="auth-title">Tạo tài khoản</h1>
         <p class="auth-sub">Tham gia cộng đồng NEVA</p>
-        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" type="text" placeholder="Nguyễn Văn A"></div>
-        <div class="fgroup"><label class="flabel">Email</label><input class="finput" type="email" placeholder="your@email.com"></div>
-        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" type="tel" placeholder="0901 234 567"></div>
-        <div class="fgroup"><label class="flabel">Mật khẩu</label><div class="finput-wrap"><input class="finput" type="password" id="rpass" placeholder="Tối thiểu 8 ký tự" oninput="checkStr(this.value)"><span class="finput-icon" onclick="toggleP('rpass')">👁</span></div><div class="strength-bar"><div class="strength-fill" id="strFill"></div></div></div>
-        <div class="fgroup"><label class="flabel">Xác nhận mật khẩu</label><input class="finput" type="password" placeholder="Nhập lại mật khẩu"></div>
+        <div class="frow">
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label class="flabel">Họ và tên</label>
+            <input class="finput" type="text" placeholder="Họ và tên">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label class="flabel">Email</label>
+            <input class="finput" type="email" placeholder="your@email.com">
+          </div>
+        </div>
+        <div class="frow">
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label class="flabel">Số điện thoại</label>
+            <input class="finput" type="tel" placeholder="Số điện thoại">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label class="flabel">Mật khẩu</label>
+            <div class="finput-wrap">
+              <input class="finput" type="password" id="rp" placeholder="••••••••" oninput="cs(this.value)">
+              <button class="eye-btn" onclick="tp('rp')" type="button">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="fgroup" style="margin-top:14px">
+          <label class="flabel">Xác nhận mật khẩu</label>
+          <input class="finput" type="password" placeholder="Xác nhận mật khẩu">
+          <div class="strength-bar"><div class="strength-fill" id="sf"></div></div>
+          <div class="strength-hint" id="sh"></div>
+        </div>
         <button class="btn-submit" onclick="window.location='/'">Tạo tài khoản</button>
+        <div class="or-div"><span>Hoặc đăng nhập với</span></div>
+        <button class="social-btn"><span class="si g">G</span>Tiếp tục với Google</button>
+        <button class="social-btn"><span class="si fb">f</span>Tiếp tục với Facebook</button>
         <p class="terms">Bằng cách đăng ký, bạn đồng ý với <a href="#">Điều khoản</a> và <a href="#">Bảo mật</a> của NEVA.</p>
       </div>
     </div>
   </div>
 </div>
+
 <script>
 const c=document.getElementById('cursor'),r=document.getElementById('ring');
 document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-function switchTab(p,b){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.auth-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(p+'Panel').classList.add('active')}
-function toggleP(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
-function checkStr(v){const f=document.getElementById('strFill');let s=0;if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;f.style.width=(s/4*100)+'%';f.style.background=['','#c9544c','#c9844c','#c9a84c','#6aad6a'][s]}
+function sw(p,b){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.auth-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(p+'Panel').classList.add('active')}
+function tp(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
+function cs(v){const f=document.getElementById('sf'),t=document.getElementById('sh');let s=0;if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;const cl=['','#c9544c','#c9844c','#c9a84c','#6aad6a'],lb=['','Yếu','Trung bình','Khá mạnh','Mạnh'];f.style.width=(s/4*100)+'%';f.style.background=cl[s];t.textContent=v.length?lb[s]+' — '+v.length+' ký tự':'';t.style.color=cl[s]}
 </script>
 </body>
 </html>

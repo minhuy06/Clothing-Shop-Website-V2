@@ -1,139 +1,485 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEVA — Tài khoản</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--muted:#888;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+:root{
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --black:#080808;--dark:#0f0f0d;--dark2:#161612;--dark3:#1e1e1a;
+  --white:#faf8f2;--border:rgba(201,168,76,0.18);
+  --font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;cursor:none}
 a{text-decoration:none;color:inherit}
 .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
 .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px}
-.nav-links{display:flex;gap:36px}.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
-.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
 
-.account-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;padding:40px 60px 80px;max-width:1280px;margin:0 auto}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-left{display:flex;align-items:center;gap:16px}
+.nav-logo{font-family:var(--font-display);font-size:18px;letter-spacing:6px;color:var(--white)}
+.nav-sep{width:1px;height:18px;background:var(--border)}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.45);transition:color 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.nav-icons{display:flex;gap:16px;align-items:center}
+.nav-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:none;background:rgba(201,168,76,0.06);transition:border-color 0.2s}
+.nav-icon:hover{border-color:var(--gold)}
 
-.sidebar{}
-.profile-card{background:var(--dark);border:1px solid var(--border);padding:30px 24px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--dark2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--gold);margin:0 auto 16px}
-.profile-name{font-family:var(--font-display);font-size:20px;font-weight:400;font-style:italic;margin-bottom:4px}
-.profile-email{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.35);margin-bottom:16px}
-.profile-points{background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05));border:1px solid var(--border);padding:10px;font-size:11px;letter-spacing:1.5px;color:var(--gold)}
+.page-wrap{display:grid;grid-template-columns:210px 1fr;gap:20px;padding:28px 40px 60px;max-width:1200px;margin:0 auto}
 
-.sidebar-nav{background:var(--dark);border:1px solid var(--border);overflow:hidden}
-.snav-item{display:flex;align-items:center;gap:12px;padding:15px 20px;font-size:11px;letter-spacing:1.5px;cursor:none;border-bottom:1px solid var(--border);color:rgba(250,248,242,0.4);transition:all 0.2s}
-.snav-item:last-child{border-bottom:none}
-.snav-item:hover,.snav-item.active{color:var(--gold);background:rgba(201,168,76,0.03)}
-.snav-item.active{border-left:2px solid var(--gold);padding-left:18px}
+/* SIDEBAR */
+.profile-card{background:var(--dark2);border:1px solid var(--border);padding:24px 20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.5}
+.avatar-wrap{position:relative;width:72px;height:72px;margin:0 auto 14px}
+.avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--gold);opacity:0.6}
+.avatar-ring-inner{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,0.3)}
+.avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#2a2218,#1a1408);border:1px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;color:var(--gold);position:relative;z-index:1}
+.profile-name{font-family:var(--font-display);font-size:16px;font-style:italic;margin-bottom:4px}
+.profile-email{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,0.3);margin-bottom:14px}
+.profile-points{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:1.5px;padding:8px 14px}
 
-.account-main{}
+.sidebar-mini{background:var(--dark2);border:1px solid var(--border);overflow:hidden}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr}
+.mini-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 10px;gap:8px;cursor:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:all 0.2s;position:relative}
+.mini-item:nth-child(2n){border-right:none}
+.mini-item:nth-last-child(-n+2){border-bottom:none}
+.mini-item:hover{background:rgba(201,168,76,0.04)}
+.mini-item.active{background:rgba(201,168,76,0.06)}
+.mini-item.active::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.6}
+.mini-icon{font-size:18px;opacity:0.55}
+.mini-item.active .mini-icon{opacity:1}
+.mini-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.3);text-align:center;line-height:1.6}
+.mini-item.active .mini-label{color:var(--gold)}
+
+/* MAIN */
 .tab-content{display:none}.tab-content.active{display:block}
-.section-box{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:14px;position:relative;overflow:hidden}
-.section-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4}
-.section-box-title{font-family:var(--font-display);font-size:24px;font-weight:400;font-style:italic;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.btn-edit{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.6);border:1px solid var(--border);padding:7px 16px;background:none;cursor:none;font-family:var(--font-body);transition:all 0.2s}.btn-edit:hover{border-color:var(--gold);color:var(--gold)}
-.btn-save{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--black);background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;padding:10px 24px;cursor:none;font-family:var(--font-body)}
+.section-box{background:var(--dark2);border:1px solid var(--border);padding:28px;margin-bottom:14px;position:relative;overflow:hidden;background-image:repeating-linear-gradient(90deg,rgba(201,168,76,0.02) 0px,rgba(201,168,76,0.02) 1px,transparent 1px,transparent 28px)}
+.section-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.35}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.section-title{font-family:var(--font-display);font-size:22px;font-weight:400;font-style:italic}
+.sub-section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.55);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.info-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.5);margin-bottom:6px}
+.btn-gold{padding:9px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);transition:opacity 0.2s}
+.btn-gold:hover{opacity:0.85}
+.btn-outline{padding:9px 20px;background:transparent;color:rgba(250,248,242,0.4);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);transition:all 0.2s}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{padding:11px 28px;background:transparent;color:rgba(212,122,118,0.7);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(212,122,118,0.35);cursor:none;font-family:var(--font-body);transition:all 0.2s}
+.btn-danger:hover{border-color:#d47a76;color:#d47a76}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 40px}
+.info-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.55);margin-bottom:6px}
 .info-value{font-size:14px;font-weight:200;letter-spacing:0.5px}
 
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .frow.full{grid-template-columns:1fr}
 .fgroup{display:flex;flex-direction:column;gap:7px}
-.flabel{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.5)}
-.finput{padding:11px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);transition:border-color 0.2s}.finput:focus{outline:none;border-color:var(--gold)}
+.flabel{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.55)}
+.finput,.fselect{width:100%;padding:10px 13px;border:1px solid var(--border);background:rgba(201,168,76,0.04);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);transition:border-color 0.2s;outline:none}
+.finput:focus,.fselect:focus{border-color:var(--gold)}
+.finput::placeholder{color:rgba(250,248,242,0.2)}
+.pass-hint{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,0.22);margin-top:4px}
 
-.addr-card{border:1px solid var(--border);padding:20px;margin-bottom:10px;position:relative;transition:border-color 0.2s}
-.addr-card.default{border-color:rgba(201,168,76,0.5)}
+/* Address */
+.addr-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.addr-card{border:1px solid var(--border);padding:18px 20px;position:relative;transition:border-color 0.2s;background:rgba(201,168,76,0.02)}
+.addr-card.default{border-color:rgba(201,168,76,0.4)}
 .addr-card:hover{border-color:rgba(201,168,76,0.3)}
-.addr-default{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--black);font-size:9px;letter-spacing:1.5px;padding:3px 10px}
-.addr-name{font-size:14px;font-weight:300;margin-bottom:5px}
-.addr-text{font-size:12px;font-weight:200;color:rgba(250,248,242,0.4);letter-spacing:0.5px;line-height:1.7}
-.addr-actions{display:flex;gap:16px;margin-top:12px}
-.addr-action{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.3);cursor:none;border-bottom:1px solid transparent;transition:all 0.2s}.addr-action:hover{color:var(--gold);border-color:var(--gold)}
-.addr-action.danger:hover{color:#c9544c;border-color:#c9544c}
-.btn-add-addr{width:100%;padding:14px;border:1px dashed var(--border);background:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.25);cursor:none;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}.btn-add-addr:hover{border-color:var(--gold);color:var(--gold)}
+.addr-default-badge{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--black);font-size:8px;letter-spacing:1.5px;padding:3px 10px}
+.addr-name{font-size:13px;font-weight:300;margin-bottom:5px}
+.addr-text{font-size:12px;font-weight:200;color:rgba(250,248,242,0.38);line-height:1.8}
+.addr-actions{display:flex;gap:16px;margin-top:10px}
+.addr-action{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.28);cursor:none;border-bottom:1px solid transparent;transition:all 0.2s}
+.addr-action:hover{color:var(--gold);border-color:var(--gold)}
+.addr-action.red:hover{color:#d47a76;border-color:#d47a76}
+.btn-add-addr{width:100%;padding:14px;border:1px dashed rgba(201,168,76,0.25);background:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.22);cursor:none;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.btn-add-addr:hover{border-color:var(--gold);color:var(--gold)}
 
-.pass-hint{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.25);margin-top:6px}
+/* TOAST */
+.toast{position:fixed;bottom:32px;right:32px;z-index:9000;padding:14px 24px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none;animation:toastIn 0.3s ease}
+.toast.success{background:rgba(90,154,90,0.12);border-color:rgba(90,154,90,0.4);color:#7aba7a}
+.toast.error{background:rgba(212,122,118,0.1);border-color:rgba(212,122,118,0.4);color:#d47a76}
+@@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(6px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--dark2);width:90%;max-width:520px;border:1px solid var(--border);transform:translateY(16px);transition:transform 0.3s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:var(--font-display);font-size:22px;font-style:italic}
+.modal-close{width:32px;height:32px;border:1px solid var(--border);background:none;font-size:16px;cursor:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color 0.2s}
+.modal-close:hover{border-color:var(--gold)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* Confirm dialog */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px)}
+.confirm-overlay.open{opacity:1;pointer-events:all}
+.confirm-box{background:var(--dark2);border:1px solid rgba(212,122,118,0.3);padding:32px;max-width:380px;text-align:center}
+.confirm-icon{font-size:32px;margin-bottom:14px}
+.confirm-title{font-family:var(--font-display);font-size:22px;font-style:italic;margin-bottom:10px}
+.confirm-sub{font-size:12px;font-weight:200;letter-spacing:0.5px;color:rgba(250,248,242,0.4);line-height:1.8;margin-bottom:24px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
 </style>
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="ring"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <nav>
-  <a href="/" class="nav-logo">NEVA</a>
-  <div class="nav-links"><a href="/Product">Bộ sưu tập</a><a href="/Product">Nam</a><a href="/Product">Nữ</a></div>
-  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+  <div class="nav-left">
+    <a href="/" class="nav-logo">NEVA</a>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <a href="/Product">Bộ sưu tập</a>
+      <a href="/Product">Nam</a>
+      <a href="/Product">Nữ</a>
+    </div>
+  </div>
+  <div class="nav-icons">
+    <a href="/Account/Profile"><div class="nav-icon">👤</div></a>
+    <a href="/Cart"><div class="nav-icon">🛒</div></a>
+  </div>
 </nav>
-<div class="account-layout">
+
+<div class="page-wrap">
   <aside>
     <div class="profile-card">
-      <div class="profile-avatar">NT</div>
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring-inner"></div>
+        <div class="avatar-circle">NT</div>
+      </div>
       <div class="profile-name">Nguyễn Thị B</div>
       <div class="profile-email">nguyenthib@email.com</div>
       <div class="profile-points">✦ 1.250 điểm tích lũy</div>
     </div>
-    <nav class="sidebar-nav">
-      <div class="snav-item active" onclick="switchTab('profile',this)"><span>👤</span> Thông tin cá nhân</div>
-      <div class="snav-item" onclick="switchTab('address',this)"><span>📍</span> Địa chỉ giao hàng</div>
-      <div class="snav-item" onclick="switchTab('password',this)"><span>🔒</span> Đổi mật khẩu</div>
-      <div class="snav-item" onclick="window.location='/Order/History'"><span>📦</span> Lịch sử đơn hàng</div>
-      <div class="snav-item" style="color:#c9544c" onclick="window.location='/Account/Login'"><span>🚪</span> Đăng xuất</div>
-    </nav>
+    <div class="sidebar-mini">
+      <div class="mini-grid">
+        <div class="mini-item active" onclick="switchTab('profile',this)">
+          <span class="mini-icon">👤</span>
+          <span class="mini-label">Thông tin cá nhân</span>
+        </div>
+        <div class="mini-item" onclick="switchTab('address',this)">
+          <span class="mini-icon">📍</span>
+          <span class="mini-label">Địa chỉ giao hàng</span>
+        </div>
+        <div class="mini-item" onclick="goHistory()">
+          <span class="mini-icon">📦</span>
+          <span class="mini-label">Lịch sử đơn hàng</span>
+        </div>
+        <div class="mini-item" onclick="switchTab('settings',this)">
+          <span class="mini-icon">⚙️</span>
+          <span class="mini-label">Cài đặt tài khoản</span>
+        </div>
+      </div>
+    </div>
   </aside>
-  <main class="account-main">
+
+  <main>
+    <!-- PROFILE TAB -->
     <div class="tab-content active" id="profileTab">
       <div class="section-box">
-        <div class="section-box-title">Thông tin cá nhân <button class="btn-edit" onclick="toggleEdit()">Chỉnh sửa</button></div>
+        <div class="section-header">
+          <div class="section-title">Thông tin cá nhân</div>
+          <button class="btn-gold" onclick="toggleEdit()" id="editBtn">Chỉnh sửa</button>
+        </div>
         <div id="infoView">
           <div class="info-grid">
-            <div><div class="info-label">Họ và tên</div><div class="info-value">Nguyễn Thị B</div></div>
-            <div><div class="info-label">Email</div><div class="info-value">nguyenthib@email.com</div></div>
-            <div><div class="info-label">Số điện thoại</div><div class="info-value">0901 234 567</div></div>
-            <div><div class="info-label">Ngày sinh</div><div class="info-value">01/01/2000</div></div>
-            <div><div class="info-label">Giới tính</div><div class="info-value">Nữ</div></div>
+            <div><div class="info-label">Họ và tên</div><div class="info-value" id="vName">Nguyễn Thị B</div></div>
+            <div><div class="info-label">Email</div><div class="info-value" id="vEmail">nguyenthib@email.com</div></div>
+            <div><div class="info-label">Số điện thoại</div><div class="info-value" id="vPhone">0901 234 567</div></div>
+            <div><div class="info-label">Ngày sinh</div><div class="info-value" id="vDob">01/01/2000</div></div>
+            <div><div class="info-label">Giới tính</div><div class="info-value" id="vGender">Nữ</div></div>
             <div><div class="info-label">Thành viên từ</div><div class="info-value">Tháng 3, 2024</div></div>
           </div>
         </div>
         <div id="infoEdit" style="display:none">
-          <div class="frow"><div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" value="Nguyễn Thị B"></div><div class="fgroup"><label class="flabel">Email</label><input class="finput" value="nguyenthib@email.com"></div></div>
-          <div class="frow"><div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" value="0901 234 567"></div><div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" value="2000-01-01"></div></div>
-          <button class="btn-save" onclick="toggleEdit()">Lưu thay đổi</button>
+          <div class="frow">
+            <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="eName" value="Nguyễn Thị B"></div>
+            <div class="fgroup"><label class="flabel">Email</label><input class="finput" id="eEmail" value="nguyenthib@email.com"></div>
+          </div>
+          <div class="frow">
+            <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="ePhone" value="0901 234 567"></div>
+            <div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" id="eDob" value="2000-01-01"></div>
+          </div>
+          <div class="frow">
+            <div class="fgroup">
+              <label class="flabel">Giới tính</label>
+              <select class="fselect" id="eGender"><option>Nữ</option><option>Nam</option><option>Khác</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="btn-gold" onclick="saveProfile()">Lưu thay đổi</button>
+            <button class="btn-outline" onclick="cancelEdit()">Hủy</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- ADDRESS TAB -->
     <div class="tab-content" id="addressTab">
       <div class="section-box">
-        <div class="section-box-title">Địa chỉ giao hàng</div>
-        <div class="addr-card default"><div class="addr-default">Mặc định</div><div class="addr-name">Nguyễn Thị B · 0901 234 567</div><div class="addr-text">123 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng</div><div class="addr-actions"><span class="addr-action">Chỉnh sửa</span><span class="addr-action danger">Xóa</span></div></div>
-        <div class="addr-card"><div class="addr-name">Nguyễn Thị B · 0901 234 567</div><div class="addr-text">456 Nguyễn Văn Linh, Thạc Gián, Thanh Khê, Đà Nẵng</div><div class="addr-actions"><span class="addr-action">Chỉnh sửa</span><span class="addr-action">Đặt mặc định</span><span class="addr-action danger">Xóa</span></div></div>
-        <button class="btn-add-addr">+ Thêm địa chỉ mới</button>
+        <div class="section-header">
+          <div class="section-title">Địa chỉ giao hàng</div>
+          <button class="btn-gold" onclick="openAddrModal(-1)">+ Thêm địa chỉ</button>
+        </div>
+        <div class="addr-list" id="addrList"></div>
+        <button class="btn-add-addr" onclick="openAddrModal(-1)">+ Thêm địa chỉ mới</button>
       </div>
     </div>
-    <div class="tab-content" id="passwordTab">
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-content" id="settingsTab">
       <div class="section-box">
-        <div class="section-box-title">Đổi mật khẩu</div>
-        <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu hiện tại</label><input class="finput" type="password" placeholder="••••••••"></div></div>
-        <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu mới</label><input class="finput" type="password" placeholder="Tối thiểu 8 ký tự"><div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div></div></div>
-        <div class="frow full"><div class="fgroup"><label class="flabel">Xác nhận mật khẩu mới</label><input class="finput" type="password" placeholder="Nhập lại mật khẩu mới"></div></div>
-        <button class="btn-save">Cập nhật mật khẩu</button>
+        <div class="section-header">
+          <div class="section-title">Cài đặt tài khoản</div>
+        </div>
+
+        <!-- Đổi mật khẩu -->
+        <div style="margin-bottom:36px">
+          <div class="sub-section-label"><span>🔒</span> Đổi mật khẩu</div>
+          <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu hiện tại</label><input class="finput" type="password" id="curPass" placeholder="••••••••"></div></div>
+          <div class="frow">
+            <div class="fgroup"><label class="flabel">Mật khẩu mới</label><input class="finput" type="password" id="newPass" placeholder="Tối thiểu 8 ký tự"><div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div></div>
+            <div class="fgroup"><label class="flabel">Xác nhận mật khẩu mới</label><input class="finput" type="password" id="confirmPass" placeholder="Nhập lại mật khẩu mới"></div>
+          </div>
+          <button class="btn-gold" onclick="updatePassword()">Cập nhật mật khẩu</button>
+        </div>
+
+        <!-- Đăng xuất -->
+        <div>
+          <div class="sub-section-label"><span>🚪</span> Đăng xuất</div>
+          <p style="font-size:12px;font-weight:200;color:rgba(250,248,242,0.35);line-height:1.9;margin-bottom:20px">Bạn sẽ được đăng xuất khỏi tài khoản trên thiết bị này.</p>
+          <button class="btn-danger" onclick="confirmLogout()">🚪 &nbsp;Đăng xuất khỏi tài khoản</button>
+        </div>
       </div>
     </div>
   </main>
 </div>
+
+<!-- MODAL ĐỊA CHỈ -->
+<div class="modal-overlay" id="addrModal" onclick="if(event.target===this)closeAddrModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="addrModalTitle">Thêm địa chỉ mới</div>
+      <button class="modal-close" onclick="closeAddrModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="frow">
+        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="addrName" placeholder="Nguyễn Thị B"></div>
+        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="addrPhone" placeholder="0901 234 567"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label>
+          <select class="fselect" id="addrCity">
+            <option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option>
+            <option>Huế</option><option>Hội An</option>
+          </select>
+        </div>
+        <div class="fgroup"><label class="flabel">Quận / Huyện</label><input class="finput" id="addrDistrict" placeholder="Hải Châu"></div>
+      </div>
+      <div class="frow full"><div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" id="addrDetail" placeholder="Số nhà, tên đường, phường/xã..."></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <input type="checkbox" id="addrDefault" style="accent-color:var(--gold);width:14px;height:14px">
+        <label for="addrDefault" style="font-size:11px;letter-spacing:1px;color:rgba(250,248,242,0.45);cursor:none">Đặt làm địa chỉ mặc định</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeAddrModal()">Hủy</button>
+      <button class="btn-gold" onclick="saveAddr()">Lưu địa chỉ</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM LOGOUT -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚪</div>
+    <div class="confirm-title">Đăng xuất?</div>
+    <div class="confirm-sub">Bạn có chắc muốn đăng xuất khỏi tài khoản NEVA không?</div>
+    <div class="confirm-btns">
+      <button class="btn-outline" onclick="closeConfirm()">Hủy</button>
+      <button class="btn-danger" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// CURSOR
 const c=document.getElementById('cursor'),r=document.getElementById('ring');
 document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-let ed=false;
-function toggleEdit(){ed=!ed;document.getElementById('infoView').style.display=ed?'none':'block';document.getElementById('infoEdit').style.display=ed?'block':'none'}
-function switchTab(t,el){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.snav-item').forEach(i=>i.classList.remove('active'));document.getElementById(t+'Tab').classList.add('active');el.classList.add('active')}
+
+// TOAST
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;t.style.display='block';
+  setTimeout(()=>{t.style.display='none'},3000);
+}
+
+// TAB SWITCH
+function switchTab(name,el){
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.mini-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById(name+'Tab').classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ĐI ĐẾN LỊCH SỬ ĐƠN HÀNG
+function goHistory(){
+  window.location='/Order/History';
+}
+
+// PROFILE EDIT
+let editing=false;
+function toggleEdit(){
+  editing=true;
+  document.getElementById('infoView').style.display='none';
+  document.getElementById('infoEdit').style.display='block';
+  document.getElementById('editBtn').style.display='none';
+}
+function cancelEdit(){
+  editing=false;
+  document.getElementById('infoView').style.display='block';
+  document.getElementById('infoEdit').style.display='none';
+  document.getElementById('editBtn').style.display='';
+}
+function saveProfile(){
+  const name=document.getElementById('eName').value.trim();
+  const email=document.getElementById('eEmail').value.trim();
+  const phone=document.getElementById('ePhone').value.trim();
+  const dob=document.getElementById('eDob').value;
+  const gender=document.getElementById('eGender').value;
+  if(!name||!email||!phone){toast('Vui lòng điền đầy đủ thông tin!','error');return}
+  document.getElementById('vName').textContent=name;
+  document.getElementById('vEmail').textContent=email;
+  document.getElementById('vPhone').textContent=phone;
+  document.getElementById('vGender').textContent=gender;
+  if(dob){const[y,m,d]=dob.split('-');document.getElementById('vDob').textContent=d+'/'+m+'/'+y}
+  // Cập nhật tên trên sidebar
+  document.querySelector('.profile-name').textContent=name;
+  document.querySelector('.profile-email').textContent=email;
+  cancelEdit();
+  toast('✦ Cập nhật thông tin thành công!');
+}
+
+// ADDRESS DATA
+let addresses=[
+  {id:1,name:'Nguyễn Thị B',phone:'0901 234 567',city:'Đà Nẵng',district:'Hải Châu',detail:'123 Trần Phú, Hải Châu 1',isDefault:true},
+  {id:2,name:'Nguyễn Thị B',phone:'0901 234 567',city:'Đà Nẵng',district:'Thanh Khê',detail:'456 Nguyễn Văn Linh, Thạc Gián',isDefault:false},
+];
+let editAddrId=-1;
+
+function renderAddresses(){
+  const list=document.getElementById('addrList');
+  if(addresses.length===0){list.innerHTML='<p style="font-size:12px;color:rgba(250,248,242,0.3);text-align:center;padding:24px">Chưa có địa chỉ nào. Hãy thêm địa chỉ mới!</p>';return}
+  list.innerHTML=addresses.map(a=>`
+    <div class="addr-card${a.isDefault?' default':''}">
+      ${a.isDefault?'<div class="addr-default-badge">Mặc định</div>':''}
+      <div class="addr-name">${a.name} · ${a.phone}</div>
+      <div class="addr-text">${a.detail}, ${a.district}, ${a.city}</div>
+      <div class="addr-actions">
+        <span class="addr-action" onclick="openAddrModal(${a.id})">Chỉnh sửa</span>
+        ${!a.isDefault?`<span class="addr-action" onclick="setDefault(${a.id})">Đặt mặc định</span>`:''}
+        <span class="addr-action red" onclick="deleteAddr(${a.id})">Xóa</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddrModal(id){
+  editAddrId=id;
+  if(id===-1){
+    document.getElementById('addrModalTitle').textContent='Thêm địa chỉ mới';
+    document.getElementById('addrName').value='';
+    document.getElementById('addrPhone').value='';
+    document.getElementById('addrCity').value='Đà Nẵng';
+    document.getElementById('addrDistrict').value='';
+    document.getElementById('addrDetail').value='';
+    document.getElementById('addrDefault').checked=false;
+  } else {
+    const a=addresses.find(x=>x.id===id);
+    document.getElementById('addrModalTitle').textContent='Chỉnh sửa địa chỉ';
+    document.getElementById('addrName').value=a.name;
+    document.getElementById('addrPhone').value=a.phone;
+    document.getElementById('addrCity').value=a.city;
+    document.getElementById('addrDistrict').value=a.district;
+    document.getElementById('addrDetail').value=a.detail;
+    document.getElementById('addrDefault').checked=a.isDefault;
+  }
+  document.getElementById('addrModal').classList.add('open');
+}
+function closeAddrModal(){document.getElementById('addrModal').classList.remove('open')}
+
+function saveAddr(){
+  const name=document.getElementById('addrName').value.trim();
+  const phone=document.getElementById('addrPhone').value.trim();
+  const city=document.getElementById('addrCity').value;
+  const district=document.getElementById('addrDistrict').value.trim();
+  const detail=document.getElementById('addrDetail').value.trim();
+  const isDefault=document.getElementById('addrDefault').checked;
+  if(!name||!phone||!district||!detail){toast('Vui lòng điền đầy đủ thông tin địa chỉ!','error');return}
+  if(isDefault) addresses.forEach(a=>a.isDefault=false);
+  if(editAddrId===-1){
+    addresses.push({id:Date.now(),name,phone,city,district,detail,isDefault});
+    toast('✦ Thêm địa chỉ thành công!');
+  } else {
+    const idx=addresses.findIndex(x=>x.id===editAddrId);
+    addresses[idx]={...addresses[idx],name,phone,city,district,detail,isDefault};
+    toast('✦ Cập nhật địa chỉ thành công!');
+  }
+  // Nếu chưa có mặc định thì đặt cái đầu tiên
+  if(!addresses.some(a=>a.isDefault)&&addresses.length>0) addresses[0].isDefault=true;
+  closeAddrModal();renderAddresses();
+}
+
+function setDefault(id){
+  addresses.forEach(a=>a.isDefault=a.id===id);
+  renderAddresses();toast('✦ Đã đặt địa chỉ mặc định!');
+}
+
+function deleteAddr(id){
+  const a=addresses.find(x=>x.id===id);
+  if(a.isDefault&&addresses.length>1){
+    toast('Không thể xóa địa chỉ mặc định. Hãy đặt địa chỉ khác làm mặc định trước!','error');return;
+  }
+  addresses=addresses.filter(x=>x.id!==id);
+  if(addresses.length>0&&!addresses.some(a=>a.isDefault)) addresses[0].isDefault=true;
+  renderAddresses();toast('Đã xóa địa chỉ.');
+}
+
+// PASSWORD
+const MOCK_PASSWORD='123456';
+function updatePassword(){
+  const cur=document.getElementById('curPass').value;
+  const nw=document.getElementById('newPass').value;
+  const cf=document.getElementById('confirmPass').value;
+  if(!cur||!nw||!cf){toast('Vui lòng điền đầy đủ các ô mật khẩu!','error');return}
+  if(cur!==MOCK_PASSWORD){toast('Mật khẩu hiện tại không đúng!','error');return}
+  if(nw.length<8){toast('Mật khẩu mới phải có ít nhất 8 ký tự!','error');return}
+  if(nw!==cf){toast('Mật khẩu xác nhận không khớp!','error');return}
+  document.getElementById('curPass').value='';
+  document.getElementById('newPass').value='';
+  document.getElementById('confirmPass').value='';
+  toast('✦ Cập nhật mật khẩu thành công!');
+}
+
+// LOGOUT
+function confirmLogout(){document.getElementById('confirmOverlay').classList.add('open')}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open')}
+function doLogout(){window.location='/Account/Login'}
+
+// INIT
+renderAddresses();
 </script>
 </body>
 </html>

@@ -1,181 +1,447 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEVA — Lịch sử đơn hàng</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+:root{
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --black:#080808;--dark:#0f0f0d;--dark2:#161612;
+  --white:#faf8f2;--border:rgba(201,168,76,0.18);
+  --font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;cursor:none}
 a{text-decoration:none;color:inherit}
 .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
 .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px}
-.nav-links{display:flex;gap:36px}.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.5);transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
-.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
 
-.orders-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;padding:40px 60px 80px;max-width:1280px;margin:0 auto}
-.profile-card{background:var(--dark);border:1px solid var(--border);padding:30px 24px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--dark2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--gold);margin:0 auto 16px}
-.profile-name{font-family:var(--font-display);font-size:20px;font-style:italic;margin-bottom:4px}
-.profile-email{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.35);margin-bottom:16px}
-.profile-points{background:rgba(201,168,76,0.07);border:1px solid var(--border);padding:10px;font-size:11px;letter-spacing:1.5px;color:var(--gold)}
-.sidebar-nav{background:var(--dark);border:1px solid var(--border);overflow:hidden}
-.snav-item{display:flex;align-items:center;gap:12px;padding:15px 20px;font-size:11px;letter-spacing:1.5px;cursor:none;border-bottom:1px solid var(--border);color:rgba(250,248,242,0.4);transition:all 0.2s}
-.snav-item:last-child{border-bottom:none}
-.snav-item:hover,.snav-item.active{color:var(--gold);background:rgba(201,168,76,0.03)}
-.snav-item.active{border-left:2px solid var(--gold);padding-left:18px}
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-left{display:flex;align-items:center;gap:16px}
+.nav-logo{font-family:var(--font-display);font-size:18px;letter-spacing:6px;color:var(--white)}
+.nav-sep{width:1px;height:18px;background:var(--border)}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.45);transition:color 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.nav-icons{display:flex;gap:16px;align-items:center}
+.nav-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:none;background:rgba(201,168,76,0.06);transition:border-color 0.2s}
+.nav-icon:hover{border-color:var(--gold)}
 
-.orders-main{}
+/* LAYOUT */
+.page-wrap{display:grid;grid-template-columns:210px 1fr;gap:20px;padding:28px 40px 60px;max-width:1400px;margin:0 auto}
+
+/* SIDEBAR — đồng bộ với Profile */
+.profile-card{background:var(--dark2);border:1px solid var(--border);padding:24px 20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.5}
+.avatar-wrap{position:relative;width:72px;height:72px;margin:0 auto 14px}
+.avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--gold);opacity:0.6}
+.avatar-ring-inner{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,0.3)}
+.avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#2a2218,#1a1408);border:1px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;color:var(--gold);position:relative;z-index:1}
+.profile-name{font-family:var(--font-display);font-size:16px;font-style:italic;margin-bottom:4px}
+.profile-email{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,0.3);margin-bottom:14px}
+.profile-points{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:1.5px;padding:8px 14px}
+
+/* Mini grid 2 cột */
+.sidebar-mini{background:var(--dark2);border:1px solid var(--border);overflow:hidden}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr}
+.mini-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 10px;gap:8px;cursor:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:all 0.2s;position:relative}
+.mini-item:nth-child(2n){border-right:none}
+.mini-item:nth-last-child(-n+2){border-bottom:none}
+.mini-item:hover{background:rgba(201,168,76,0.04)}
+.mini-item.active{background:rgba(201,168,76,0.06)}
+.mini-item.active::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.6}
+.mini-icon{font-size:18px;opacity:0.55}
+.mini-item.active .mini-icon{opacity:1}
+.mini-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.3);text-align:center;line-height:1.6}
+.mini-item.active .mini-label{color:var(--gold)}
+
+/* FILTER TABS */
 .orders-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.orders-title{font-family:var(--font-display);font-size:36px;font-weight:400;font-style:italic}
-.filter-tabs{display:flex;gap:0;border:1px solid var(--border);overflow:hidden}
-.ftab{padding:9px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:none;cursor:none;font-family:var(--font-body);color:rgba(250,248,242,0.3);border-right:1px solid var(--border);transition:all 0.2s}
-.ftab:last-child{border-right:none}
-.ftab.active,.ftab:hover{background:var(--gold);color:var(--black)}
+.orders-title{font-family:var(--font-display);font-size:42px;font-weight:400;font-style:italic}
+.filter-tabs{display:flex}
+.ftab{padding:9px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:1px solid var(--border);cursor:none;font-family:var(--font-body);color:rgba(250,248,242,0.3);margin-left:-1px;transition:all 0.2s}
+.ftab:hover{color:rgba(250,248,242,0.6);border-color:rgba(201,168,76,0.3)}
+.ftab.active{background:var(--gold);color:var(--black);border-color:var(--gold);z-index:1}
 
-.order-card{background:var(--dark);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s;position:relative}
-.order-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0}
-.order-card:hover{border-color:rgba(201,168,76,0.4)}
-.order-card:hover::before{opacity:0.5}
-.order-head{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.02)}
+/* ORDER CARD */
+.order-card{background:var(--dark2);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s;position:relative}
+.order-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.25;transition:opacity 0.2s}
+.order-card:hover{border-color:rgba(201,168,76,0.35)}
+.order-card:hover::before{opacity:0.55}
+
+.order-head{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.15)}
 .order-id{font-size:12px;font-weight:300;letter-spacing:2px;color:var(--gold)}
 .order-date{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.3);margin-top:2px}
-.status-pill{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border:1px solid}
-.sp-pending{border-color:rgba(201,168,76,0.4);color:var(--gold)}
-.sp-shipping{border-color:rgba(106,173,106,0.4);color:#6aad6a}
-.sp-done{border-color:rgba(150,100,200,0.4);color:#b06ae8}
-.sp-cancel{border-color:rgba(201,84,76,0.4);color:#c9544c}
+
+/* Status badges */
+.status-badge{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;border:1px solid;white-space:nowrap}
+.sb-pending{border-color:rgba(201,168,76,0.4);color:var(--gold);background:rgba(201,168,76,0.05)}
+.sb-confirmed{border-color:rgba(80,130,200,0.4);color:#7ab0e8;background:rgba(80,130,200,0.05)}
+.sb-shipping{border-color:rgba(150,100,220,0.4);color:#c084e8;background:rgba(150,100,220,0.05)}
+.sb-done{border-color:rgba(80,180,80,0.4);color:#7aba7a;background:rgba(80,180,80,0.05)}
+.sb-cancel{border-color:rgba(212,120,116,0.4);color:#d47a76;background:rgba(212,120,116,0.05)}
 
 .order-body{padding:18px 22px}
-.order-items{display:flex;gap:10px;margin-bottom:16px}
-.oi-thumb{width:56px;height:68px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}.t2{background:linear-gradient(160deg,#14181e,#080c12)}.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
-.oi-name{font-family:var(--font-alt);font-size:13px;font-style:italic;margin-bottom:3px}
-.oi-meta{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.3)}
-.oi-more{font-size:11px;color:rgba(250,248,242,0.25);align-self:center}
-.order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border)}
-.order-total{font-size:18px;font-weight:300;letter-spacing:1px;color:var(--gold)}
-.order-total-label{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,0.3);margin-bottom:3px}
-.order-actions{display:flex;gap:8px}
-.btn-oa{padding:8px 18px;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:none;font-family:var(--font-body);transition:all 0.2s}
-.btn-primary-oa{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);border:none}
-.btn-outline-oa{background:transparent;color:rgba(250,248,242,0.4);border:1px solid var(--border)}.btn-outline-oa:hover{border-color:var(--gold);color:var(--gold)}
 
-.order-timeline{padding:14px 22px 18px;background:rgba(201,168,76,0.02);border-top:1px solid var(--border)}
+/* Items */
+.order-items{display:flex;gap:24px;margin-bottom:18px;align-items:flex-start;flex-wrap:wrap}
+.order-item{display:flex;align-items:center;gap:12px}
+.item-thumb{width:52px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}
+.t2{background:linear-gradient(160deg,#14181e,#080c12)}
+.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
+.t4{background:linear-gradient(160deg,#141e14,#08100a)}
+.item-name{font-family:var(--font-display);font-size:14px;font-style:italic;margin-bottom:4px}
+.item-meta{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.35)}
+.items-more{font-size:12px;color:rgba(250,248,242,0.25);align-self:center;white-space:nowrap}
+
+.order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border)}
+.order-total-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.3);margin-bottom:5px}
+.order-total{font-size:20px;font-weight:300;letter-spacing:0.5px;color:var(--gold)}
+.order-actions{display:flex;gap:8px}
+.btn-gold{padding:9px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);transition:opacity 0.2s}
+.btn-gold:hover{opacity:0.85}
+.btn-outline{padding:9px 20px;background:transparent;color:rgba(250,248,242,0.4);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);transition:all 0.2s}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* TIMELINE */
+.order-timeline{padding:14px 22px 18px;background:rgba(0,0,0,0.12);border-top:1px solid var(--border)}
 .timeline{display:flex;align-items:center}
-.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
-.tl-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:calc(50% + 14px);right:calc(-50% + 14px);height:1px}
-.tl-step.done:not(:last-child)::after{background:var(--gold);opacity:0.3}
-.tl-step:not(.done):not(:last-child)::after{background:var(--border)}
-.tl-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-bottom:6px;z-index:1}
-.tl-step.done .tl-dot{background:var(--gold);color:var(--black)}
-.tl-step.current .tl-dot{border:1px solid var(--gold);color:var(--gold);background:rgba(201,168,76,0.1)}
-.tl-step:not(.done):not(.current) .tl-dot{border:1px solid var(--border);color:rgba(250,248,242,0.2)}
-.tl-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;text-align:center}
-.tl-step.done .tl-label,.tl-step.current .tl-label{color:var(--gold);opacity:0.7}
-.tl-step:not(.done):not(.current) .tl-label{color:rgba(250,248,242,0.2)}
+.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative}
+.tl-connector{flex:1;height:1px;margin-top:-21px;position:relative;z-index:0}
+.tl-connector.done{background:rgba(201,168,76,0.4)}
+.tl-connector.wait{background:rgba(250,248,242,0.07)}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative;z-index:1}
+.tl-done .tl-dot{background:var(--gold);color:var(--black);box-shadow:0 0 10px rgba(201,168,76,0.35)}
+.tl-current .tl-dot{background:transparent;border:2px solid var(--gold);color:var(--gold)}
+.tl-wait .tl-dot{background:transparent;border:1px solid rgba(250,248,242,0.1);color:rgba(250,248,242,0.15)}
+.tl-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;text-align:center}
+.tl-done .tl-label{color:rgba(201,168,76,0.65)}
+.tl-current .tl-label{color:var(--gold)}
+.tl-wait .tl-label{color:rgba(250,248,242,0.18)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:rgba(250,248,242,0.25)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.3}
+.empty-text{font-size:13px;letter-spacing:1px;margin-bottom:20px}
+
+/* TOAST */
+.toast{position:fixed;bottom:32px;right:32px;z-index:9000;padding:14px 24px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none}
+.toast.success{background:rgba(90,154,90,0.12);border-color:rgba(90,154,90,0.4);color:#7aba7a}
+.toast.info{background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.3);color:var(--gold)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(8px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--dark2);width:90%;max-width:640px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);transform:translateY(16px);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal::-webkit-scrollbar{width:3px}
+.modal::-webkit-scrollbar-thumb{background:var(--border)}
+.modal-header{padding:20px 26px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--dark2);z-index:10}
+.modal-title{font-family:var(--font-display);font-size:24px;font-style:italic}
+.modal-sub{font-size:10px;letter-spacing:1.5px;color:rgba(201,168,76,0.5);margin-top:3px}
+.modal-close{width:32px;height:32px;border:1px solid var(--border);background:none;font-size:16px;cursor:none;color:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color 0.2s}
+.modal-close:hover{border-color:var(--gold)}
+.modal-body{padding:24px 26px}
+.detail-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.detail-block{background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.1);padding:16px}
+.detail-block-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.45);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,0.08)}
+.detail-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:200}
+.detail-key{color:rgba(250,248,242,0.35)}
+.detail-val{text-align:right;max-width:200px}
+.detail-items-wrap{border:1px solid rgba(201,168,76,0.1);margin-bottom:16px;overflow:hidden}
+.detail-items-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.45);padding:12px 16px;border-bottom:1px solid rgba(201,168,76,0.08);background:rgba(201,168,76,0.02)}
+.detail-item-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(201,168,76,0.06)}
+.detail-item-row:last-child{border-bottom:none}
+.di-thumb{width:44px;height:54px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.di-name{font-size:13px;font-weight:200;margin-bottom:3px}
+.di-meta{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.3)}
+.di-price{margin-left:auto;font-size:13px;font-weight:300;flex-shrink:0}
+.detail-total-wrap{background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.1);padding:14px 16px}
+.detail-total-row{display:flex;justify-content:space-between;font-size:12px;font-weight:200;margin-bottom:8px}
+.detail-total-row.grand{font-size:17px;font-weight:400;color:var(--gold);padding-top:12px;border-top:1px solid var(--border);margin-bottom:0}
+.dlabel{color:rgba(250,248,242,0.35)}
+.modal-footer{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--dark2)}
 </style>
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="ring"></div>
+<div class="toast" id="toast"></div>
+
 <nav>
-  <a href="/" class="nav-logo">NEVA</a>
-  <div class="nav-links"><a href="/Product">Bộ sưu tập</a></div>
-  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+  <div class="nav-left">
+    <a href="/" class="nav-logo">NEVA</a>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <a href="/Product">Bộ sưu tập</a>
+      <a href="/Product">Nam</a>
+      <a href="/Product">Nữ</a>
+    </div>
+  </div>
+  <div class="nav-icons">
+    <a href="/Account/Profile"><div class="nav-icon">👤</div></a>
+    <a href="/Cart"><div class="nav-icon">🛒</div></a>
+  </div>
 </nav>
-<div class="orders-layout">
+
+<div class="page-wrap">
+  <!-- SIDEBAR -->
   <aside>
     <div class="profile-card">
-      <div class="profile-avatar">NT</div>
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring-inner"></div>
+        <div class="avatar-circle">NT</div>
+      </div>
       <div class="profile-name">Nguyễn Thị B</div>
       <div class="profile-email">nguyenthib@email.com</div>
       <div class="profile-points">✦ 1.250 điểm tích lũy</div>
     </div>
-    <nav class="sidebar-nav">
-      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>👤</span> Thông tin cá nhân</div>
-      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>📍</span> Địa chỉ giao hàng</div>
-      <div class="snav-item" onclick="window.location='/Account/Profile'"><span>🔒</span> Đổi mật khẩu</div>
-      <div class="snav-item active"><span>📦</span> Lịch sử đơn hàng</div>
-      <div class="snav-item" style="color:#c9544c"><span>🚪</span> Đăng xuất</div>
-    </nav>
+    <div class="sidebar-mini">
+      <div class="mini-grid">
+        <div class="mini-item" onclick="window.location='/Account/Profile'">
+          <span class="mini-icon">👤</span>
+          <span class="mini-label">Thông tin cá nhân</span>
+        </div>
+        <div class="mini-item" onclick="window.location='/Account/Profile'">
+          <span class="mini-icon">📍</span>
+          <span class="mini-label">Địa chỉ giao hàng</span>
+        </div>
+        <div class="mini-item active">
+          <span class="mini-icon">📦</span>
+          <span class="mini-label">Lịch sử đơn hàng</span>
+        </div>
+        <div class="mini-item" onclick="window.location='/Account/Profile'">
+          <span class="mini-icon">⚙️</span>
+          <span class="mini-label">Cài đặt tài khoản</span>
+        </div>
+      </div>
+    </div>
   </aside>
-  <main class="orders-main">
+
+  <!-- MAIN -->
+  <main>
     <div class="orders-toolbar">
       <div class="orders-title">Đơn hàng</div>
       <div class="filter-tabs">
-        <button class="ftab active">Tất cả</button>
-        <button class="ftab">Chờ duyệt</button>
-        <button class="ftab">Đang giao</button>
-        <button class="ftab">Đã giao</button>
-        <button class="ftab">Đã hủy</button>
+        <button class="ftab active" onclick="filterOrders('all',this)">Tất cả</button>
+        <button class="ftab" onclick="filterOrders('pending',this)">Chờ duyệt</button>
+        <button class="ftab" onclick="filterOrders('shipping',this)">Đang giao</button>
+        <button class="ftab" onclick="filterOrders('done',this)">Đã giao</button>
+        <button class="ftab" onclick="filterOrders('cancel',this)">Đã hủy</button>
       </div>
     </div>
-    <div class="order-card">
-      <div class="order-head">
-        <div><div class="order-id"># NV-20250507-0042</div><div class="order-date">07/05/2025 · 14:23</div></div>
-        <span class="status-pill sp-shipping">🚚 Đang giao hàng</span>
-      </div>
-      <div class="order-body">
-        <div class="order-items">
-          <div class="oi-thumb t1">👕</div><div style="flex:1"><div class="oi-name">Áo thun basic oversize × 2</div><div class="oi-meta">Đen · Size M · 320.000 ₫</div></div>
-          <div class="oi-thumb t2">👖</div><div style="flex:1"><div class="oi-name">Quần cargo wide leg × 1</div><div class="oi-meta">Xanh rêu · Size 30 · 480.000 ₫</div></div>
-          <div class="oi-more">+1</div>
-        </div>
-        <div class="order-footer">
-          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">1.360.000 ₫</div></div>
-          <div class="order-actions"><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
-        </div>
-      </div>
-      <div class="order-timeline">
-        <div class="timeline">
-          <div class="tl-step done"><div class="tl-dot">✓</div><div class="tl-label">Đặt hàng</div></div>
-          <div class="tl-step done"><div class="tl-dot">✓</div><div class="tl-label">Xác nhận</div></div>
-          <div class="tl-step current"><div class="tl-dot">✦</div><div class="tl-label">Đang giao</div></div>
-          <div class="tl-step"><div class="tl-dot">4</div><div class="tl-label">Đã giao</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="order-card">
-      <div class="order-head">
-        <div><div class="order-id"># NV-20250420-0031</div><div class="order-date">20/04/2025 · 09:15</div></div>
-        <span class="status-pill sp-done">✅ Đã giao hàng</span>
-      </div>
-      <div class="order-body">
-        <div class="order-items">
-          <div class="oi-thumb t3">🧥</div><div style="flex:1"><div class="oi-name">Áo khoác linen nhẹ × 1</div><div class="oi-meta">Trắng kem · Size S · 750.000 ₫</div></div>
-        </div>
-        <div class="order-footer">
-          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">780.000 ₫</div></div>
-          <div class="order-actions"><button class="btn-oa btn-primary-oa">Mua lại</button><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="order-card">
-      <div class="order-head">
-        <div><div class="order-id"># NV-20250310-0018</div><div class="order-date">10/03/2025 · 16:40</div></div>
-        <span class="status-pill sp-cancel">✕ Đã hủy</span>
-      </div>
-      <div class="order-body">
-        <div class="order-items">
-          <div class="oi-thumb t1">👗</div><div style="flex:1"><div class="oi-name">Váy midi dáng A-line × 1</div><div class="oi-meta">Xanh nhạt · Size S · 520.000 ₫</div></div>
-        </div>
-        <div class="order-footer">
-          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">550.000 ₫</div></div>
-          <div class="order-actions"><button class="btn-oa btn-primary-oa">Đặt lại</button><button class="btn-oa btn-outline-oa">Chi tiết</button></div>
-        </div>
-      </div>
-    </div>
+    <div id="orderList"></div>
   </main>
 </div>
+
+<!-- MODAL CHI TIẾT -->
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="mTitle">Chi tiết đơn hàng</div>
+        <div class="modal-sub" id="mSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Đóng</button>
+      <button class="btn-gold" id="mActionBtn" style="display:none"></button>
+    </div>
+  </div>
+</div>
+
 <script>
+// CURSOR
 const c=document.getElementById('cursor'),r=document.getElementById('ring');
 document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-document.querySelectorAll('.ftab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));t.classList.add('active')}));
+
+// TOAST
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+// DATA
+const orders=[
+  {
+    id:'NV-20250507-0042',date:'07/05/2025 · 14:23',status:'shipping',
+    items:[
+      {icon:'👕',bg:'t1',name:'Áo thun basic oversize × 2',meta:'Đen · Size M',price:'640.000 ₫'},
+      {icon:'👖',bg:'t2',name:'Quần cargo wide leg × 1',meta:'Xanh rêu · Size 30',price:'480.000 ₫'},
+      {icon:'🧣',bg:'t3',name:'Khăn wool blend × 1',meta:'Màu kem',price:'210.000 ₫'},
+    ],
+    subtotal:'1.330.000 ₫',ship:'30.000 ₫',discount:'0 ₫',total:'1.360.000 ₫',
+    method:'COD',address:'123 Trần Phú, Hải Châu 1, Đà Nẵng',
+    timeline:[{label:'Đặt hàng',state:'done'},{label:'Xác nhận',state:'done'},{label:'Đang giao',state:'current'},{label:'Đã giao',state:'wait'}]
+  },
+  {
+    id:'NV-20250420-0031',date:'20/04/2025 · 09:15',status:'done',
+    items:[
+      {icon:'🧥',bg:'t3',name:'Áo khoác linen nhẹ × 1',meta:'Trắng kem · Size S',price:'750.000 ₫'},
+    ],
+    subtotal:'750.000 ₫',ship:'30.000 ₫',discount:'0 ₫',total:'780.000 ₫',
+    method:'Chuyển khoản',address:'123 Trần Phú, Hải Châu 1, Đà Nẵng',
+    timeline:[{label:'Đặt hàng',state:'done'},{label:'Xác nhận',state:'done'},{label:'Đang giao',state:'done'},{label:'Đã giao',state:'done'}]
+  },
+  {
+    id:'NV-20250310-0018',date:'10/03/2025 · 16:40',status:'cancel',
+    items:[
+      {icon:'👗',bg:'t4',name:'Váy midi dáng A-line × 1',meta:'Xanh nhạt · Size S',price:'520.000 ₫'},
+    ],
+    subtotal:'520.000 ₫',ship:'30.000 ₫',discount:'0 ₫',total:'550.000 ₫',
+    method:'Ví điện tử',address:'456 Nguyễn Văn Linh, Thanh Khê, Đà Nẵng',
+    timeline:[{label:'Đặt hàng',state:'done'},{label:'Xác nhận',state:'done'},{label:'Đang giao',state:'wait'},{label:'Đã giao',state:'wait'}]
+  },
+  {
+    id:'NV-20250210-0009',date:'10/02/2025 · 11:00',status:'pending',
+    items:[
+      {icon:'👕',bg:'t1',name:'Áo polo cotton pique × 2',meta:'Trắng · Size M',price:'560.000 ₫'},
+    ],
+    subtotal:'560.000 ₫',ship:'30.000 ₫',discount:'0 ₫',total:'590.000 ₫',
+    method:'COD',address:'123 Trần Phú, Hải Châu 1, Đà Nẵng',
+    timeline:[{label:'Đặt hàng',state:'done'},{label:'Xác nhận',state:'current'},{label:'Đang giao',state:'wait'},{label:'Đã giao',state:'wait'}]
+  },
+];
+
+const statusMap={
+  pending:{label:'Chờ duyệt',cls:'sb-pending',icon:'⏳'},
+  confirmed:{label:'Đã duyệt',cls:'sb-confirmed',icon:'✅'},
+  shipping:{label:'Đang giao hàng',cls:'sb-shipping',icon:'🚚'},
+  done:{label:'Đã giao hàng',cls:'sb-done',icon:'✅'},
+  cancel:{label:'Đã hủy',cls:'sb-cancel',icon:'✕'},
+};
+
+function renderTimeline(steps){
+  let html='<div class="timeline">';
+  steps.forEach((s,i)=>{
+    const cls='tl-'+s.state;
+    const dot=s.state==='done'?'✓':s.state==='current'?'◆':(i+1);
+    html+=`<div class="tl-step ${cls}"><div class="tl-dot">${dot}</div><div class="tl-label">${s.label}</div></div>`;
+    if(i<steps.length-1){
+      const lc=s.state==='done'?'done':'wait';
+      html+=`<div class="tl-connector ${lc}"></div>`;
+    }
+  });
+  html+='</div>';
+  return html;
+}
+
+function renderOrders(list){
+  const el=document.getElementById('orderList');
+  if(!list.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Không có đơn hàng nào</div><button class="btn-gold" onclick="window.location='/Product'">Mua sắm ngay</button></div>`;
+    return;
+  }
+  el.innerHTML=list.map((o,idx)=>{
+    const st=statusMap[o.status];
+    const showItems=o.items.slice(0,2);
+    const more=o.items.length>2?`<div class="items-more">+${o.items.length-2}</div>`:'';
+    const itemsHtml=showItems.map(it=>`
+      <div class="order-item">
+        <div class="item-thumb ${it.bg}">${it.icon}</div>
+        <div><div class="item-name">${it.name}</div><div class="item-meta">${it.meta} · ${it.price}</div></div>
+      </div>`).join('')+more;
+    const actBtns=o.status==='done'
+      ?`<button class="btn-gold" onclick="buyAgain(${idx})">Mua lại</button><button class="btn-outline" onclick="openDetail(${idx})">Chi tiết</button>`
+      :o.status==='cancel'
+      ?`<button class="btn-gold" onclick="reorder(${idx})">Đặt lại</button><button class="btn-outline" onclick="openDetail(${idx})">Chi tiết</button>`
+      :`<button class="btn-outline" onclick="openDetail(${idx})">Chi tiết</button>`;
+    const showTimeline=o.status!=='cancel';
+    return`
+    <div class="order-card">
+      <div class="order-head">
+        <div><div class="order-id"># ${o.id}</div><div class="order-date">${o.date}</div></div>
+        <span class="status-badge ${st.cls}">${st.icon} ${st.label}</span>
+      </div>
+      <div class="order-body">
+        <div class="order-items">${itemsHtml}</div>
+        <div class="order-footer">
+          <div><div class="order-total-label">Tổng đơn hàng</div><div class="order-total">${o.total}</div></div>
+          <div class="order-actions">${actBtns}</div>
+        </div>
+      </div>
+      ${showTimeline?`<div class="order-timeline">${renderTimeline(o.timeline)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function filterOrders(type,btn){
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered=type==='all'?orders:orders.filter(o=>o.status===type);
+  renderOrders(filtered);
+}
+
+// CHI TIẾT
+function openDetail(idx){
+  const o=orders[idx];
+  const st=statusMap[o.status];
+  document.getElementById('mTitle').textContent='Chi tiết đơn hàng';
+  document.getElementById('mSub').textContent='# '+o.id+' · '+o.date;
+  const itemsHtml=o.items.map(it=>`
+    <div class="detail-item-row">
+      <div class="di-thumb ${it.bg}">${it.icon}</div>
+      <div><div class="di-name">${it.name}</div><div class="di-meta">${it.meta}</div></div>
+      <div class="di-price">${it.price}</div>
+    </div>`).join('');
+  document.getElementById('mBody').innerHTML=`
+    <div class="detail-2col">
+      <div class="detail-block">
+        <div class="detail-block-title">📦 Thông tin đơn</div>
+        <div class="detail-row"><span class="detail-key">Mã đơn</span><span class="detail-val" style="color:var(--gold)">#${o.id}</span></div>
+        <div class="detail-row"><span class="detail-key">Ngày đặt</span><span class="detail-val">${o.date}</span></div>
+        <div class="detail-row"><span class="detail-key">Trạng thái</span><span class="detail-val"><span class="status-badge ${st.cls}" style="font-size:8px;padding:3px 8px">${st.label}</span></span></div>
+        <div class="detail-row"><span class="detail-key">Thanh toán</span><span class="detail-val">${o.method}</span></div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block-title">📍 Địa chỉ giao hàng</div>
+        <div class="detail-row"><span class="detail-key">Người nhận</span><span class="detail-val">Nguyễn Thị B</span></div>
+        <div class="detail-row"><span class="detail-key">SĐT</span><span class="detail-val">0901 234 567</span></div>
+        <div class="detail-row"><span class="detail-key">Địa chỉ</span><span class="detail-val">${o.address}</span></div>
+      </div>
+    </div>
+    <div class="detail-items-wrap">
+      <div class="detail-items-title">🛍 Sản phẩm</div>
+      ${itemsHtml}
+    </div>
+    <div class="detail-total-wrap">
+      <div class="detail-total-row"><span class="dlabel">Tạm tính</span><span>${o.subtotal}</span></div>
+      <div class="detail-total-row"><span class="dlabel">Vận chuyển</span><span>${o.ship}</span></div>
+      <div class="detail-total-row"><span class="dlabel">Giảm giá</span><span style="color:#7aba7a">— ${o.discount}</span></div>
+      <div class="detail-total-row grand"><span>Tổng cộng</span><span>${o.total}</span></div>
+    </div>`;
+  const ab=document.getElementById('mActionBtn');
+  if(o.status==='done'){ab.style.display='';ab.textContent='Mua lại';ab.onclick=()=>{closeModal();buyAgain(idx)}}
+  else if(o.status==='cancel'){ab.style.display='';ab.textContent='Đặt lại';ab.onclick=()=>{closeModal();reorder(idx)}}
+  else ab.style.display='none';
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('detailModal').classList.remove('open');document.body.style.overflow=''}
+
+// MUA LẠI
+function buyAgain(idx){
+  toast('✦ Đã thêm vào giỏ hàng!','info');
+  setTimeout(()=>window.location='/Cart',1200);
+}
+
+// ĐẶT LẠI
+function reorder(idx){
+  window.location='/Product';
+}
+
+// INIT
+renderOrders(orders);
 </script>
 </body>
 </html>

@@ -9,178 +9,183 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#c9a84c;--gold2:#e8c96a;
-  --black:#080808;--dark:#0f0f0d;--dark2:#161612;--dark3:#1e1e1a;
-  --white:#faf8f2;--border:rgba(201,168,76,0.18);
-  --font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;
-}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;cursor:none}
+:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#050402;--dark:#0c0a07;--dark2:#14100a;--white:#faf8f2;--border:rgba(201,168,76,0.18);--font-d:'Playfair Display',serif;--font-b:'Josefin Sans',sans-serif;--nav-h:52px}
+body{font-family:var(--font-b);background:var(--black);color:var(--white);min-height:100vh}
 a{text-decoration:none;color:inherit}
-.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
-.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
 
-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-left{display:flex;align-items:center;gap:16px}
-.nav-logo{font-family:var(--font-display);font-size:18px;letter-spacing:6px;color:var(--white)}
-.nav-sep{width:1px;height:18px;background:var(--border)}
-.nav-links{display:flex;gap:32px}
-.nav-links a{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,0.45);transition:color 0.2s}
-.nav-links a:hover{color:var(--gold)}
-.nav-icons{display:flex;gap:16px;align-items:center}
-.nav-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:none;background:rgba(201,168,76,0.06);transition:border-color 0.2s}
-.nav-icon:hover{border-color:var(--gold)}
+/* NAV — đồng bộ trang chủ */
+nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;justify-self:start;display:flex;align-items:center;gap:12px}
+.nav-logo a{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
+.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
+.nav-mid{display:flex;align-items:center;justify-content:center}
+.nl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,.7);padding:0 14px;transition:color .2s}
+.nl:hover{color:var(--white)}.nl.active{color:var(--gold)}
+.nd{color:rgba(250,248,242,.14);font-size:10px}
+.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
+.ni{color:rgba(250,248,242,.55);transition:color .2s;display:flex;align-items:center}
+.ni:hover{color:var(--gold)}
+.ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
-.page-wrap{display:grid;grid-template-columns:210px 1fr;gap:20px;padding:28px 40px 60px;max-width:1200px;margin:0 auto}
+/* LAYOUT */
+.page-wrap{display:grid;grid-template-columns:250px 1fr;gap:16px;padding:28px 44px 60px;max-width:1280px;margin:0 auto}
 
-/* SIDEBAR */
-.profile-card{background:var(--dark2);border:1px solid var(--border);padding:24px 20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.5}
-.avatar-wrap{position:relative;width:72px;height:72px;margin:0 auto 14px}
-.avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--gold);opacity:0.6}
-.avatar-ring-inner{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,0.3)}
-.avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#2a2218,#1a1408);border:1px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;color:var(--gold);position:relative;z-index:1}
-.profile-name{font-family:var(--font-display);font-size:16px;font-style:italic;margin-bottom:4px}
-.profile-email{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,0.3);margin-bottom:14px}
-.profile-points{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:1.5px;padding:8px 14px}
+/* PROFILE CARD */
+.profile-card{background:var(--dark2);border:1px solid var(--border);padding:24px 20px;text-align:center;margin-bottom:2px;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+.av-wrap{position:relative;width:72px;height:72px;margin:0 auto 14px}
+.av-ring{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--gold);opacity:.6}
+.av-ring2{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,.25)}
+.av-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#2a2218,#1a1408);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:22px;color:var(--gold);position:relative;z-index:1}
+.p-name{font-family:var(--font-d);font-size:16px;font-style:italic;margin-bottom:4px}
+.p-email{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.3);margin-bottom:14px}
+.p-pts{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:1.5px;padding:8px 14px}
 
-.sidebar-mini{background:var(--dark2);border:1px solid var(--border);overflow:hidden}
-.mini-grid{display:grid;grid-template-columns:1fr 1fr}
-.mini-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 10px;gap:8px;cursor:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:all 0.2s;position:relative}
-.mini-item:nth-child(2n){border-right:none}
-.mini-item:nth-last-child(-n+2){border-bottom:none}
-.mini-item:hover{background:rgba(201,168,76,0.04)}
-.mini-item.active{background:rgba(201,168,76,0.06)}
-.mini-item.active::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.6}
-.mini-icon{font-size:18px;opacity:0.55}
-.mini-item.active .mini-icon{opacity:1}
-.mini-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.3);text-align:center;line-height:1.6}
-.mini-item.active .mini-label{color:var(--gold)}
+/* 2×2 GRID SIDEBAR — như ảnh tham khảo */
+.side-menu{background:var(--dark2);border:1px solid var(--border);overflow:hidden;margin-top:2px}
+.smenu-item{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 18px;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(250,248,242,.45);
+  border-bottom:1px solid var(--border);
+  transition:all .2s;position:relative;
+}
+.smenu-item:last-child{border-bottom:none}
+.smenu-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:0;transition:opacity .2s}
+.smenu-item:hover{background:rgba(201,168,76,.04);color:rgba(250,248,242,.8)}
+.smenu-item:hover::before{opacity:.5}
+.smenu-item.active{color:var(--gold);background:rgba(201,168,76,.05)}
+.smenu-item.active::before{opacity:1}
+.smenu-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.6}
+.smenu-item:hover svg,.smenu-item.active svg{opacity:1}
+.smenu-item.danger{color:rgba(212,122,118,.5)}
+.smenu-item.danger:hover{color:#d47a76;background:rgba(212,122,118,.04)}
 
-/* MAIN */
+/* CONTENT */
 .tab-content{display:none}.tab-content.active{display:block}
-.section-box{background:var(--dark2);border:1px solid var(--border);padding:28px;margin-bottom:14px;position:relative;overflow:hidden;background-image:repeating-linear-gradient(90deg,rgba(201,168,76,0.02) 0px,rgba(201,168,76,0.02) 1px,transparent 1px,transparent 28px)}
-.section-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.35}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.section-title{font-family:var(--font-display);font-size:22px;font-weight:400;font-style:italic}
-.sub-section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.55);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sbox{background:var(--dark2);border:1px solid var(--border);padding:26px;margin-bottom:12px;position:relative;overflow:hidden}
+.sbox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.28}
+.sbox-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.sbox-title{font-family:var(--font-d);font-size:21px;font-weight:400;font-style:italic}
+.sub-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:16px;padding-bottom:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sub-lbl svg{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 
-.btn-gold{padding:9px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);transition:opacity 0.2s}
-.btn-gold:hover{opacity:0.85}
-.btn-outline{padding:9px 20px;background:transparent;color:rgba(250,248,242,0.4);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);transition:all 0.2s}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.btn-danger{padding:11px 28px;background:transparent;color:rgba(212,122,118,0.7);font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(212,122,118,0.35);cursor:none;font-family:var(--font-body);transition:all 0.2s}
-.btn-danger:hover{border-color:#d47a76;color:#d47a76}
+/* Buttons */
+.btn-gold{padding:8px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:8px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}.btn-gold:hover{opacity:.85}
+.btn-outline{padding:8px 16px;background:transparent;color:rgba(250,248,242,.38);font-size:8px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);transition:all .2s}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{padding:10px 24px;background:transparent;color:rgba(212,122,118,.65);font-size:8px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(212,122,118,.3);font-family:var(--font-b);transition:all .2s}.btn-danger:hover{border-color:#d47a76;color:#d47a76}
 
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 40px}
-.info-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.55);margin-bottom:6px}
-.info-value{font-size:14px;font-weight:200;letter-spacing:0.5px}
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px}
+.info-lbl{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.48);margin-bottom:5px}
+.info-val{font-size:13px;font-weight:200;letter-spacing:.5px}
 
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+/* Form */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .frow.full{grid-template-columns:1fr}
-.fgroup{display:flex;flex-direction:column;gap:7px}
-.flabel{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.55)}
-.finput,.fselect{width:100%;padding:10px 13px;border:1px solid var(--border);background:rgba(201,168,76,0.04);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);transition:border-color 0.2s;outline:none}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.flabel{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.48)}
+.finput,.fselect{width:100%;padding:9px 11px;border:1px solid var(--border);background:rgba(201,168,76,.03);font-size:12px;font-family:var(--font-b);font-weight:200;color:var(--white);outline:none;transition:border-color .2s}
 .finput:focus,.fselect:focus{border-color:var(--gold)}
-.finput::placeholder{color:rgba(250,248,242,0.2)}
-.pass-hint{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,0.22);margin-top:4px}
+.finput::placeholder{color:rgba(250,248,242,.18)}
+.pass-hint{font-size:8px;letter-spacing:1px;color:rgba(250,248,242,.2);margin-top:4px}
+
+/* Eye button */
+.finput-wrap{position:relative}
+.finput-wrap .finput{padding-right:40px}
+.eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(250,248,242,.3);padding:4px;transition:color .2s}
+.eye-btn:hover{color:var(--gold)}
+.eye-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* Address */
-.addr-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
-.addr-card{border:1px solid var(--border);padding:18px 20px;position:relative;transition:border-color 0.2s;background:rgba(201,168,76,0.02)}
-.addr-card.default{border-color:rgba(201,168,76,0.4)}
-.addr-card:hover{border-color:rgba(201,168,76,0.3)}
-.addr-default-badge{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--black);font-size:8px;letter-spacing:1.5px;padding:3px 10px}
-.addr-name{font-size:13px;font-weight:300;margin-bottom:5px}
-.addr-text{font-size:12px;font-weight:200;color:rgba(250,248,242,0.38);line-height:1.8}
-.addr-actions{display:flex;gap:16px;margin-top:10px}
-.addr-action{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.28);cursor:none;border-bottom:1px solid transparent;transition:all 0.2s}
-.addr-action:hover{color:var(--gold);border-color:var(--gold)}
-.addr-action.red:hover{color:#d47a76;border-color:#d47a76}
-.btn-add-addr{width:100%;padding:14px;border:1px dashed rgba(201,168,76,0.25);background:none;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,0.22);cursor:none;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
-.btn-add-addr:hover{border-color:var(--gold);color:var(--gold)}
+.addr-card{border:1px solid var(--border);padding:14px 16px;margin-bottom:8px;position:relative;background:rgba(201,168,76,.02);transition:border-color .2s}
+.addr-card.def{border-color:rgba(201,168,76,.36)}
+.addr-badge{position:absolute;top:11px;right:11px;background:var(--gold);color:var(--black);font-size:7px;letter-spacing:1.5px;padding:2px 8px}
+.addr-name{font-size:12px;font-weight:300;margin-bottom:3px}
+.addr-text{font-size:11px;font-weight:200;color:rgba(250,248,242,.33);line-height:1.8}
+.addr-acts{display:flex;gap:12px;margin-top:8px}
+.addr-act{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,.24);border-bottom:1px solid transparent;transition:all .2s}
+.addr-act:hover{color:var(--gold);border-color:var(--gold)}
+.addr-act.red:hover{color:#d47a76;border-color:#d47a76}
 
-/* TOAST */
-.toast{position:fixed;bottom:32px;right:32px;z-index:9000;padding:14px 24px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none;animation:toastIn 0.3s ease}
-.toast.success{background:rgba(90,154,90,0.12);border-color:rgba(90,154,90,0.4);color:#7aba7a}
-.toast.error{background:rgba(212,122,118,0.1);border-color:rgba(212,122,118,0.4);color:#d47a76}
-@@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* Toast */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:10px;letter-spacing:1.5px;border:1px solid;display:none}
+.toast.ok{background:rgba(90,154,90,.12);border-color:rgba(90,154,90,.4);color:#7aba7a}
+.toast.info{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28);color:var(--gold)}
+.toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(6px)}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--dark2);width:90%;max-width:520px;border:1px solid var(--border);transform:translateY(16px);transition:transform 0.3s}
-.modal-overlay.open .modal{transform:translateY(0)}
-.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.modal-title{font-family:var(--font-display);font-size:22px;font-style:italic}
-.modal-close{width:32px;height:32px;border:1px solid var(--border);background:none;font-size:16px;cursor:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color 0.2s}
-.modal-close:hover{border-color:var(--gold)}
-.modal-body{padding:24px}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-
-/* Confirm dialog */
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px)}
-.confirm-overlay.open{opacity:1;pointer-events:all}
-.confirm-box{background:var(--dark2);border:1px solid rgba(212,122,118,0.3);padding:32px;max-width:380px;text-align:center}
-.confirm-icon{font-size:32px;margin-bottom:14px}
-.confirm-title{font-family:var(--font-display);font-size:22px;font-style:italic;margin-bottom:10px}
-.confirm-sub{font-size:12px;font-weight:200;letter-spacing:0.5px;color:rgba(250,248,242,0.4);line-height:1.8;margin-bottom:24px}
-.confirm-btns{display:flex;gap:10px;justify-content:center}
+/* Modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
+.mo.open{opacity:1;pointer-events:all}
+.modal{background:var(--dark2);width:90%;max-width:500px;border:1px solid var(--border);transform:translateY(14px);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.mo.open .modal{transform:translateY(0)}
+.mhdr{padding:17px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mhdr-t{font-family:var(--font-d);font-size:19px;font-style:italic}
+.mclose{width:28px;height:28px;border:1px solid var(--border);background:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+.mclose:hover{border-color:var(--gold)}
+.mclose svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.mbody{padding:20px 22px}
+.mfoot{padding:13px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.conf-box{background:var(--dark2);border:1px solid rgba(212,122,118,.28);padding:30px;max-width:340px;text-align:center}
+.conf-t{font-family:var(--font-d);font-size:20px;font-style:italic;margin-bottom:9px}
+.conf-s{font-size:11px;font-weight:200;color:rgba(250,248,242,.3);line-height:1.9;margin-bottom:20px}
+.conf-b{display:flex;gap:9px;justify-content:center}
 </style>
 </head>
 <body>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="ring"></div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- NAV -->
 <nav>
-  <div class="nav-left">
-    <a href="/" class="nav-logo">NEVA</a>
-    <div class="nav-sep"></div>
-    <div class="nav-links">
-      <a href="/Product">Bộ sưu tập</a>
-      <a href="/Product">Nam</a>
-      <a href="/Product">Nữ</a>
-    </div>
+  <div class="nav-logo">
+    <a href="/">NEVA</a>
+    <span class="nav-logo-sep">|</span>
   </div>
-  <div class="nav-icons">
-    <a href="/Account/Profile"><div class="nav-icon">👤</div></a>
-    <a href="/Cart"><div class="nav-icon">🛒</div></a>
+  <div class="nav-mid">
+    <a href="/Product" class="nl">Bộ sưu tập</a>
+    <span class="nd">|</span>
+    <a href="/" class="nl">Haute Couture</a>
+    <span class="nd">|</span>
+    <a href="/Account/Profile" class="nl active">Tài khoản</a>
+  </div>
+  <div class="nav-right">
+    <a href="/Account/Profile" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+    <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></a>
   </div>
 </nav>
 
 <div class="page-wrap">
   <aside>
+    <!-- Avatar card -->
     <div class="profile-card">
-      <div class="avatar-wrap">
-        <div class="avatar-ring"></div>
-        <div class="avatar-ring-inner"></div>
-        <div class="avatar-circle">NT</div>
-      </div>
-      <div class="profile-name">Nguyễn Thị B</div>
-      <div class="profile-email">nguyenthib@email.com</div>
-      <div class="profile-points">✦ 1.250 điểm tích lũy</div>
+      <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">NT</div></div>
+      <div class="p-name">Nguyễn Thị B</div>
+      <div class="p-email">nguyenthib@email.com</div>
+      <div class="p-pts">✦ 1.250 điểm tích lũy</div>
     </div>
-    <div class="sidebar-mini">
-      <div class="mini-grid">
-        <div class="mini-item active" onclick="switchTab('profile',this)">
-          <span class="mini-icon">👤</span>
-          <span class="mini-label">Thông tin cá nhân</span>
-        </div>
-        <div class="mini-item" onclick="switchTab('address',this)">
-          <span class="mini-icon">📍</span>
-          <span class="mini-label">Địa chỉ giao hàng</span>
-        </div>
-        <div class="mini-item" onclick="goHistory()">
-          <span class="mini-icon">📦</span>
-          <span class="mini-label">Lịch sử đơn hàng</span>
-        </div>
-        <div class="mini-item" onclick="switchTab('settings',this)">
-          <span class="mini-icon">⚙️</span>
-          <span class="mini-label">Cài đặt tài khoản</span>
-        </div>
+
+    <!-- Vertical menu -->
+    <div class="side-menu">
+      <div class="smenu-item active" onclick="sw('profile',this)">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Hồ sơ của tôi
+      </div>
+      <div class="smenu-item" onclick="sw('address',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Địa chỉ giao hàng
+      </div>
+      <div class="smenu-item" onclick="window.location='/Order/History'">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Lịch sử đơn hàng
+      </div>
+      <div class="smenu-item" onclick="sw('settings',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Cài đặt tài khoản
+      </div>
+      <div class="smenu-item danger" onclick="openConf()">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Đăng xuất
       </div>
     </div>
   </aside>
@@ -188,37 +193,31 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
   <main>
     <!-- PROFILE TAB -->
     <div class="tab-content active" id="profileTab">
-      <div class="section-box">
-        <div class="section-header">
-          <div class="section-title">Thông tin cá nhân</div>
+      <div class="sbox">
+        <div class="sbox-hdr">
+          <div class="sbox-title">Thông tin cá nhân</div>
           <button class="btn-gold" onclick="toggleEdit()" id="editBtn">Chỉnh sửa</button>
         </div>
         <div id="infoView">
           <div class="info-grid">
-            <div><div class="info-label">Họ và tên</div><div class="info-value" id="vName">Nguyễn Thị B</div></div>
-            <div><div class="info-label">Email</div><div class="info-value" id="vEmail">nguyenthib@email.com</div></div>
-            <div><div class="info-label">Số điện thoại</div><div class="info-value" id="vPhone">0901 234 567</div></div>
-            <div><div class="info-label">Ngày sinh</div><div class="info-value" id="vDob">01/01/2000</div></div>
-            <div><div class="info-label">Giới tính</div><div class="info-value" id="vGender">Nữ</div></div>
-            <div><div class="info-label">Thành viên từ</div><div class="info-value">Tháng 3, 2024</div></div>
+            <div><div class="info-lbl">Họ và tên</div><div class="info-val" id="vName">Nguyễn Thị B</div></div>
+            <div><div class="info-lbl">Số điện thoại</div><div class="info-val" id="vPhone">0901 234 567</div></div>
+            <div><div class="info-lbl">Ngày sinh</div><div class="info-val" id="vDob">01/01/2000</div></div>
+            <div><div class="info-lbl">Giới tính</div><div class="info-val" id="vGender">Nữ</div></div>
+            <div><div class="info-lbl">Thành viên từ</div><div class="info-val">Tháng 3, 2024</div></div>
+            <div><div class="info-lbl">Hạng thành viên</div><div class="info-val" style="color:var(--gold)">NEVA Member</div></div>
           </div>
         </div>
         <div id="infoEdit" style="display:none">
           <div class="frow">
             <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="eName" value="Nguyễn Thị B"></div>
-            <div class="fgroup"><label class="flabel">Email</label><input class="finput" id="eEmail" value="nguyenthib@email.com"></div>
-          </div>
-          <div class="frow">
             <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="ePhone" value="0901 234 567"></div>
-            <div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" id="eDob" value="2000-01-01"></div>
           </div>
           <div class="frow">
-            <div class="fgroup">
-              <label class="flabel">Giới tính</label>
-              <select class="fselect" id="eGender"><option>Nữ</option><option>Nam</option><option>Khác</option></select>
-            </div>
+            <div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" id="eDob" value="2000-01-01"></div>
+            <div class="fgroup"><label class="flabel">Giới tính</label><select class="fselect" id="eGender"><option>Nữ</option><option>Nam</option><option>Khác</option></select></div>
           </div>
-          <div style="display:flex;gap:10px;margin-top:8px">
+          <div style="display:flex;gap:8px;margin-top:8px">
             <button class="btn-gold" onclick="saveProfile()">Lưu thay đổi</button>
             <button class="btn-outline" onclick="cancelEdit()">Hủy</button>
           </div>
@@ -228,258 +227,127 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 4
 
     <!-- ADDRESS TAB -->
     <div class="tab-content" id="addressTab">
-      <div class="section-box">
-        <div class="section-header">
-          <div class="section-title">Địa chỉ giao hàng</div>
-          <button class="btn-gold" onclick="openAddrModal(-1)">+ Thêm địa chỉ</button>
+      <div class="sbox">
+        <div class="sbox-hdr">
+          <div class="sbox-title">Địa chỉ giao hàng</div>
+          <button class="btn-gold" onclick="openAddrMo(-1)">+ Thêm mới</button>
         </div>
-        <div class="addr-list" id="addrList"></div>
-        <button class="btn-add-addr" onclick="openAddrModal(-1)">+ Thêm địa chỉ mới</button>
+        <div id="addrList"></div>
       </div>
     </div>
 
     <!-- SETTINGS TAB -->
     <div class="tab-content" id="settingsTab">
-      <div class="section-box">
-        <div class="section-header">
-          <div class="section-title">Cài đặt tài khoản</div>
+      <div class="sbox">
+        <div class="sbox-hdr"><div class="sbox-title">Cài đặt tài khoản</div></div>
+        <div class="sub-lbl">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Đổi mật khẩu
         </div>
-
-        <!-- Đổi mật khẩu -->
-        <div style="margin-bottom:36px">
-          <div class="sub-section-label"><span>🔒</span> Đổi mật khẩu</div>
-          <div class="frow full"><div class="fgroup"><label class="flabel">Mật khẩu hiện tại</label><input class="finput" type="password" id="curPass" placeholder="••••••••"></div></div>
-          <div class="frow">
-            <div class="fgroup"><label class="flabel">Mật khẩu mới</label><input class="finput" type="password" id="newPass" placeholder="Tối thiểu 8 ký tự"><div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div></div>
-            <div class="fgroup"><label class="flabel">Xác nhận mật khẩu mới</label><input class="finput" type="password" id="confirmPass" placeholder="Nhập lại mật khẩu mới"></div>
+        <div class="frow full">
+          <div class="fgroup">
+            <label class="flabel">Mật khẩu hiện tại</label>
+            <div class="finput-wrap">
+              <input class="finput" type="password" id="curP" placeholder="••••••••" readonly onfocus="this.removeAttribute('readonly')">
+              <button class="eye-btn" type="button" onclick="tp('curP')">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
-          <button class="btn-gold" onclick="updatePassword()">Cập nhật mật khẩu</button>
         </div>
-
-        <!-- Đăng xuất -->
-        <div>
-          <div class="sub-section-label"><span>🚪</span> Đăng xuất</div>
-          <p style="font-size:12px;font-weight:200;color:rgba(250,248,242,0.35);line-height:1.9;margin-bottom:20px">Bạn sẽ được đăng xuất khỏi tài khoản trên thiết bị này.</p>
-          <button class="btn-danger" onclick="confirmLogout()">🚪 &nbsp;Đăng xuất khỏi tài khoản</button>
+        <div class="frow">
+          <div class="fgroup">
+            <label class="flabel">Mật khẩu mới</label>
+            <div class="finput-wrap">
+              <input class="finput" type="password" id="newP" placeholder="Tối thiểu 8 ký tự">
+              <button class="eye-btn" type="button" onclick="tp('newP')">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Xác nhận mật khẩu mới</label>
+            <div class="finput-wrap">
+              <input class="finput" type="password" id="cfP" placeholder="Nhập lại mật khẩu mới">
+              <button class="eye-btn" type="button" onclick="tp('cfP')">
+                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
+        <button class="btn-gold" onclick="updPass()">Cập nhật mật khẩu</button>
       </div>
     </div>
   </main>
 </div>
 
 <!-- MODAL ĐỊA CHỈ -->
-<div class="modal-overlay" id="addrModal" onclick="if(event.target===this)closeAddrModal()">
+<div class="mo" id="addrMo" onclick="if(event.target===this)closeAddrMo()">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="addrModalTitle">Thêm địa chỉ mới</div>
-      <button class="modal-close" onclick="closeAddrModal()">×</button>
+    <div class="mhdr">
+      <div class="mhdr-t" id="addrMoT">Thêm địa chỉ mới</div>
+      <button class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal-body">
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="addrName" placeholder="Nguyễn Thị B"></div>
-        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="addrPhone" placeholder="0901 234 567"></div>
-      </div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label>
-          <select class="fselect" id="addrCity">
-            <option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option>
-            <option>Huế</option><option>Hội An</option>
-          </select>
-        </div>
-        <div class="fgroup"><label class="flabel">Quận / Huyện</label><input class="finput" id="addrDistrict" placeholder="Hải Châu"></div>
-      </div>
-      <div class="frow full"><div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" id="addrDetail" placeholder="Số nhà, tên đường, phường/xã..."></div></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-        <input type="checkbox" id="addrDefault" style="accent-color:var(--gold);width:14px;height:14px">
-        <label for="addrDefault" style="font-size:11px;letter-spacing:1px;color:rgba(250,248,242,0.45);cursor:none">Đặt làm địa chỉ mặc định</label>
-      </div>
+    <div class="mbody">
+      <div class="frow"><div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="adN"></div><div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="adP"></div></div>
+      <div class="frow"><div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label><select class="fselect" id="adC"><option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option></select></div><div class="fgroup"><label class="flabel">Quận / Huyện</label><input class="finput" id="adD"></div></div>
+      <div class="frow full"><div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" id="adA" placeholder="Số nhà, tên đường..."></div></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:5px"><input type="checkbox" id="adDef" style="accent-color:var(--gold);width:13px;height:13px"><label for="adDef" style="font-size:9px;letter-spacing:1px;color:rgba(250,248,242,.38)">Đặt làm địa chỉ mặc định</label></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeAddrModal()">Hủy</button>
-      <button class="btn-gold" onclick="saveAddr()">Lưu địa chỉ</button>
-    </div>
+    <div class="mfoot"><button class="btn-outline" onclick="closeAddrMo()">Hủy</button><button class="btn-gold" onclick="saveAddr()">Lưu địa chỉ</button></div>
   </div>
 </div>
 
 <!-- CONFIRM LOGOUT -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-icon">🚪</div>
-    <div class="confirm-title">Đăng xuất?</div>
-    <div class="confirm-sub">Bạn có chắc muốn đăng xuất khỏi tài khoản NEVA không?</div>
-    <div class="confirm-btns">
-      <button class="btn-outline" onclick="closeConfirm()">Hủy</button>
-      <button class="btn-danger" onclick="doLogout()">Đăng xuất</button>
-    </div>
+<div class="mo" id="confMo">
+  <div class="conf-box">
+    <div class="conf-t">Đăng xuất?</div>
+    <p class="conf-s">Bạn có chắc muốn đăng xuất khỏi tài khoản NEVA không?</p>
+    <div class="conf-b"><button class="btn-outline" onclick="closeConf()">Hủy</button><button class="btn-danger" onclick="window.location='/Account/Login'">Đăng xuất</button></div>
   </div>
 </div>
 
 <script>
-// CURSOR
-const c=document.getElementById('cursor'),r=document.getElementById('ring');
-document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-
-// TOAST
-function toast(msg,type='success'){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+type;t.style.display='block';
-  setTimeout(()=>{t.style.display='none'},3000);
-}
-
-// TAB SWITCH
-function switchTab(name,el){
+function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2600)}
+function tp(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
+function sw(n,el){
   document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.mini-item').forEach(x=>x.classList.remove('active'));
-  document.getElementById(name+'Tab').classList.add('active');
-  if(el) el.classList.add('active');
+  document.querySelectorAll('.smenu-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById(n+'Tab').classList.add('active');
+  if(el)el.classList.add('active');
 }
-
-// ĐI ĐẾN LỊCH SỬ ĐƠN HÀNG
-function goHistory(){
-  window.location='/Order/History';
-}
-
-// PROFILE EDIT
-let editing=false;
-function toggleEdit(){
-  editing=true;
-  document.getElementById('infoView').style.display='none';
-  document.getElementById('infoEdit').style.display='block';
-  document.getElementById('editBtn').style.display='none';
-}
-function cancelEdit(){
-  editing=false;
-  document.getElementById('infoView').style.display='block';
-  document.getElementById('infoEdit').style.display='none';
-  document.getElementById('editBtn').style.display='';
-}
+let ed=false;
+function toggleEdit(){ed=true;document.getElementById('infoView').style.display='none';document.getElementById('infoEdit').style.display='block';document.getElementById('editBtn').style.display='none'}
+function cancelEdit(){ed=false;document.getElementById('infoView').style.display='block';document.getElementById('infoEdit').style.display='none';document.getElementById('editBtn').style.display=''}
 function saveProfile(){
-  const name=document.getElementById('eName').value.trim();
-  const email=document.getElementById('eEmail').value.trim();
-  const phone=document.getElementById('ePhone').value.trim();
-  const dob=document.getElementById('eDob').value;
-  const gender=document.getElementById('eGender').value;
-  if(!name||!email||!phone){toast('Vui lòng điền đầy đủ thông tin!','error');return}
-  document.getElementById('vName').textContent=name;
-  document.getElementById('vEmail').textContent=email;
-  document.getElementById('vPhone').textContent=phone;
-  document.getElementById('vGender').textContent=gender;
-  if(dob){const[y,m,d]=dob.split('-');document.getElementById('vDob').textContent=d+'/'+m+'/'+y}
-  // Cập nhật tên trên sidebar
-  document.querySelector('.profile-name').textContent=name;
-  document.querySelector('.profile-email').textContent=email;
-  cancelEdit();
-  toast('✦ Cập nhật thông tin thành công!');
+  const n=document.getElementById('eName').value.trim(),p=document.getElementById('ePhone').value.trim();
+  if(!n||!p){toast('Vui lòng điền đầy đủ!','err');return}
+  document.getElementById('vName').textContent=n;document.getElementById('vPhone').textContent=p;
+  const dob=document.getElementById('eDob').value;if(dob){const[y,m,d]=dob.split('-');document.getElementById('vDob').textContent=`${d}/${m}/${y}`}
+  document.getElementById('vGender').textContent=document.getElementById('eGender').value;
+  document.querySelector('.p-name').textContent=n;
+  cancelEdit();toast('✦ Cập nhật thông tin thành công!','info');
 }
-
-// ADDRESS DATA
 let addresses=[
   {id:1,name:'Nguyễn Thị B',phone:'0901 234 567',city:'Đà Nẵng',district:'Hải Châu',detail:'123 Trần Phú, Hải Châu 1',isDefault:true},
   {id:2,name:'Nguyễn Thị B',phone:'0901 234 567',city:'Đà Nẵng',district:'Thanh Khê',detail:'456 Nguyễn Văn Linh, Thạc Gián',isDefault:false},
 ];
-let editAddrId=-1;
-
-function renderAddresses(){
-  const list=document.getElementById('addrList');
-  if(addresses.length===0){list.innerHTML='<p style="font-size:12px;color:rgba(250,248,242,0.3);text-align:center;padding:24px">Chưa có địa chỉ nào. Hãy thêm địa chỉ mới!</p>';return}
-  list.innerHTML=addresses.map(a=>`
-    <div class="addr-card${a.isDefault?' default':''}">
-      ${a.isDefault?'<div class="addr-default-badge">Mặc định</div>':''}
-      <div class="addr-name">${a.name} · ${a.phone}</div>
-      <div class="addr-text">${a.detail}, ${a.district}, ${a.city}</div>
-      <div class="addr-actions">
-        <span class="addr-action" onclick="openAddrModal(${a.id})">Chỉnh sửa</span>
-        ${!a.isDefault?`<span class="addr-action" onclick="setDefault(${a.id})">Đặt mặc định</span>`:''}
-        <span class="addr-action red" onclick="deleteAddr(${a.id})">Xóa</span>
-      </div>
-    </div>
-  `).join('');
+let editId=-1;
+function renderAddr(){
+  const el=document.getElementById('addrList');
+  if(!addresses.length){el.innerHTML='<p style="font-size:11px;color:rgba(250,248,242,.22);padding:12px 0">Chưa có địa chỉ nào.</p>';return}
+  el.innerHTML=addresses.map(a=>`<div class="addr-card ${a.isDefault?'def':''}">${a.isDefault?'<div class="addr-badge">Mặc định</div>':''}<div class="addr-name">${a.name} · ${a.phone}</div><div class="addr-text">${a.detail}, ${a.district}, ${a.city}</div><div class="addr-acts"><span class="addr-act" onclick="openAddrMo(${a.id})">Chỉnh sửa</span>${!a.isDefault?`<span class="addr-act" onclick="setDef(${a.id})">Đặt mặc định</span>`:''}<span class="addr-act red" onclick="delAddr(${a.id})">Xóa</span></div></div>`).join('');
 }
-
-function openAddrModal(id){
-  editAddrId=id;
-  if(id===-1){
-    document.getElementById('addrModalTitle').textContent='Thêm địa chỉ mới';
-    document.getElementById('addrName').value='';
-    document.getElementById('addrPhone').value='';
-    document.getElementById('addrCity').value='Đà Nẵng';
-    document.getElementById('addrDistrict').value='';
-    document.getElementById('addrDetail').value='';
-    document.getElementById('addrDefault').checked=false;
-  } else {
-    const a=addresses.find(x=>x.id===id);
-    document.getElementById('addrModalTitle').textContent='Chỉnh sửa địa chỉ';
-    document.getElementById('addrName').value=a.name;
-    document.getElementById('addrPhone').value=a.phone;
-    document.getElementById('addrCity').value=a.city;
-    document.getElementById('addrDistrict').value=a.district;
-    document.getElementById('addrDetail').value=a.detail;
-    document.getElementById('addrDefault').checked=a.isDefault;
-  }
-  document.getElementById('addrModal').classList.add('open');
-}
-function closeAddrModal(){document.getElementById('addrModal').classList.remove('open')}
-
-function saveAddr(){
-  const name=document.getElementById('addrName').value.trim();
-  const phone=document.getElementById('addrPhone').value.trim();
-  const city=document.getElementById('addrCity').value;
-  const district=document.getElementById('addrDistrict').value.trim();
-  const detail=document.getElementById('addrDetail').value.trim();
-  const isDefault=document.getElementById('addrDefault').checked;
-  if(!name||!phone||!district||!detail){toast('Vui lòng điền đầy đủ thông tin địa chỉ!','error');return}
-  if(isDefault) addresses.forEach(a=>a.isDefault=false);
-  if(editAddrId===-1){
-    addresses.push({id:Date.now(),name,phone,city,district,detail,isDefault});
-    toast('✦ Thêm địa chỉ thành công!');
-  } else {
-    const idx=addresses.findIndex(x=>x.id===editAddrId);
-    addresses[idx]={...addresses[idx],name,phone,city,district,detail,isDefault};
-    toast('✦ Cập nhật địa chỉ thành công!');
-  }
-  // Nếu chưa có mặc định thì đặt cái đầu tiên
-  if(!addresses.some(a=>a.isDefault)&&addresses.length>0) addresses[0].isDefault=true;
-  closeAddrModal();renderAddresses();
-}
-
-function setDefault(id){
-  addresses.forEach(a=>a.isDefault=a.id===id);
-  renderAddresses();toast('✦ Đã đặt địa chỉ mặc định!');
-}
-
-function deleteAddr(id){
-  const a=addresses.find(x=>x.id===id);
-  if(a.isDefault&&addresses.length>1){
-    toast('Không thể xóa địa chỉ mặc định. Hãy đặt địa chỉ khác làm mặc định trước!','error');return;
-  }
-  addresses=addresses.filter(x=>x.id!==id);
-  if(addresses.length>0&&!addresses.some(a=>a.isDefault)) addresses[0].isDefault=true;
-  renderAddresses();toast('Đã xóa địa chỉ.');
-}
-
-// PASSWORD
-const MOCK_PASSWORD='123456';
-function updatePassword(){
-  const cur=document.getElementById('curPass').value;
-  const nw=document.getElementById('newPass').value;
-  const cf=document.getElementById('confirmPass').value;
-  if(!cur||!nw||!cf){toast('Vui lòng điền đầy đủ các ô mật khẩu!','error');return}
-  if(cur!==MOCK_PASSWORD){toast('Mật khẩu hiện tại không đúng!','error');return}
-  if(nw.length<8){toast('Mật khẩu mới phải có ít nhất 8 ký tự!','error');return}
-  if(nw!==cf){toast('Mật khẩu xác nhận không khớp!','error');return}
-  document.getElementById('curPass').value='';
-  document.getElementById('newPass').value='';
-  document.getElementById('confirmPass').value='';
-  toast('✦ Cập nhật mật khẩu thành công!');
-}
-
-// LOGOUT
-function confirmLogout(){document.getElementById('confirmOverlay').classList.add('open')}
-function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open')}
-function doLogout(){window.location='/Account/Login'}
-
-// INIT
-renderAddresses();
+function openAddrMo(id){editId=id;document.getElementById('addrMoT').textContent=id===-1?'Thêm địa chỉ mới':'Chỉnh sửa địa chỉ';if(id!==-1){const a=addresses.find(x=>x.id===id);document.getElementById('adN').value=a.name;document.getElementById('adP').value=a.phone;document.getElementById('adC').value=a.city;document.getElementById('adD').value=a.district;document.getElementById('adA').value=a.detail;document.getElementById('adDef').checked=a.isDefault}else{['adN','adP','adD','adA'].forEach(i=>document.getElementById(i).value='');document.getElementById('adDef').checked=false}document.getElementById('addrMo').classList.add('open')}
+function closeAddrMo(){document.getElementById('addrMo').classList.remove('open')}
+function saveAddr(){const n=document.getElementById('adN').value.trim(),p=document.getElementById('adP').value.trim(),city=document.getElementById('adC').value,d=document.getElementById('adD').value.trim(),a=document.getElementById('adA').value.trim(),def=document.getElementById('adDef').checked;if(!n||!p||!d||!a){toast('Vui lòng điền đầy đủ!','err');return}if(def)addresses.forEach(x=>x.isDefault=false);if(editId===-1){addresses.push({id:Date.now(),name:n,phone:p,city,district:d,detail:a,isDefault:def});toast('✦ Đã thêm địa chỉ!','info')}else{const i=addresses.findIndex(x=>x.id===editId);addresses[i]={...addresses[i],name:n,phone:p,city,district:d,detail:a,isDefault:def};toast('✦ Đã cập nhật!','info')}if(!addresses.some(x=>x.isDefault)&&addresses.length)addresses[0].isDefault=true;closeAddrMo();renderAddr()}
+function setDef(id){addresses.forEach(x=>x.isDefault=x.id===id);renderAddr();toast('✦ Đã đặt mặc định!','info')}
+function delAddr(id){if(addresses.find(x=>x.id===id)?.isDefault&&addresses.length>1){toast('Không thể xóa địa chỉ mặc định!','err');return}addresses=addresses.filter(x=>x.id!==id);if(addresses.length&&!addresses.some(x=>x.isDefault))addresses[0].isDefault=true;renderAddr();toast('Đã xóa địa chỉ.')}
+function updPass(){const cur=document.getElementById('curP').value,nw=document.getElementById('newP').value,cf=document.getElementById('cfP').value;if(!cur||!nw||!cf){toast('Vui lòng điền đầy đủ!','err');return}if(cur!=='123456'){toast('Mật khẩu hiện tại không đúng!','err');return}if(nw.length<8){toast('Mật khẩu mới phải ít nhất 8 ký tự!','err');return}if(nw!==cf){toast('Mật khẩu xác nhận không khớp!','err');return}['curP','newP','cfP'].forEach(i=>document.getElementById(i).value='');toast('✦ Cập nhật mật khẩu thành công!','info')}
+function openConf(){document.getElementById('confMo').classList.add('open')}
+function closeConf(){document.getElementById('confMo').classList.remove('open')}
+renderAddr();
 </script>
 </body>
 </html>

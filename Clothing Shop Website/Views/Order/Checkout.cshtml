@@ -9,156 +9,333 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;--muted:#888;--border:rgba(201,168,76,0.2);--font-display:'Playfair Display',serif;--font-body:'Josefin Sans',sans-serif;--font-alt:'EB Garamond',serif}
-body{font-family:var(--font-body);background:var(--black);color:var(--white);cursor:none}
+:root{
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --black:#050402;--dark:#0c0a07;--dark2:#14100a;
+  --white:#faf8f2;--border:rgba(201,168,76,0.18);
+  --font-d:'Playfair Display',serif;--font-b:'Josefin Sans',sans-serif;--font-a:'EB Garamond',serif;
+  --nav-h:52px;
+}
+body{font-family:var(--font-b);background:var(--black);color:var(--white)}
 a{text-decoration:none;color:inherit}
-.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999}
-.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s;opacity:0.6}
-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:var(--font-display);font-size:22px;letter-spacing:8px;color:var(--white)}
-.nav-icons{display:flex;gap:20px;font-size:15px}.nav-icons a{color:rgba(250,248,242,0.5)}
+img{display:block;width:100%;height:100%;object-fit:cover}
 
-.steps{display:flex;justify-content:center;gap:0;padding:20px 60px;background:var(--dark);border-bottom:1px solid var(--border)}
-.step{display:flex;align-items:center;gap:10px}
-.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:300;letter-spacing:1px}
+/* NAV */
+nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;justify-self:start;display:flex;align-items:center;gap:12px}
+.nav-logo a{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
+.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
+.nav-mid{display:flex;align-items:center;justify-content:center}
+.nl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,.7);padding:0 14px;transition:color .2s}
+.nl:hover{color:var(--white)}.nl.active{color:var(--gold)}
+.nd{color:rgba(250,248,242,.14);font-size:10px}
+.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
+.ni{color:rgba(250,248,242,.55);transition:color .2s;display:flex;align-items:center}
+.ni:hover{color:var(--gold)}
+.ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* STEPS */
+.steps-bar{display:flex;justify-content:center;align-items:center;gap:0;padding:16px 44px;background:var(--dark);border-bottom:1px solid var(--border)}
+.step{display:flex;align-items:center;gap:9px}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:300;letter-spacing:1px;flex-shrink:0}
 .step.done .step-num{background:var(--gold);color:var(--black)}
 .step.active .step-num{border:1px solid var(--gold);color:var(--gold)}
-.step:not(.done):not(.active) .step-num{border:1px solid var(--border);color:rgba(250,248,242,0.25)}
-.step-label{font-size:10px;letter-spacing:2px;text-transform:uppercase}
-.step.active .step-label{color:var(--gold)}
-.step:not(.done):not(.active) .step-label{color:rgba(250,248,242,0.2)}
-.step.done .step-label{color:rgba(201,168,76,0.6)}
-.step-line{width:60px;height:1px;margin:0 14px}
-.step-line.done{background:var(--gold);opacity:0.4}
-.step-line:not(.done){background:var(--border)}
+.step.wait .step-num{border:1px solid var(--border);color:rgba(250,248,242,.22)}
+.step-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase}
+.step.done .step-lbl{color:rgba(201,168,76,.6)}
+.step.active .step-lbl{color:var(--gold)}
+.step.wait .step-lbl{color:rgba(250,248,242,.2)}
+.step-line{width:56px;height:1px;margin:0 12px}
+.step-line.done{background:rgba(201,168,76,.4)}
+.step-line.wait{background:var(--border)}
 
-.checkout-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:32px 60px 80px;max-width:1320px;margin:0 auto}
-.form-box{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:14px}
-.form-box-title{font-family:var(--font-display);font-size:22px;font-weight:400;font-style:italic;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.form-box-title span{font-size:20px}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+/* LAYOUT */
+.checkout-layout{display:grid;grid-template-columns:1fr 360px;gap:18px;padding:28px 52px 80px;max-width:1360px;margin:0 auto}
+
+/* FORM BOX */
+.form-box{background:var(--dark);border:1px solid var(--border);padding:26px;margin-bottom:14px;position:relative;overflow:hidden}
+.form-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
+.form-box-title{font-family:var(--font-d);font-size:20px;font-weight:400;font-style:italic;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.form-box-title svg{width:16px;height:16px;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
 .frow.full{grid-template-columns:1fr}
 .fgroup{display:flex;flex-direction:column;gap:7px}
-.flabel{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.6)}
-.finput{padding:12px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);font-weight:200;color:var(--white);letter-spacing:0.5px;transition:border-color 0.2s}.finput:focus{outline:none;border-color:var(--gold)}
-.fselect{padding:12px 14px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-body);color:var(--white);cursor:none}
-.pay-options{display:flex;flex-direction:column;gap:10px}
-.pay-opt{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--border);cursor:none;transition:border-color 0.2s}
-.pay-opt.selected{border-color:var(--gold);background:rgba(201,168,76,0.03)}
-.pay-opt:hover{border-color:rgba(201,168,76,0.4)}
-.pay-radio{width:18px;height:18px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color 0.2s}
-.pay-opt.selected .pay-radio{border-color:var(--gold)}
-.pay-opt.selected .pay-radio::after{content:'';width:8px;height:8px;background:var(--gold);border-radius:50%}
-.pay-icon{font-size:22px}
-.pay-name{font-size:13px;font-weight:300;letter-spacing:0.5px}
-.pay-desc{font-size:11px;letter-spacing:0.5px;color:rgba(250,248,242,0.3);margin-top:2px}
+.flabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6)}
+.finput,.fselect,.ftextarea{padding:11px 13px;border:1px solid var(--border);background:var(--dark2);font-size:13px;font-family:var(--font-b);font-weight:200;color:var(--white);letter-spacing:.5px;transition:border-color .2s;outline:none;width:100%}
+.finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--gold)}
+.finput::placeholder,.ftextarea::placeholder{color:rgba(250,248,242,.18)}
+.ftextarea{resize:vertical;min-height:72px}
 
-.order-side{position:sticky;top:24px}
-.summary-box{background:var(--dark);border:1px solid var(--border);padding:28px;margin-bottom:12px}
-.summary-title{font-family:var(--font-display);font-size:24px;font-weight:400;font-style:italic;margin-bottom:22px}
-.sitem{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.sthumb{width:50px;height:62px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative}
-.t1{background:linear-gradient(160deg,#1e1c14,#0e0c08)}.t2{background:linear-gradient(160deg,#14181e,#080c12)}.t3{background:linear-gradient(160deg,#1a1018,#0c080e)}
-.sqbadge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-size:9px;color:var(--black);display:flex;align-items:center;justify-content:center}
-.sname{font-size:12px;font-weight:200;letter-spacing:0.5px;margin-bottom:2px}
-.smeta{font-size:10px;color:rgba(250,248,242,0.3);letter-spacing:1px}
-.sprice{font-size:13px;font-weight:400;letter-spacing:0.5px;margin-left:auto;flex-shrink:0}
-.sdiv{border:none;border-top:1px solid var(--border);margin:16px 0}
-.srow{display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;font-weight:200;letter-spacing:0.5px}
-.srow.total{font-size:17px;font-weight:400;padding-top:14px;border-top:1px solid var(--border);color:var(--gold)}
-.slabel{color:rgba(250,248,242,0.4)}
-.btn-order{width:100%;padding:18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body);margin-top:8px;transition:opacity 0.2s}.btn-order:hover{opacity:0.85}
-.secure{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.2);margin-top:12px}
+/* COD ONLY */
+.pay-cod{
+  display:flex;align-items:center;gap:16px;
+  padding:18px;border:1px solid rgba(201,168,76,.4);
+  background:rgba(201,168,76,.04);
+  margin-bottom:8px;
+}
+.pay-cod-icon{
+  width:44px;height:44px;flex-shrink:0;
+  border:1px solid rgba(201,168,76,.3);
+  background:rgba(201,168,76,.08);
+  display:flex;align-items:center;justify-content:center;
+}
+.pay-cod-icon svg{width:20px;height:20px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pay-cod-name{font-size:13px;font-weight:300;letter-spacing:.5px;margin-bottom:3px}
+.pay-cod-desc{font-size:11px;letter-spacing:.5px;color:rgba(250,248,242,.35)}
+.pay-cod-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0}
+.pay-cod-check::after{content:'';width:8px;height:6px;border-left:1.5px solid var(--gold);border-bottom:1.5px solid var(--gold);transform:rotate(-45deg) translateY(-1px);display:block}
+.pay-note{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.28);line-height:1.8;padding:12px 14px;border:1px solid rgba(201,168,76,.1);background:rgba(201,168,76,.03);display:flex;gap:8px;align-items:flex-start}
+.pay-note svg{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;flex-shrink:0;margin-top:1px}
 
-/* SUCCESS */
-.success-screen{display:none;position:fixed;inset:0;background:var(--black);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:40px}
+/* ORDER SIDE */
+.order-side{position:sticky;top:calc(var(--nav-h) + 16px)}
+.summary-box{background:var(--dark);border:1px solid var(--border);padding:22px;margin-bottom:10px;position:relative;overflow:hidden}
+.summary-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
+.summary-title{font-family:var(--font-d);font-size:22px;font-weight:400;font-style:italic;margin-bottom:18px}
+
+/* Order items */
+.order-items{margin-bottom:16px}
+.oitem{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.oitem:last-child{margin-bottom:0}
+.oitem-thumb{width:48px;height:60px;flex-shrink:0;overflow:hidden;position:relative}
+.oitem-thumb img{filter:brightness(.82)}
+.oitem-qty{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-size:9px;color:var(--black);display:flex;align-items:center;justify-content:center;font-family:var(--font-b)}
+.oitem-name{font-family:var(--font-a);font-size:13px;font-style:italic;margin-bottom:2px}
+.oitem-meta{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.32)}
+.oitem-price{font-size:12px;font-weight:300;margin-left:auto;flex-shrink:0;color:var(--white)}
+
+.sdiv{border:none;border-top:1px solid var(--border);margin:14px 0}
+.srow{display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;font-weight:200;letter-spacing:.5px}
+.srow.total{font-size:17px;font-weight:400;padding-top:13px;border-top:1px solid var(--border);color:var(--gold);margin-bottom:0}
+.slabel{color:rgba(250,248,242,.38)}
+
+/* Points used display */
+.pts-used-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;font-weight:200}
+.pts-used-label{color:rgba(250,248,242,.38);display:flex;align-items:center;gap:5px}
+.pts-used-label svg{width:11px;height:11px;fill:none;stroke:rgba(201,168,76,.5);stroke-width:1.5;stroke-linecap:round}
+
+.btn-order{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  border:none;font-family:var(--font-b);margin-top:8px;
+  transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-order:hover{opacity:.85}
+.btn-order svg{width:14px;height:14px;fill:none;stroke:var(--black);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.secure{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,.18);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.secure svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+
+/* SUCCESS SCREEN */
+.success-screen{display:none;position:fixed;inset:0;background:var(--black);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center}
 .success-screen.show{display:flex}
-.success-ornament{font-size:60px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
-.success-title{font-family:var(--font-display);font-size:64px;font-weight:400;text-align:center;line-height:1;margin-bottom:14px}
+.success-ornament{font-family:var(--font-d);font-size:80px;color:var(--gold);opacity:.15;position:absolute;user-select:none}
+.success-icon{width:72px;height:72px;border-radius:50%;background:rgba(201,168,76,.1);border:1.5px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;margin-bottom:24px;position:relative;z-index:1}
+.success-icon svg{width:32px;height:32px;fill:none;stroke:var(--gold);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.success-title{font-family:var(--font-d);font-size:56px;font-weight:400;line-height:1;margin-bottom:14px;position:relative;z-index:1}
 .success-title em{font-style:italic;color:var(--gold)}
-.success-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto}
-.success-sub{font-size:13px;font-weight:200;letter-spacing:1.5px;color:rgba(250,248,242,0.45);text-align:center;max-width:420px;line-height:2;margin-bottom:8px}
-.success-code{font-size:12px;letter-spacing:3px;color:var(--gold);margin-bottom:40px}
-.success-btns{display:flex;gap:14px}
-.btn-track{padding:14px 34px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;border:none;cursor:none;font-family:var(--font-body)}
-.btn-shop{padding:14px 32px;background:transparent;color:rgba(250,248,242,0.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);cursor:none;font-family:var(--font-body);transition:border-color 0.2s}.btn-shop:hover{border-color:var(--gold);color:var(--gold)}
-@@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.success-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:20px auto}
+.success-sub{font-size:13px;font-weight:200;letter-spacing:1.5px;color:rgba(250,248,242,.45);max-width:400px;line-height:2;margin-bottom:8px;position:relative;z-index:1}
+.success-code{font-size:12px;letter-spacing:3px;color:var(--gold);margin-bottom:10px;position:relative;z-index:1}
+.success-pts{font-size:11px;letter-spacing:1.5px;color:rgba(201,168,76,.6);background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);padding:8px 20px;margin-bottom:32px;display:inline-block;position:relative;z-index:1}
+.success-btns{display:flex;gap:12px;position:relative;z-index:1}
+.btn-track{padding:13px 30px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}
+.btn-track:hover{opacity:.85}
+.btn-shop{padding:13px 28px;background:transparent;color:rgba(250,248,242,.45);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);transition:all .2s}
+.btn-shop:hover{border-color:var(--gold);color:var(--gold)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:10px;letter-spacing:1.5px;border:1px solid;display:none}
+.toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
 </style>
 </head>
 <body>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="ring"></div>
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">NEVA</a>
-  <div class="nav-icons"><a href="/Account/Profile">👤</a><a href="/Cart">🛒</a></div>
+  <div class="nav-logo">
+    <a href="/">NEVA</a>
+    <span class="nav-logo-sep">|</span>
+  </div>
+  <div class="nav-mid">
+    <a href="/Product" class="nl">Bộ sưu tập</a>
+    <span class="nd">|</span>
+    <a href="/" class="nl">Haute Couture</a>
+    <span class="nd">|</span>
+    <a href="/Account/Login" class="nl">Tài khoản</a>
+  </div>
+  <div class="nav-right">
+    <a href="/Account/Profile" class="ni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+    <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></a>
+  </div>
 </nav>
-<div class="steps">
-  <div class="step done"><div class="step-num">✓</div><div class="step-label">Giỏ hàng</div></div>
+
+<!-- STEPS -->
+<div class="steps-bar">
+  <div class="step done">
+    <div class="step-num">✓</div>
+    <div class="step-lbl">Giỏ hàng</div>
+  </div>
   <div class="step-line done"></div>
-  <div class="step active"><div class="step-num">2</div><div class="step-label">Thanh toán</div></div>
-  <div class="step-line"></div>
-  <div class="step"><div class="step-num">3</div><div class="step-label">Xác nhận</div></div>
+  <div class="step active">
+    <div class="step-num">2</div>
+    <div class="step-lbl">Thanh toán</div>
+  </div>
+  <div class="step-line wait"></div>
+  <div class="step wait">
+    <div class="step-num">3</div>
+    <div class="step-lbl">Xác nhận</div>
+  </div>
 </div>
+
 <div class="checkout-layout">
+  <!-- LEFT — FORM -->
   <div>
+    <!-- Thông tin giao hàng -->
     <div class="form-box">
-      <div class="form-box-title"><span>📦</span> Thông tin giao hàng</div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" type="text" value="Nguyễn Thị B"></div>
-        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" type="tel" value="0901 234 567"></div>
+      <div class="form-box-title">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Thông tin giao hàng
       </div>
       <div class="frow">
-        <div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label><select class="fselect"><option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option></select></div>
-        <div class="fgroup"><label class="flabel">Quận / Huyện</label><select class="fselect"><option>Hải Châu</option><option>Thanh Khê</option><option>Ngũ Hành Sơn</option></select></div>
+        <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" type="text" value="Nguyễn Thị B" placeholder="Họ và tên"></div>
+        <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" type="tel" value="0901 234 567" placeholder="Số điện thoại"></div>
+      </div>
+      <div class="frow">
+        <div class="fgroup">
+          <label class="flabel">Tỉnh / Thành phố</label>
+          <select class="fselect">
+            <option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option>
+            <option>Huế</option><option>Hội An</option>
+          </select>
+        </div>
+        <div class="fgroup"><label class="flabel">Quận / Huyện</label><input class="finput" type="text" placeholder="Hải Châu" value="Hải Châu"></div>
       </div>
       <div class="frow full">
-        <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" type="text" placeholder="Số nhà, tên đường, phường/xã..."></div>
+        <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" type="text" placeholder="Số nhà, tên đường, phường/xã..." value="123 Trần Phú, Hải Châu 1"></div>
       </div>
       <div class="frow full">
-        <div class="fgroup"><label class="flabel">Ghi chú (không bắt buộc)</label><input class="finput" type="text" placeholder="VD: Giao giờ hành chính, gọi trước khi giao..."></div>
+        <div class="fgroup"><label class="flabel">Ghi chú (không bắt buộc)</label><textarea class="ftextarea" placeholder="VD: Giao giờ hành chính, gọi trước khi giao..."></textarea></div>
       </div>
     </div>
+
+    <!-- Phương thức thanh toán — COD only -->
     <div class="form-box">
-      <div class="form-box-title"><span>💳</span> Phương thức thanh toán</div>
-      <div class="pay-options">
-        <div class="pay-opt selected" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">💵</div><div><div class="pay-name">Tiền mặt khi nhận hàng (COD)</div><div class="pay-desc">Thanh toán khi nhận được sản phẩm</div></div></div>
-        <div class="pay-opt" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">🏦</div><div><div class="pay-name">Chuyển khoản ngân hàng</div><div class="pay-desc">Vietcombank · Techcombank · MB Bank</div></div></div>
-        <div class="pay-opt" onclick="selPay(this)"><div class="pay-radio"></div><div class="pay-icon">📱</div><div><div class="pay-name">Ví điện tử</div><div class="pay-desc">MoMo · ZaloPay · VNPay</div></div></div>
+      <div class="form-box-title">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Phương thức thanh toán
+      </div>
+      <div class="pay-cod">
+        <div class="pay-cod-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div>
+          <div class="pay-cod-name">Thanh toán khi nhận hàng (COD)</div>
+          <div class="pay-cod-desc">Thanh toán bằng tiền mặt khi nhận được sản phẩm</div>
+        </div>
+        <div class="pay-cod-check"></div>
+      </div>
+      <div class="pay-note">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        NEVA hiện chỉ hỗ trợ thanh toán khi nhận hàng (COD). Vui lòng chuẩn bị đúng số tiền khi nhận hàng.
       </div>
     </div>
   </div>
+
+  <!-- RIGHT — ORDER SUMMARY -->
   <div class="order-side">
     <div class="summary-box">
       <div class="summary-title">Đơn hàng</div>
-      <div class="sitem"><div class="sthumb t1">👕<span class="sqbadge">2</span></div><div style="flex:1"><div class="sname">Áo thun basic oversize</div><div class="smeta">Đen · M</div></div><span class="sprice">640.000 ₫</span></div>
-      <div class="sitem"><div class="sthumb t2">👖<span class="sqbadge">1</span></div><div style="flex:1"><div class="sname">Quần cargo wide leg</div><div class="smeta">Xanh rêu · 30</div></div><span class="sprice">480.000 ₫</span></div>
-      <div class="sitem"><div class="sthumb t3">🧣<span class="sqbadge">1</span></div><div style="flex:1"><div class="sname">Khăn wool blend</div><div class="smeta">Kem</div></div><span class="sprice">210.000 ₫</span></div>
-      <hr class="sdiv">
-      <div class="srow"><span class="slabel">Tạm tính</span><span>1.330.000 ₫</span></div>
-      <div class="srow"><span class="slabel">Vận chuyển</span><span>30.000 ₫</span></div>
-      <div class="srow"><span class="slabel">Giảm giá</span><span style="color:#6aad6a">—0 ₫</span></div>
-      <div class="srow total"><span>Tổng cộng</span><span>1.360.000 ₫</span></div>
+
+      <!-- Items với ảnh thật -->
+      <div class="order-items">
+        <div class="oitem">
+          <div class="oitem-thumb">
+            <img src="https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=200&q=80" alt="Áo blouse">
+            <span class="oitem-qty">2</span>
+          </div>
+          <div style="flex:1">
+            <div class="oitem-name">Áo blouse lụa cổ V</div>
+            <div class="oitem-meta">Kem · Size M</div>
+          </div>
+          <div class="oitem-price">1.960.000đ</div>
+        </div>
+        <div class="oitem">
+          <div class="oitem-thumb">
+            <img src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=200&q=80" alt="Quần">
+            <span class="oitem-qty">1</span>
+          </div>
+          <div style="flex:1">
+            <div class="oitem-name">Quần wide-leg linen</div>
+            <div class="oitem-meta">Đen · Size S</div>
+          </div>
+          <div class="oitem-price">1.350.000đ</div>
+        </div>
+      </div>
+
+      <div class="sdiv"></div>
+      <div class="srow"><span class="slabel">Tạm tính</span><span>3.310.000đ</span></div>
+      <div class="srow"><span class="slabel">Phí vận chuyển</span><span>Miễn phí</span></div>
+      <div class="srow"><span class="slabel">Mã giảm giá</span><span style="color:#7aba7a">— 0đ</span></div>
+      <div class="pts-used-row">
+        <span class="pts-used-label">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Điểm thưởng (500 điểm)
+        </span>
+        <span style="color:#7aba7a">— 50.000đ</span>
+      </div>
+      <div class="srow total"><span>Tổng cộng</span><span>3.260.000đ</span></div>
+
+      <button class="btn-order" onclick="placeOrder()">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Đặt hàng ngay
+      </button>
+      <p class="secure">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Thanh toán COD · An toàn & Bảo mật
+      </p>
     </div>
-    <button class="btn-order" onclick="showSuccess()">Đặt hàng ngay →</button>
-    <p class="secure">◆ Thông tin được bảo mật tuyệt đối</p>
   </div>
 </div>
+
+<!-- SUCCESS SCREEN -->
 <div class="success-screen" id="successScreen">
   <div class="success-ornament">✦</div>
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
   <h1 class="success-title">Đặt hàng<br><em>thành công</em></h1>
   <div class="success-line"></div>
-  <p class="success-sub">Cảm ơn bạn đã tin tưởng NEVA. Đơn hàng của bạn đang được chuẩn bị và sẽ được giao trong 2–4 ngày làm việc.</p>
-  <div class="success-code"># NV-20250507-0042</div>
+  <p class="success-sub">Cảm ơn bạn đã tin tưởng NEVA. Đơn hàng của bạn đang được chuẩn bị và sẽ giao trong 2–4 ngày làm việc.</p>
+  <div class="success-code" id="successCode"># NV-20250509-0043</div>
+  <div class="success-pts" id="successPts">✦ Bạn vừa tích được 331 điểm thưởng!</div>
   <div class="success-btns">
     <button class="btn-track" onclick="window.location='/Order/History'">Theo dõi đơn hàng</button>
     <button class="btn-shop" onclick="window.location='/'">Tiếp tục mua sắm</button>
   </div>
 </div>
+
 <script>
-const c=document.getElementById('cursor'),r=document.getElementById('ring');
-document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-function selPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
-function showSuccess(){document.getElementById('successScreen').classList.add('show')}
+function toast(m,t='err'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
+
+function placeOrder(){
+  // Validate form
+  const name=document.querySelector('input[type="text"]').value.trim();
+  const phone=document.querySelector('input[type="tel"]').value.trim();
+  if(!name||!phone){toast('Vui lòng điền đầy đủ thông tin giao hàng!');return}
+
+  // Generate order code
+  const code='NV-'+new Date().getFullYear()+''+String(new Date().getMonth()+1).padStart(2,'0')+''+String(new Date().getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*9000)+1000);
+  document.getElementById('successCode').textContent='# '+code;
+
+  // Tính điểm tích được: 10.000đ = 1 điểm
+  const orderTotal=3260000;
+  const pointsEarned=Math.floor(orderTotal/10000);
+  document.getElementById('successPts').textContent='✦ Bạn vừa tích được '+pointsEarned.toLocaleString('vi-VN')+' điểm thưởng!';
+
+  document.getElementById('successScreen').classList.add('show');
+}
 </script>
 </body>
 </html>

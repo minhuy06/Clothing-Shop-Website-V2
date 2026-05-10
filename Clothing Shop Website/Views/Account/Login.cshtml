@@ -10,204 +10,204 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --gold:#c9a84c;--gold2:#e8c96a;--gold3:#f0d87a;
-  --black:#080808;--dark:#111;--dark2:#1a1a1a;--white:#faf8f2;
-  --border:rgba(201,168,76,0.25);
-  --font-display:'Playfair Display',serif;
-  --font-body:'Josefin Sans',sans-serif;
-  --font-alt:'EB Garamond',serif;
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --black:#050402;--dark:#0c0a07;--dark2:#14100a;
+  --white:#faf8f2;--border:rgba(201,168,76,0.18);
+  --font-d:'Playfair Display',serif;
+  --font-b:'Josefin Sans',sans-serif;
+  --nav-h:52px;
 }
-body{font-family:var(--font-body);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;cursor:none;overflow:hidden}
-.cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.1s}
-.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.15s;opacity:0.6}
-nav{display:none}
-.nav-logo{display:none}
-.visual-top-logo{font-family:var(--font-display);font-size:18px;font-weight:400;letter-spacing:8px;color:rgba(250,248,242,0.85);text-decoration:none;border-bottom:1px solid rgba(250,235,150,0.4);padding-bottom:2px;position:absolute;top:28px;left:48px;z-index:10;text-shadow:0 1px 8px rgba(0,0,0,0.2)}
-.auth-layout{display:grid;grid-template-columns:1fr 1fr;height:100vh}
+body{font-family:var(--font-b);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
 
-/* LEFT — gold panel */
+/* ── NAV đồng bộ trang chủ ── */
+nav{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;padding:0 44px;height:var(--nav-h);
+  background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;flex-shrink:0;
+}
+.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white);justify-self:start;display:flex;align-items:center;gap:12px}
+.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
+.nav-mid{display:flex;align-items:center;justify-content:center}
+.nl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,.7);padding:0 14px;transition:color .2s}
+.nl:hover{color:var(--white)}.nl.active{color:var(--gold)}
+.nd{color:rgba(250,248,242,.14);font-size:10px}
+.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
+.ni{color:rgba(250,248,242,.55);transition:color .2s;display:flex;align-items:center}
+.ni:hover{color:var(--gold)}
+.ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── LAYOUT ── */
+.auth-layout{
+  display:grid;grid-template-columns:1fr 1fr;
+  flex:1;min-height:calc(100vh - var(--nav-h));
+}
+
+/* ── LEFT — gold panel ── */
 .auth-visual{
   position:relative;overflow:hidden;
-  background:linear-gradient(145deg,#c49a35 0%,#8a6420 30%,#6b4e18 55%,#3d2c0a 100%);
+  background:linear-gradient(145deg,#c49a35 0%,#8a6420 28%,#6b4e18 55%,#3d2c0a 100%);
 }
 .auth-visual::before{
   content:'';position:absolute;inset:0;z-index:1;
   background:
-    radial-gradient(ellipse 130% 70% at 50% 20%,rgba(245,220,110,0.22) 0%,transparent 55%),
-    radial-gradient(ellipse 80% 60% at 15% 85%,rgba(40,22,2,0.45) 0%,transparent 65%),
-    radial-gradient(ellipse 50% 40% at 85% 70%,rgba(30,15,0,0.3) 0%,transparent 60%);
+    radial-gradient(ellipse 130% 70% at 50% 20%,rgba(245,220,110,.22) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 15% 85%,rgba(40,22,2,.45) 0%,transparent 65%);
 }
 .auth-visual::after{
-  content:'';position:absolute;inset:0;z-index:2;opacity:0.06;
+  content:'';position:absolute;inset:0;z-index:2;opacity:.06;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:160px;
 }
 .visual-content{
   position:relative;z-index:3;height:100%;
   display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:90px 48px 60px;gap:0;
+  align-items:center;justify-content:space-between;
+  padding:60px 48px 48px;
+}
+.visual-top{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;justify-content:center;
+}
+.visual-quote{
+  align-self:flex-start;width:100%;
 }
 
-/* CREST */
-.crest-area{display:flex;flex-direction:column;align-items:center;margin-bottom:60px}
-.crest{width:168px;height:168px;position:relative;display:flex;align-items:center;justify-content:center}
-.crest-outer-ring{
-  position:absolute;inset:0;border-radius:50%;
-  border:1.5px solid rgba(250,235,160,0.45);
-}
-.crest-inner-ring{
-  position:absolute;inset:14px;border-radius:50%;
-  border:1px solid rgba(250,235,160,0.25);
-}
-/* Top arc text */
-.crest-top-text{
-  position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  font-size:8px;letter-spacing:5px;text-transform:uppercase;
-  color:rgba(250,235,155,0.65);font-family:var(--font-body);font-weight:200;
-  white-space:nowrap;
-}
-.crest-bottom-text{
-  position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
-  font-size:8px;letter-spacing:4px;text-transform:uppercase;
-  color:rgba(250,235,155,0.45);font-family:var(--font-body);font-weight:200;
-  white-space:nowrap;
-}
-/* Side ornaments */
-.crest-side-l,.crest-side-r{
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:16px;height:1px;background:rgba(250,235,160,0.35);
-}
-.crest-side-l{left:8px}.crest-side-r{right:8px}
-
+/* Crest */
+.crest-area{display:flex;flex-direction:column;align-items:center;margin-bottom:52px}
+.crest{width:160px;height:160px;position:relative;display:flex;align-items:center;justify-content:center}
+.crest-outer-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(250,235,160,.45)}
+.crest-inner-ring{position:absolute;inset:14px;border-radius:50%;border:1px solid rgba(250,235,160,.25)}
+.crest-top-text{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:5px;text-transform:uppercase;color:rgba(250,235,155,.65);font-family:var(--font-b);font-weight:200;white-space:nowrap}
+.crest-bottom-text{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:4px;text-transform:uppercase;color:rgba(250,235,155,.45);font-family:var(--font-b);font-weight:200;white-space:nowrap}
+.crest-side-l,.crest-side-r{position:absolute;top:50%;height:1px;width:16px;background:rgba(250,235,160,.35)}
+.crest-side-l{left:8px;transform:translateY(-50%)}
+.crest-side-r{right:8px;transform:translateY(-50%)}
 .crest-body{
-  width:116px;height:116px;border-radius:50%;
-  background:linear-gradient(160deg,rgba(245,215,90,0.12) 0%,rgba(80,48,8,0.35) 100%);
-  border:1.5px solid rgba(250,235,150,0.3);
+  width:110px;height:110px;border-radius:50%;
+  background:linear-gradient(160deg,rgba(245,215,90,.12) 0%,rgba(80,48,8,.35) 100%);
+  border:1.5px solid rgba(250,235,150,.3);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1px;position:relative;z-index:1;
-  box-shadow:inset 0 2px 20px rgba(0,0,0,0.2),0 0 40px rgba(200,160,60,0.1);
+  box-shadow:inset 0 2px 20px rgba(0,0,0,.2),0 0 40px rgba(200,160,60,.08);
 }
-.crest-n{
-  font-family:var(--font-display);font-size:46px;font-weight:500;
-  color:rgba(250,235,155,0.88);line-height:1;
-  text-shadow:0 2px 16px rgba(0,0,0,0.35);
-  letter-spacing:-1px;
-}
-.crest-name{
-  font-size:8px;letter-spacing:5px;text-transform:uppercase;
-  color:rgba(250,235,150,0.55);font-family:var(--font-body);font-weight:200;
-}
-/* Deco under crest */
-.crest-deco{
-  display:flex;align-items:center;gap:10px;margin-top:12px;
-}
-.cdl{width:32px;height:1px;background:rgba(250,235,150,0.3)}
-.cdd{width:5px;height:5px;border:1px solid rgba(250,235,150,0.4);transform:rotate(45deg)}
+.crest-n{font-family:var(--font-d);font-size:42px;font-weight:500;color:rgba(250,235,155,.88);line-height:1;text-shadow:0 2px 16px rgba(0,0,0,.35)}
+.crest-name{font-size:8px;letter-spacing:5px;text-transform:uppercase;color:rgba(250,235,150,.55);font-family:var(--font-b);font-weight:200}
+.crest-deco{display:flex;align-items:center;gap:10px;margin-top:12px}
+.cdl{width:32px;height:1px;background:rgba(250,235,150,.3)}
+.cdd{width:5px;height:5px;border:1px solid rgba(250,235,150,.4);transform:rotate(45deg)}
 
-/* Quote */
-.visual-quote{align-self:flex-start;margin-top:auto;padding-bottom:48px}
-.vq-line{width:34px;height:1px;background:rgba(250,235,150,0.5);margin-bottom:14px}
-.vq-text{
-  font-family:var(--font-display);font-size:40px;font-weight:400;
-  line-height:1.05;color:rgba(250,248,242,0.92);
-  text-shadow:0 2px 24px rgba(0,0,0,0.28);
-}
-.vq-text em{font-style:italic;color:rgba(252,238,140,0.96)}
-.vq-sub{
-  font-size:11px;letter-spacing:1.5px;font-weight:200;
-  color:rgba(250,248,242,0.4);margin-top:12px;line-height:1.9;
-  max-width:300px;
-}
+.vq-line{width:34px;height:1px;background:rgba(250,235,150,.5);margin-bottom:14px}
+.vq-text{font-family:var(--font-d);font-size:36px;font-weight:400;line-height:1.1;color:rgba(250,248,242,.92);text-shadow:0 2px 24px rgba(0,0,0,.28)}
+.vq-text em{font-style:italic;color:rgba(252,238,140,.96)}
+.vq-sub{font-size:11px;letter-spacing:1.5px;font-weight:200;color:rgba(250,248,242,.4);margin-top:12px;line-height:1.9;max-width:300px}
 
-/* RIGHT */
+/* ── RIGHT — form ── */
 .auth-form-side{
   background:var(--dark);
   display:flex;align-items:center;justify-content:center;
-  padding:80px 52px;overflow-y:auto;
+  padding:60px 52px;overflow-y:auto;
 }
-.auth-box{width:100%;max-width:380px}
+.auth-box{width:100%;max-width:480px}
 
-.auth-tabs{display:flex;margin-bottom:34px;border-bottom:1px solid var(--border)}
+/* Tabs */
+.auth-tabs{display:flex;margin-bottom:32px;border-bottom:1px solid var(--border)}
 .auth-tab{
-  flex:1;padding:12px;text-align:center;
-  font-size:10px;font-weight:300;letter-spacing:3px;text-transform:uppercase;
-  color:rgba(250,248,242,0.3);cursor:none;
-  background:none;border:none;font-family:var(--font-body);
-  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.25s;
+  flex:1;padding:14px;text-align:center;
+  font-size:11px;font-weight:300;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(250,248,242,.3);
+  background:none;border:none;font-family:var(--font-b);
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .25s;
 }
 .auth-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-.auth-tab:hover:not(.active){color:rgba(250,248,242,0.55)}
+.auth-tab:hover:not(.active){color:rgba(250,248,242,.6)}
 
 .auth-panel{display:none}
 .auth-panel.active{display:block}
 
-.auth-title{font-family:var(--font-display);font-size:36px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:6px;line-height:1.1}
-.auth-sub{font-size:11px;letter-spacing:1.5px;font-weight:200;color:rgba(250,248,242,0.3);margin-bottom:28px}
+.auth-title{font-family:var(--font-d);font-size:42px;font-weight:400;font-style:italic;color:var(--white);margin-bottom:8px;line-height:1.1}
+.auth-sub{font-size:13px;letter-spacing:1.5px;font-weight:200;color:rgba(250,248,242,.3);margin-bottom:32px}
 
+/* Form */
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.fgroup{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
-.flabel{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.65)}
+.fgroup{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.fgroup:last-of-type{margin-bottom:0}
+.flabel{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.65)}
 .finput{
-  width:100%;padding:11px 14px;
+  width:100%;padding:14px 16px;
   border:1px solid var(--border);
-  background:rgba(201,168,76,0.04);
-  font-size:13px;font-family:var(--font-body);font-weight:200;
-  color:var(--white);letter-spacing:0.5px;
-  transition:border-color 0.25s,background 0.25s;outline:none;
+  background:rgba(201,168,76,.04);
+  font-size:14px;font-family:var(--font-b);font-weight:200;
+  color:var(--white);letter-spacing:.5px;
+  outline:none;transition:border-color .25s,background .25s;
 }
-.finput:focus{border-color:var(--gold);background:rgba(201,168,76,0.07)}
-.finput::placeholder{color:rgba(250,248,242,0.18)}
+.finput:focus{border-color:var(--gold);background:rgba(201,168,76,.07)}
+.finput::placeholder{color:rgba(250,248,242,.18)}
 .finput-wrap{position:relative}
-.finput-wrap .finput{padding-right:40px}
-.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:none;color:rgba(250,248,242,0.3);font-size:13px;transition:color 0.2s;padding:4px}
+.finput-wrap .finput{padding-right:42px}
+.eye-btn{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:rgba(250,248,242,.3);
+  font-size:13px;transition:color .2s;padding:4px;
+}
 .eye-btn:hover{color:var(--gold)}
+.eye-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 .form-extra{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.remember{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1px;color:rgba(250,248,242,0.35);cursor:none}
+.remember{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1px;color:rgba(250,248,242,.35)}
 .remember input{accent-color:var(--gold);width:14px;height:14px}
-.forgot{font-size:11px;letter-spacing:1px;color:rgba(201,168,76,0.6);border-bottom:1px solid rgba(201,168,76,0.3);padding-bottom:1px;transition:color 0.2s}
+.forgot{font-size:12px;letter-spacing:1px;color:rgba(201,168,76,.6);border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:1px;transition:color .2s}
 .forgot:hover{color:var(--gold)}
 
 .btn-submit{
-  width:100%;padding:14px;
+  width:100%;padding:16px;
   background:linear-gradient(135deg,var(--gold),var(--gold2));
-  color:var(--black);font-size:10px;font-weight:400;letter-spacing:3.5px;text-transform:uppercase;
-  border:none;cursor:none;font-family:var(--font-body);margin-bottom:18px;
-  transition:opacity 0.2s,transform 0.2s;position:relative;overflow:hidden;
+  color:var(--black);font-size:11px;font-weight:400;letter-spacing:3.5px;text-transform:uppercase;
+  border:none;font-family:var(--font-b);margin-bottom:0;
+  transition:opacity .25s;position:relative;overflow:hidden;
 }
-.btn-submit:hover{opacity:0.9;transform:translateY(-1px)}
+.btn-submit:hover{opacity:.88}
 
-.or-div{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border)}
-.or-div span{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,0.2)}
-
-.social-btn{
-  width:100%;padding:11px;border:1px solid var(--border);background:transparent;
-  font-size:11px;font-weight:200;letter-spacing:1px;cursor:none;font-family:var(--font-body);
-  color:rgba(250,248,242,0.4);display:flex;align-items:center;justify-content:center;
-  gap:10px;margin-bottom:8px;transition:border-color 0.2s,color 0.2s;
-}
-.social-btn:hover{border-color:var(--gold);color:var(--gold)}
-.si{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.g{background:#fff;color:#4285F4}.fb{background:#1877F2;color:#fff}
-
-.terms{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,0.2);text-align:center;line-height:1.9;margin-top:14px}
-.terms a{color:rgba(201,168,76,0.5)}.terms a:hover{color:var(--gold)}
-
+/* Strength bar */
 .strength-bar{height:2px;background:var(--border);margin-top:5px;overflow:hidden}
-.strength-fill{height:100%;width:0%;transition:width 0.3s,background 0.3s}
-.strength-hint{font-size:9px;letter-spacing:1.5px;margin-top:4px;color:rgba(250,248,242,0.22)}
+.strength-fill{height:100%;width:0%;transition:width .3s,background .3s}
+.strength-hint{font-size:9px;letter-spacing:1px;margin-top:4px;color:rgba(250,248,242,.22)}
+
+.terms{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.2);text-align:center;line-height:1.9;margin-top:16px}
+.terms a{color:rgba(201,168,76,.5)}.terms a:hover{color:var(--gold)}
 </style>
 </head>
 <body>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="ring"></div>
+
+<!-- NAV đồng bộ trang chủ -->
+<nav>
+  <div class="nav-logo">
+    <a href="/" style="font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)">NEVA</a>
+    <span class="nav-logo-sep">|</span>
+  </div>
+  <div class="nav-mid">
+    <a href="/Product" class="nl">Bộ sưu tập</a>
+    <span class="nd">|</span>
+    <a href="/" class="nl">Haute Couture</a>
+    <span class="nd">|</span>
+    <a href="/Account/Login" class="nl active">Tài khoản</a>
+  </div>
+  <div class="nav-right">
+    <a href="/Account/Profile" class="ni">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+    <a href="/Cart" class="ni">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    </a>
+  </div>
+</nav>
+
 <div class="auth-layout">
   <!-- LEFT gold panel -->
   <div class="auth-visual">
-    <a href="/" class="visual-top-logo">NEVA</a>
     <div class="visual-content">
+    <div class="visual-top">
       <div class="crest-area">
         <div class="crest">
           <div class="crest-outer-ring"></div>
@@ -225,11 +225,12 @@ nav{display:none}
           <div class="cdl"></div><div class="cdd"></div><div class="cdl"></div>
         </div>
       </div>
-      <div class="visual-quote">
-        <div class="vq-line"></div>
-        <div class="vq-text">Phong cách<br>bắt đầu từ<br><em>bên trong.</em></div>
-        <p class="vq-sub">Đăng nhập để khám phá trải nghiệm mua sắm được cá nhân hóa dành riêng cho bạn.</p>
-      </div>
+    </div>
+    <div class="visual-quote">
+      <div class="vq-line"></div>
+      <div class="vq-text">Phong cách<br>bắt đầu từ<br><em>bên trong.</em></div>
+      <p class="vq-sub">Đăng nhập để khám phá trải nghiệm mua sắm được cá nhân hóa dành riêng cho bạn.</p>
+    </div>
     </div>
   </div>
 
@@ -241,80 +242,103 @@ nav{display:none}
         <button class="auth-tab" onclick="sw('register',this)">Đăng ký</button>
       </div>
 
-      <!-- LOGIN -->
+      <!-- ĐĂNG NHẬP -->
       <div class="auth-panel active" id="loginPanel">
         <h1 class="auth-title">Chào mừng trở lại</h1>
         <p class="auth-sub">Đăng nhập để tiếp tục trải nghiệm NEVA</p>
+
         <div class="fgroup">
-          <label class="flabel">Email</label>
-          <input class="finput" type="email" placeholder="your@email.com">
+          <label class="flabel">Số điện thoại</label>
+          <input class="finput" type="tel" placeholder="0901 234 567" id="loginPhone">
         </div>
         <div class="fgroup">
           <label class="flabel">Mật khẩu</label>
           <div class="finput-wrap">
             <input class="finput" type="password" id="lp" placeholder="••••••••">
-            <button class="eye-btn" onclick="tp('lp')" type="button">👁</button>
+            <button class="eye-btn" onclick="tp('lp')" type="button">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
         </div>
-        <div class="form-extra">
+        <div class="form-extra" style="margin-top:6px">
           <label class="remember"><input type="checkbox"> Ghi nhớ tôi</label>
           <a href="#" class="forgot">Quên mật khẩu?</a>
         </div>
-        <button class="btn-submit" onclick="window.location='/'">Đăng nhập</button>
-        <div class="or-div"><span>hoặc đăng nhập với</span></div>
-        <button class="social-btn"><span class="si g">G</span>Tiếp tục với Google</button>
-        <button class="social-btn"><span class="si fb">f</span>Tiếp tục với Facebook</button>
+        <button class="btn-submit" onclick="window.location='/Account/Profile'">Đăng nhập</button>
       </div>
 
-      <!-- REGISTER -->
+      <!-- ĐĂNG KÝ -->
       <div class="auth-panel" id="registerPanel">
         <h1 class="auth-title">Tạo tài khoản</h1>
         <p class="auth-sub">Tham gia cộng đồng NEVA</p>
+
         <div class="frow">
           <div style="display:flex;flex-direction:column;gap:7px">
             <label class="flabel">Họ và tên</label>
-            <input class="finput" type="text" placeholder="Họ và tên">
+            <input class="finput" type="text" placeholder="Nguyễn Văn A">
           </div>
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <label class="flabel">Email</label>
-            <input class="finput" type="email" placeholder="your@email.com">
-          </div>
-        </div>
-        <div class="frow">
           <div style="display:flex;flex-direction:column;gap:7px">
             <label class="flabel">Số điện thoại</label>
-            <input class="finput" type="tel" placeholder="Số điện thoại">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <label class="flabel">Mật khẩu</label>
-            <div class="finput-wrap">
-              <input class="finput" type="password" id="rp" placeholder="••••••••" oninput="cs(this.value)">
-              <button class="eye-btn" onclick="tp('rp')" type="button">👁</button>
-            </div>
+            <input class="finput" type="tel" placeholder="0901 234 567">
           </div>
         </div>
-        <div class="fgroup" style="margin-top:14px">
-          <label class="flabel">Xác nhận mật khẩu</label>
-          <input class="finput" type="password" placeholder="Xác nhận mật khẩu">
+
+        <div class="fgroup">
+          <label class="flabel">Mật khẩu</label>
+          <div class="finput-wrap">
+            <input class="finput" type="password" id="rp" placeholder="Tối thiểu 8 ký tự" oninput="cs(this.value)">
+            <button class="eye-btn" onclick="tp('rp')" type="button">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
           <div class="strength-bar"><div class="strength-fill" id="sf"></div></div>
           <div class="strength-hint" id="sh"></div>
         </div>
-        <button class="btn-submit" onclick="window.location='/'">Tạo tài khoản</button>
-        <div class="or-div"><span>Hoặc đăng nhập với</span></div>
-        <button class="social-btn"><span class="si g">G</span>Tiếp tục với Google</button>
-        <button class="social-btn"><span class="si fb">f</span>Tiếp tục với Facebook</button>
-        <p class="terms">Bằng cách đăng ký, bạn đồng ý với <a href="#">Điều khoản</a> và <a href="#">Bảo mật</a> của NEVA.</p>
+
+        <div class="fgroup">
+          <label class="flabel">Xác nhận mật khẩu</label>
+          <div class="finput-wrap">
+            <input class="finput" type="password" placeholder="Nhập lại mật khẩu">
+            <button class="eye-btn" onclick="tp('cp')" type="button" id="cpBtn">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="window.location='/Account/Profile'">Tạo tài khoản</button>
+        <p class="terms">Bằng cách đăng ký, bạn đồng ý với <a href="#">Điều khoản</a> và <a href="#">Chính sách bảo mật</a> của NEVA.</p>
       </div>
+
     </div>
   </div>
 </div>
 
 <script>
-const c=document.getElementById('cursor'),r=document.getElementById('ring');
-document.addEventListener('mousemove',e=>{c.style.left=e.clientX-4+'px';c.style.top=e.clientY-4+'px';r.style.left=e.clientX-18+'px';r.style.top=e.clientY-18+'px'});
-function sw(p,b){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.auth-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(p+'Panel').classList.add('active')}
-function tp(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
-function cs(v){const f=document.getElementById('sf'),t=document.getElementById('sh');let s=0;if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;const cl=['','#c9544c','#c9844c','#c9a84c','#6aad6a'],lb=['','Yếu','Trung bình','Khá mạnh','Mạnh'];f.style.width=(s/4*100)+'%';f.style.background=cl[s];t.textContent=v.length?lb[s]+' — '+v.length+' ký tự':'';t.style.color=cl[s]}
+function sw(p,b){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.auth-panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(p+'Panel').classList.add('active');
+}
+function tp(id){
+  const i=document.getElementById(id);
+  if(!i) return;
+  i.type=i.type==='password'?'text':'password';
+}
+function cs(v){
+  const f=document.getElementById('sf'),t=document.getElementById('sh');
+  let s=0;
+  if(v.length>=8)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  const cl=['','#c9544c','#c9844c','#c9a84c','#6aad6a'];
+  const lb=['','Yếu','Trung bình','Khá mạnh','Mạnh'];
+  f.style.width=(s/4*100)+'%';
+  f.style.background=cl[s];
+  t.textContent=v.length?lb[s]+' — '+v.length+' ký tự':'';
+  t.style.color=cl[s];
+}
 </script>
 </body>
 </html>

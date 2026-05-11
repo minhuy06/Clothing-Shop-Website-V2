@@ -13,134 +13,138 @@
 body{font-family:var(--font-b);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column}
 a{text-decoration:none;color:inherit}
 img{display:block;width:100%;height:100%;object-fit:cover}
-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0}
-.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;justify-self:start;display:flex;align-items:center;gap:12px}
-.nav-logo a{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
+nav{display:flex;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0;gap:14px}
+.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
 .nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
-.nav-badge{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.6);border:1px solid rgba(201,168,76,.25);padding:2px 10px}
-.nav-mid{display:flex;align-items:center;justify-content:center}
-.nl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,.7);padding:0 14px;transition:color .2s}
-.nl:hover{color:var(--white)}
-.nd{color:rgba(250,248,242,.14);font-size:10px}
-.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
-.ni{color:rgba(250,248,242,.55);transition:color .2s;display:flex;align-items:center}
-.ni:hover{color:var(--gold)}
-.ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-badge{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.7);border:1px solid rgba(201,168,76,.3);padding:3px 12px}
 .admin-wrap{display:flex;flex:1}
 .admin-sidebar{width:var(--side-w);flex-shrink:0;background:var(--dark);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto}
 .sb-section{margin-bottom:6px;padding:0 14px}
-.sb-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.32);margin-bottom:6px;padding:0 6px}
-.sitem{display:flex;align-items:center;gap:11px;padding:11px 12px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,248,242,.42);transition:all .2s;position:relative;border-left:2px solid transparent}
-.sitem:hover{background:rgba(201,168,76,.04);color:rgba(250,248,242,.8);border-left-color:rgba(201,168,76,.3)}
+.sb-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:6px;padding:0 6px}
+.sitem{display:flex;align-items:center;gap:11px;padding:12px 12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,248,242,.55);transition:all .2s;position:relative;border-left:2px solid transparent}
+.sitem:hover{background:rgba(201,168,76,.04);color:rgba(250,248,242,.9);border-left-color:rgba(201,168,76,.3)}
 .sitem.active{color:var(--gold);background:rgba(201,168,76,.06);border-left-color:var(--gold)}
 .sitem svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
 .sitem.active svg{opacity:1}
-.sitem-badge{margin-left:auto;background:var(--gold);color:var(--black);font-size:8px;padding:1px 6px}
-.sitem.danger{color:rgba(212,122,118,.5)}
+.sitem.danger{color:rgba(212,122,118,.6)}
 .sitem.danger:hover{color:#d47a76;background:rgba(212,122,118,.04)}
 .admin-main{flex:1;padding:26px 30px;overflow-y:auto}
 .top-bar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
 .page-title{font-family:var(--font-d);font-size:34px;font-weight:400;font-style:italic}
-.page-sub{font-size:10px;letter-spacing:2px;color:rgba(250,248,242,.3);margin-top:4px}
-.filter-tabs{display:flex;margin-bottom:16px}
-.ftab{padding:9px 18px;font-size:8px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:1px solid var(--border);font-family:var(--font-b);color:rgba(250,248,242,.3);margin-left:-1px;transition:all .2s}
-.ftab:hover{color:rgba(250,248,242,.65);border-color:rgba(201,168,76,.3)}
+.page-sub{font-size:12px;letter-spacing:2px;color:rgba(250,248,242,.45);margin-top:4px}
+.filter-tabs{display:flex;margin-bottom:16px;flex-wrap:wrap;gap:0}
+.ftab{padding:9px 18px;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:1px solid var(--border);font-family:var(--font-b);color:rgba(250,248,242,.45);margin-left:-1px;transition:all .2s}
+.ftab:hover{color:rgba(250,248,242,.8);border-color:rgba(201,168,76,.3)}
 .ftab.active{background:var(--gold);color:var(--black);border-color:var(--gold);z-index:1}
 .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px}
-.search-box{display:flex;align-items:center;border:1px solid var(--border);background:var(--dark2);flex:1;max-width:320px}
-.search-box input{background:transparent;border:none;outline:none;padding:9px 13px;font-size:11px;letter-spacing:1px;font-family:var(--font-b);color:var(--white);width:100%}
-.search-box input::placeholder{color:rgba(250,248,242,.2)}
-.search-box svg{width:13px;height:13px;fill:none;stroke:rgba(250,248,242,.3);stroke-width:1.5;stroke-linecap:round;margin-right:10px;flex-shrink:0}
-.result-info{font-size:10px;letter-spacing:1.5px;color:rgba(250,248,242,.28);margin-left:auto}
+.search-box{display:flex;align-items:center;border:1px solid var(--border);background:var(--dark2);flex:1;max-width:360px}
+.search-box input{background:transparent;border:none;outline:none;padding:9px 13px;font-size:12px;letter-spacing:1px;font-family:var(--font-b);color:var(--white);width:100%}
+.search-box input::placeholder{color:rgba(250,248,242,.3)}
+.search-box svg{width:13px;height:13px;fill:none;stroke:rgba(250,248,242,.4);stroke-width:1.5;stroke-linecap:round;margin-right:10px;flex-shrink:0}
+.result-info{font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.55);margin-left:auto}
 .result-info strong{color:var(--gold)}
 .otable{width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)}
-.otable th{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.38);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)}
-.otable td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:11px;font-weight:200;letter-spacing:.5px;vertical-align:middle}
+.otable th{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)}
+.otable td{padding:13px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;letter-spacing:.5px;vertical-align:middle;color:rgba(250,248,242,.8)}
 .otable tr:last-child td{border-bottom:none}
 .otable tr:hover td{background:rgba(201,168,76,.02)}
-.otag{font-size:8px;letter-spacing:1.5px;padding:3px 9px;border:1px solid;display:inline-flex;align-items:center;gap:5px}
-.otag-d{width:4px;height:4px;border-radius:50%}
+.otag{font-size:9px;letter-spacing:1.5px;padding:4px 10px;border:1px solid;display:inline-flex;align-items:center;gap:5px}
+.otag-d{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .t-p{border-color:rgba(201,168,76,.35);color:var(--gold)}.t-p .otag-d{background:var(--gold)}
 .t-s{border-color:rgba(150,100,220,.4);color:#c084e8}.t-s .otag-d{background:#c084e8}
 .t-d{border-color:rgba(80,180,80,.4);color:#7aba7a}.t-d .otag-d{background:#7aba7a}
 .t-c{border-color:rgba(212,120,116,.4);color:#d47a76}.t-c .otag-d{background:#d47a76}
+.t-r{border-color:rgba(80,160,220,.4);color:#7ab8e8}.t-r .otag-d{background:#7ab8e8}
+.t-con{border-color:rgba(100,200,140,.4);color:#7ad4a4}.t-con .otag-d{background:#7ad4a4}
 .act-row{display:flex;gap:6px}
 .ia-btn{width:30px;height:30px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .ia-btn:hover{border-color:var(--gold)}
-.ia-btn svg{width:12px;height:12px;fill:none;stroke:rgba(250,248,242,.4);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.ia-btn svg{width:12px;height:12px;fill:none;stroke:rgba(250,248,242,.5);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
 .ia-btn:hover svg{stroke:var(--gold)}
-.sel-status{padding:5px 10px;border:1px solid var(--border);background:var(--dark2);font-size:9px;letter-spacing:1px;font-family:var(--font-b);color:var(--white);outline:none;transition:border-color .2s}
-.sel-status:focus{border-color:var(--gold)}
-.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:10px;letter-spacing:1.5px;border:1px solid;display:none}
+/* Toast */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none}
 .toast.ok{background:rgba(90,154,90,.12);border-color:rgba(90,154,90,.4);color:#7aba7a}
 .toast.info{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28);color:var(--gold)}
 .toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
 /* Modal */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
 .mo.open{opacity:1;pointer-events:all}
-.modal{background:var(--dark2);width:92%;max-width:680px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);transform:translateY(14px);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal{background:var(--dark2);width:92%;max-width:700px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);transform:translateY(14px);transition:transform .3s cubic-bezier(.16,1,.3,1)}
 .mo.open .modal{transform:translateY(0)}
 .modal::-webkit-scrollbar{width:2px}.modal::-webkit-scrollbar-thumb{background:var(--border)}
-.mhdr{padding:17px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--dark2);z-index:5}
-.mhdr-t{font-family:var(--font-d);font-size:20px;font-style:italic}
-.mhdr-s{font-size:9px;letter-spacing:1.5px;color:rgba(201,168,76,.45);margin-top:2px}
-.mclose{width:28px;height:28px;border:1px solid var(--border);background:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+.mhdr{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--dark2);z-index:5}
+.mhdr-t{font-family:var(--font-d);font-size:22px;font-style:italic;color:var(--white)}
+.mhdr-s{font-size:11px;letter-spacing:1.5px;color:rgba(201,168,76,.7);margin-top:4px}
+.mclose{width:30px;height:30px;border:1px solid var(--border);background:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color .2s;flex-shrink:0}
 .mclose:hover{border-color:var(--gold)}
-.mclose svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-.mbody{padding:20px 22px}
-.m2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.mblock{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:13px}
-.mblock-t{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.42);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.08)}
-.mrow{display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;font-weight:200}
-.mkey{color:rgba(250,248,242,.32)}
+.mclose svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.mbody{padding:22px 24px}
+.m2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.mblock{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:14px}
+.mblock-t{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.75);margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.08)}
+.mrow{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;font-weight:200}
+.mkey{color:rgba(250,248,242,.6)}
+.mval{text-align:right;max-width:200px;color:rgba(250,248,242,.9)}
 .mitems-wrap{border:1px solid rgba(201,168,76,.1);margin-bottom:14px;overflow:hidden}
-.mitems-t{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.42);padding:9px 14px;border-bottom:1px solid rgba(201,168,76,.08);background:rgba(201,168,76,.02)}
-.mitem{display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid rgba(201,168,76,.06)}
+.mitems-t{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.75);padding:10px 15px;border-bottom:1px solid rgba(201,168,76,.08);background:rgba(201,168,76,.02)}
+.mitem{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid rgba(201,168,76,.06)}
 .mitem:last-child{border-bottom:none}
-.mitem-thumb{width:40px;height:50px;flex-shrink:0;overflow:hidden}
+.mitem-thumb{width:44px;height:55px;flex-shrink:0;overflow:hidden}
 .mitem-thumb img{filter:brightness(.82)}
-.mitem-name{font-size:12px;font-weight:200;margin-bottom:2px}
-.mitem-meta{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,.28)}
-.mitem-price{margin-left:auto;font-size:12px;font-weight:300;flex-shrink:0}
-.mtotals{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:12px 14px;margin-bottom:14px}
-.mtrow{display:flex;justify-content:space-between;font-size:11px;font-weight:200;margin-bottom:6px}
-.mtrow.grand{font-size:15px;font-weight:400;color:var(--gold);padding-top:9px;border-top:1px solid var(--border);margin-bottom:0}
-.mtlbl{color:rgba(250,248,242,.32)}
-.status-update{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.15);padding:14px}
-.su-lbl{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:10px}
+.mitem-info{flex:1}
+.mitem-name{font-size:14px;font-weight:200;margin-bottom:3px;color:var(--white)}
+.mitem-meta{font-size:11px;letter-spacing:1px;color:rgba(250,248,242,.55)}
+.mitem-qty{font-size:13px;color:var(--gold);font-weight:300;white-space:nowrap}
+.mitem-price{font-size:13px;font-weight:300;flex-shrink:0;color:var(--white);min-width:90px;text-align:right}
+.mtotals{background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:14px 15px;margin-bottom:16px}
+.mtrow{display:flex;justify-content:space-between;font-size:13px;font-weight:200;margin-bottom:8px}
+.mtrow.grand{font-size:17px;font-weight:400;color:var(--gold);padding-top:10px;border-top:1px solid var(--border);margin-bottom:0}
+.mtlbl{color:rgba(250,248,242,.6)}
+/* Status update với flow restriction */
+.status-update{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.15);padding:16px}
+.su-lbl{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.8);margin-bottom:12px}
+.status-flow{display:flex;align-items:center;gap:0;margin-bottom:14px;overflow-x:auto}
+.sf-step{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 10px;min-width:80px;position:relative;transition:all .2s}
+.sf-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .2s}
+.sf-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;text-align:center;line-height:1.4}
+.sf-line{width:28px;height:2px;margin-top:-22px;flex-shrink:0}
+.sf-step.done .sf-dot{background:var(--gold);color:var(--black)}
+.sf-step.done .sf-lbl{color:rgba(201,168,76,.7)}
+.sf-step.done .sf-line{background:rgba(201,168,76,.4)}
+.sf-step.current .sf-dot{border:2px solid var(--gold);color:var(--gold);background:transparent}
+.sf-step.current .sf-lbl{color:var(--gold)}
+.sf-step.wait .sf-dot{border:1px solid rgba(250,248,242,.15);color:rgba(250,248,242,.2);background:transparent}
+.sf-step.wait .sf-lbl{color:rgba(250,248,242,.2)}
+.sf-step.wait .sf-line{background:rgba(250,248,242,.08)}
+.sf-step.disabled .sf-dot{border:1px solid rgba(250,248,242,.08);color:rgba(250,248,242,.1);background:transparent}
+.sf-step.disabled .sf-lbl{color:rgba(250,248,242,.1)}
 .su-row{display:flex;gap:8px;align-items:center}
-.su-sel{flex:1;padding:9px 12px;border:1px solid var(--border);background:var(--dark2);font-size:11px;font-family:var(--font-b);color:var(--white);outline:none}
+.su-sel{flex:1;padding:10px 13px;border:1px solid var(--border);background:var(--dark2);font-size:12px;font-family:var(--font-b);color:var(--white);outline:none}
 .su-sel:focus{border-color:var(--gold)}
-.btn-gold{padding:9px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:8px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}.btn-gold:hover{opacity:.85}
-.btn-outline{padding:9px 16px;background:transparent;color:rgba(250,248,242,.38);font-size:8px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);transition:all .2s}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.mfoot{padding:13px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--dark2)}
+.su-sel option{background:#14100a;color:var(--white)}
+.su-sel option:disabled{color:rgba(250,248,242,.2)}
+.btn-gold{padding:10px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}.btn-gold:hover{opacity:.85}
+.btn-outline{padding:10px 18px;background:transparent;color:rgba(250,248,242,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);transition:all .2s}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.mfoot{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--dark2)}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <nav>
-  <div class="nav-logo"><a href="/">NEVA</a><span class="nav-logo-sep">|</span><span class="nav-badge">Admin</span></div>
-  <div class="nav-mid"><a href="/Product" class="nl">Cửa hàng</a><span class="nd">|</span><a href="/Account/Profile" class="nl">Tài khoản</a></div>
-  <div class="nav-right">
-    <a href="/Account/Profile" class="ni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
-    <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></a>
-  </div>
+  <span class="nav-logo">NEVA</span>
+  <span class="nav-logo-sep">|</span>
+  <span class="nav-badge">Admin</span>
 </nav>
 <div class="admin-wrap">
   <aside class="admin-sidebar">
     <div class="sb-section">
-      <div class="sb-lbl">Tổng quan</div>
-      <a href="/Admin/Dashboard" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
-    </div>
-    <div class="sb-section">
       <div class="sb-lbl">Quản lý</div>
+      <a href="/Admin/Dashboard" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a href="/Admin/Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Sản phẩm</a>
-      <a href="/Admin/Orders" class="sitem active"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Đơn hàng<span class="sitem-badge" id="pendingBadge">4</span></a>
-      <a href="#" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
+      <a href="/Admin/Orders" class="sitem active"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
+      <a href="/Admin/Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
     </div>
-    <div class="sb-section">
-      <div class="sb-lbl">Hệ thống</div>
-      <a href="/" class="sitem"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Trang chủ</a>
+    <div class="sb-section" style="margin-top:12px">
       <a href="/Account/Login" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
     </div>
   </aside>
@@ -151,7 +155,9 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
     <div class="filter-tabs">
       <button class="ftab active" onclick="filterOrders('all',this)">Tất cả</button>
       <button class="ftab" onclick="filterOrders('pending',this)">Chờ duyệt</button>
+      <button class="ftab" onclick="filterOrders('confirmed',this)">Đã xác nhận</button>
       <button class="ftab" onclick="filterOrders('shipping',this)">Đang giao</button>
+      <button class="ftab" onclick="filterOrders('returning',this)">Đang hoàn</button>
       <button class="ftab" onclick="filterOrders('done',this)">Đã giao</button>
       <button class="ftab" onclick="filterOrders('cancel',this)">Đã hủy</button>
     </div>
@@ -166,7 +172,7 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
   </main>
 </div>
 
-<!-- MODAL CHI TIẾT + CẬP NHẬT -->
+<!-- MODAL -->
 <div class="mo" id="mo" onclick="if(event.target===this)closeMo()">
   <div class="modal">
     <div class="mhdr">
@@ -175,21 +181,16 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
     </div>
     <div class="mbody">
       <div class="m2col">
-        <div class="mblock"><div class="mblock-t">Thông tin đơn</div><div class="mrow"><span class="mkey">Mã đơn</span><span id="mId" style="color:var(--gold)"></span></div><div class="mrow"><span class="mkey">Ngày đặt</span><span id="mDate"></span></div><div class="mrow"><span class="mkey">Thanh toán</span><span>COD</span></div></div>
-        <div class="mblock"><div class="mblock-t">Khách hàng</div><div class="mrow"><span class="mkey">Họ tên</span><span id="mCust"></span></div><div class="mrow"><span class="mkey">SĐT</span><span id="mPhone"></span></div><div class="mrow"><span class="mkey">Địa chỉ</span><span id="mAddr" style="text-align:right;max-width:140px"></span></div></div>
+        <div class="mblock"><div class="mblock-t">Thông tin đơn</div><div class="mrow"><span class="mkey">Mã đơn</span><span class="mval" id="mId" style="color:var(--gold)"></span></div><div class="mrow"><span class="mkey">Ngày đặt</span><span class="mval" id="mDate"></span></div><div class="mrow"><span class="mkey">Thanh toán</span><span class="mval">COD</span></div></div>
+        <div class="mblock"><div class="mblock-t">Khách hàng</div><div class="mrow"><span class="mkey">Họ tên</span><span class="mval" id="mCust"></span></div><div class="mrow"><span class="mkey">SĐT</span><span class="mval" id="mPhone"></span></div><div class="mrow"><span class="mkey">Địa chỉ</span><span class="mval" id="mAddr" style="font-size:11px"></span></div></div>
       </div>
       <div class="mitems-wrap"><div class="mitems-t">Sản phẩm</div><div id="mItems"></div></div>
       <div class="mtotals" id="mTotals"></div>
       <div class="status-update">
-        <div class="su-lbl">Cập nhật trạng thái đơn hàng</div>
+        <div class="su-lbl">Cập nhật trạng thái</div>
+        <div class="status-flow" id="statusFlow"></div>
         <div class="su-row">
-          <select class="su-sel" id="statusSel">
-            <option value="pending">Chờ duyệt</option>
-            <option value="confirmed">Đã xác nhận</option>
-            <option value="shipping">Đang giao hàng</option>
-            <option value="done">Đã giao hàng</option>
-            <option value="cancel">Đã hủy</option>
-          </select>
+          <select class="su-sel" id="statusSel"></select>
           <button class="btn-gold" onclick="updateStatus()">Cập nhật</button>
         </div>
       </div>
@@ -201,66 +202,125 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
 <script>
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
 function fmt(n){return n.toLocaleString('vi-VN')+'đ'}
+
+// Thứ tự flow trạng thái
+const STATUS_FLOW=['pending','confirmed','shipping','done'];
+const STATUS_LABELS={
+  pending:'Chờ duyệt',confirmed:'Đã xác nhận',shipping:'Đang giao hàng',
+  returning:'Đang hoàn chuyển',done:'Đã giao hàng',cancel:'Đã hủy'
+};
+const STATUS_CSS={
+  pending:'t-p',confirmed:'t-con',shipping:'t-s',returning:'t-r',done:'t-d',cancel:'t-c'
+};
+
 let orders=[
   {id:'NV-20250507-0042',date:'07/05/2025 14:23',status:'shipping',customer:'Nguyễn Thị B',phone:'0901 234 567',addr:'123 Trần Phú, Hải Châu, Đà Nẵng',
-   items:[{img:'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=100&q=80',name:'Áo blouse lụa cổ V x2',meta:'Kem · M',price:'1.960.000đ'},{img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=100&q=80',name:'Quần wide-leg linen x1',meta:'Đen · S',price:'1.350.000đ'},{img:'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=100&q=80',name:'Đầm cocktail x1',meta:'Đen · S',price:'1.890.000đ'}],
+   items:[{img:'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=100&q=80',name:'Áo blouse lụa cổ V',meta:'Kem · M',qty:2,price:980000},{img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=100&q=80',name:'Quần wide-leg linen',meta:'Đen · S',qty:1,price:1350000},{img:'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=100&q=80',name:'Đầm cocktail vai trần',meta:'Đen · S',qty:1,price:1890000}],
    sub:'5.200.000đ',ship:'Miễn phí',disc:'0đ',pts:'50.000đ',total:'5.150.000đ'},
   {id:'NV-20250506-0041',date:'06/05/2025 10:14',status:'pending',customer:'Trần Minh K',phone:'0912 345 678',addr:'45 Lê Lợi, Hải Châu, Đà Nẵng',
-   items:[{img:'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=100&q=80',name:'Đầm dạ hội ren thêu x1',meta:'Đen · M',price:'3.850.000đ'}],
+   items:[{img:'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=100&q=80',name:'Đầm dạ hội ren thêu',meta:'Đen · M',qty:1,price:3850000}],
    sub:'3.850.000đ',ship:'30.000đ',disc:'0đ',pts:'0đ',total:'3.880.000đ'},
   {id:'NV-20250505-0040',date:'05/05/2025 08:55',status:'done',customer:'Lê Thị H',phone:'0933 456 789',addr:'78 Nguyễn Văn Linh, Thanh Khê, Đà Nẵng',
-   items:[{img:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100&q=80',name:'Áo khoác blazer x1',meta:'Nâu · M',price:'2.250.000đ'},{img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&q=80',name:'Váy midi A-line x1',meta:'Kem · S',price:'1.650.000đ'}],
+   items:[{img:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100&q=80',name:'Áo khoác blazer linen',meta:'Nâu · M',qty:1,price:2250000},{img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&q=80',name:'Váy midi A-line',meta:'Kem · S',qty:1,price:1650000}],
    sub:'3.900.000đ',ship:'Miễn phí',disc:'0đ',pts:'0đ',total:'3.900.000đ'},
   {id:'NV-20250504-0039',date:'04/05/2025 16:30',status:'cancel',customer:'Phạm Văn D',phone:'0944 567 890',addr:'22 Trần Cao Vân, Thanh Khê, Đà Nẵng',
-   items:[{img:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=100&q=80',name:'Đầm xẻ tà tối giản x1',meta:'Đen · XS',price:'2.100.000đ'}],
+   items:[{img:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=100&q=80',name:'Đầm xẻ tà tối giản',meta:'Đen · XS',qty:1,price:2100000}],
    sub:'2.100.000đ',ship:'30.000đ',disc:'0đ',pts:'0đ',total:'2.130.000đ'},
-  {id:'NV-20250503-0038',date:'03/05/2025 12:08',status:'done',customer:'Hoàng Thị M',phone:'0955 678 901',addr:'99 Điện Biên Phủ, Hải Châu, Đà Nẵng',
-   items:[{img:'https://images.unsplash.com/photo-1632149877166-f75d49000351?w=100&q=80',name:'Bộ suit vest x1',meta:'Kem · L',price:'4.500.000đ'},{img:'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=100&q=80',name:'Áo khoác dạ tweed x1',meta:'Caramel · M',price:'3.200.000đ'}],
-   sub:'7.700.000đ',ship:'Miễn phí',disc:'770.000đ',pts:'0đ',total:'6.930.000đ'},
+  {id:'NV-20250503-0038',date:'03/05/2025 12:08',status:'returning',customer:'Hoàng Thị M',phone:'0955 678 901',addr:'99 Điện Biên Phủ, Hải Châu, Đà Nẵng',
+   items:[{img:'https://images.unsplash.com/photo-1632149877166-f75d49000351?w=100&q=80',name:'Bộ suit vest nữ tính',meta:'Kem · L',qty:1,price:4500000}],
+   sub:'4.500.000đ',ship:'Miễn phí',disc:'450.000đ',pts:'0đ',total:'4.050.000đ'},
 ];
-const ST={pending:{label:'Chờ duyệt',cls:'t-p'},confirmed:{label:'Đã xác nhận',cls:'t-p'},shipping:{label:'Đang giao',cls:'t-s'},done:{label:'Đã giao',cls:'t-d'},cancel:{label:'Đã hủy',cls:'t-c'}};
+
 let filtered=[...orders];
 let curId=null;
+
 function renderOrders(){
   const q=document.getElementById('searchInput').value.toLowerCase();
   let list=filtered.filter(o=>!q||(o.id.toLowerCase().includes(q)||o.customer.toLowerCase().includes(q)));
   document.getElementById('countDisplay').textContent=list.length;
   document.getElementById('tbody').innerHTML=list.map(o=>{
-    const st=ST[o.status]||ST.pending;
+    const sc=STATUS_CSS[o.status]||'t-p';
+    const sl=STATUS_LABELS[o.status]||o.status;
+    const totalQty=o.items.reduce((s,i)=>s+i.qty,0);
     return`<tr>
-      <td style="color:var(--gold);font-size:10px">#${o.id}</td>
+      <td style="color:var(--gold);font-size:11px;letter-spacing:1px">#${o.id}</td>
       <td>${o.customer}</td>
-      <td style="color:rgba(250,248,242,.45)">${o.date}</td>
-      <td>${o.items.length} sản phẩm</td>
+      <td style="color:rgba(250,248,242,.55)">${o.date}</td>
+      <td>${totalQty} sản phẩm</td>
       <td>${o.total}</td>
-      <td><span class="otag ${st.cls}"><span class="otag-d"></span>${st.label}</span></td>
-      <td><div class="act-row">
-        <button class="ia-btn" onclick="openDetail('${o.id}')" title="Xem chi tiết"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div></td>
+      <td><span class="otag ${sc}"><span class="otag-d"></span>${sl}</span></td>
+      <td><div class="act-row"><button class="ia-btn" onclick="openDetail('${o.id}')" title="Chi tiết"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></td>
     </tr>`;}).join('');
-  // Update pending badge
-  const p=orders.filter(o=>o.status==='pending').length;
-  document.getElementById('pendingBadge').textContent=p;
 }
+
 function filterOrders(type,btn){
   document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   filtered=type==='all'?[...orders]:orders.filter(o=>o.status===type);
   renderOrders();
 }
+
+function buildStatusFlow(currentStatus){
+  // Flow chính
+  const mainFlow=['pending','confirmed','shipping','done'];
+  const idx=mainFlow.indexOf(currentStatus);
+  let html='<div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">';
+  mainFlow.forEach((s,i)=>{
+    let cls='wait';
+    if(i<idx)cls='done';
+    else if(i===idx)cls='current';
+    const dot=cls==='done'?'✓':(i+1);
+    html+=`<div class="sf-step ${cls}"><div class="sf-dot">${dot}</div><div class="sf-lbl">${STATUS_LABELS[s]}</div></div>`;
+    if(i<mainFlow.length-1)html+=`<div style="width:24px;height:2px;margin-top:-28px;background:${cls==='done'?'rgba(201,168,76,.4)':'rgba(250,248,242,.08)'}"></div>`;
+  });
+  // Nhánh đặc biệt
+  if(currentStatus==='returning'||currentStatus==='cancel'){
+    html+=`<div style="width:16px"></div>`;
+    const sc=STATUS_CSS[currentStatus];
+    html+=`<div class="sf-step current"><div class="sf-dot" style="border-color:${currentStatus==='returning'?'#7ab8e8':'#d47a76'};color:${currentStatus==='returning'?'#7ab8e8':'#d47a76'}">!</div><div class="sf-lbl" style="color:${currentStatus==='returning'?'#7ab8e8':'#d47a76'}">${STATUS_LABELS[currentStatus]}</div></div>`;
+  }
+  html+='</div>';
+  return html;
+}
+
+function buildStatusOptions(currentStatus){
+  const mainFlow=['pending','confirmed','shipping','done'];
+  const curIdx=mainFlow.indexOf(currentStatus);
+  const all=['pending','confirmed','shipping','returning','done','cancel'];
+  return all.map(s=>{
+    // Không thể chọn trạng thái trước trong flow chính
+    const sIdx=mainFlow.indexOf(s);
+    const isPrev=sIdx!==-1&&sIdx<curIdx;
+    const isSpecial=s==='returning'||s==='cancel';
+    const disabled=isPrev&&!isSpecial;
+    return`<option value="${s}" ${disabled?'disabled':''} ${currentStatus===s?'selected':''} style="${disabled?'color:rgba(250,248,242,.2)':''}">${STATUS_LABELS[s]}</option>`;
+  }).join('');
+}
+
 function openDetail(id){
   const o=orders.find(x=>x.id===id);
   curId=id;
-  const st=ST[o.status]||ST.pending;
   document.getElementById('mhdrS').textContent='# '+o.id;
   document.getElementById('mId').textContent='#'+o.id;
   document.getElementById('mDate').textContent=o.date;
   document.getElementById('mCust').textContent=o.customer;
   document.getElementById('mPhone').textContent=o.phone;
   document.getElementById('mAddr').textContent=o.addr;
-  document.getElementById('mItems').innerHTML=o.items.map(it=>`<div class="mitem"><div class="mitem-thumb"><img src="${it.img}" alt="" loading="lazy"></div><div style="flex:1"><div class="mitem-name">${it.name}</div><div class="mitem-meta">${it.meta}</div></div><div class="mitem-price">${it.price}</div></div>`).join('');
-  document.getElementById('mTotals').innerHTML=`<div class="mtrow"><span class="mtlbl">Tạm tính</span><span>${o.sub}</span></div><div class="mtrow"><span class="mtlbl">Vận chuyển</span><span>${o.ship}</span></div><div class="mtrow"><span class="mtlbl">Giảm giá</span><span style="color:#7aba7a">— ${o.disc}</span></div><div class="mtrow"><span class="mtlbl">Điểm thưởng</span><span style="color:#7aba7a">— ${o.pts}</span></div><div class="mtrow grand"><span>Tổng cộng</span><span>${o.total}</span></div>`;
-  document.getElementById('statusSel').value=o.status;
+  document.getElementById('mItems').innerHTML=o.items.map(it=>`
+    <div class="mitem">
+      <div class="mitem-thumb"><img src="${it.img}" alt="" loading="lazy"></div>
+      <div class="mitem-info"><div class="mitem-name">${it.name}</div><div class="mitem-meta">${it.meta}</div></div>
+      <div class="mitem-qty">x${it.qty}</div>
+      <div class="mitem-price">${fmt(it.price*it.qty)}</div>
+    </div>`).join('');
+  document.getElementById('mTotals').innerHTML=`
+    <div class="mtrow"><span class="mtlbl">Tạm tính</span><span>${o.sub}</span></div>
+    <div class="mtrow"><span class="mtlbl">Vận chuyển</span><span>${o.ship}</span></div>
+    <div class="mtrow"><span class="mtlbl">Giảm giá</span><span style="color:#7aba7a">— ${o.disc}</span></div>
+    <div class="mtrow"><span class="mtlbl">Điểm thưởng</span><span style="color:#7aba7a">— ${o.pts}</span></div>
+    <div class="mtrow grand"><span>Tổng cộng</span><span>${o.total}</span></div>`;
+  document.getElementById('statusFlow').innerHTML=buildStatusFlow(o.status);
+  document.getElementById('statusSel').innerHTML=buildStatusOptions(o.status);
   document.getElementById('mo').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -269,9 +329,13 @@ function updateStatus(){
   const newStatus=document.getElementById('statusSel').value;
   const idx=orders.findIndex(x=>x.id===curId);
   orders[idx].status=newStatus;
+  const fi=filtered.findIndex(x=>x.id===curId);
+  if(fi!==-1)filtered[fi].status=newStatus;
+  // Rebuild flow
+  document.getElementById('statusFlow').innerHTML=buildStatusFlow(newStatus);
+  document.getElementById('statusSel').innerHTML=buildStatusOptions(newStatus);
   renderOrders();
   toast('✦ Cập nhật trạng thái thành công!','info');
-  closeMo();
 }
 renderOrders();
 </script>

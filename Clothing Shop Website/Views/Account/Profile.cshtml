@@ -38,7 +38,7 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
 .av-ring2{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,168,76,.25)}
 .av-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(145deg,#2a2218,#1a1408);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:22px;color:var(--gold);position:relative;z-index:1}
 .p-name{font-family:var(--font-d);font-size:16px;font-style:italic;margin-bottom:4px}
-.p-email{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.3);margin-bottom:14px}
+.p-email{font-size:11px;letter-spacing:1px;color:rgba(250,248,242,.55);margin-bottom:14px}
 .p-pts{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:1.5px;padding:8px 14px}
 
 /* 2×2 GRID SIDEBAR — như ảnh tham khảo */
@@ -68,7 +68,7 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
 .sbox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.28}
 .sbox-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .sbox-title{font-family:var(--font-d);font-size:21px;font-weight:400;font-style:italic}
-.sub-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:16px;padding-bottom:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sub-lbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.85);margin-bottom:16px;padding-bottom:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
 .sub-lbl svg{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 
 /* Buttons */
@@ -78,18 +78,18 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
 
 /* Info grid */
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px}
-.info-lbl{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.48);margin-bottom:5px}
-.info-val{font-size:13px;font-weight:200;letter-spacing:.5px}
+.info-lbl{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.85);margin-bottom:6px}
+.info-val{font-size:14px;font-weight:200;letter-spacing:.5px;color:rgba(250,248,242,.9)}
 
 /* Form */
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .frow.full{grid-template-columns:1fr}
 .fgroup{display:flex;flex-direction:column;gap:6px}
-.flabel{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.48)}
-.finput,.fselect{width:100%;padding:9px 11px;border:1px solid var(--border);background:rgba(201,168,76,.03);font-size:12px;font-family:var(--font-b);font-weight:200;color:var(--white);outline:none;transition:border-color .2s}
+.flabel{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.85)}
+.finput,.fselect{width:100%;padding:10px 12px;border:1px solid var(--border);background:rgba(201,168,76,.03);font-size:13px;font-family:var(--font-b);font-weight:200;color:var(--white);outline:none;transition:border-color .2s}
 .finput:focus,.fselect:focus{border-color:var(--gold)}
 .finput::placeholder{color:rgba(250,248,242,.18)}
-.pass-hint{font-size:8px;letter-spacing:1px;color:rgba(250,248,242,.2);margin-top:4px}
+.pass-hint{font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.45);margin-top:4px}
 
 /* Eye button */
 .finput-wrap{position:relative}
@@ -102,10 +102,10 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
 .addr-card{border:1px solid var(--border);padding:14px 16px;margin-bottom:8px;position:relative;background:rgba(201,168,76,.02);transition:border-color .2s}
 .addr-card.def{border-color:rgba(201,168,76,.36)}
 .addr-badge{position:absolute;top:11px;right:11px;background:var(--gold);color:var(--black);font-size:7px;letter-spacing:1.5px;padding:2px 8px}
-.addr-name{font-size:12px;font-weight:300;margin-bottom:3px}
-.addr-text{font-size:11px;font-weight:200;color:rgba(250,248,242,.33);line-height:1.8}
+.addr-name{font-size:14px;font-weight:300;margin-bottom:4px}
+.addr-text{font-size:13px;font-weight:200;color:rgba(250,248,242,.6);line-height:1.8}
 .addr-acts{display:flex;gap:12px;margin-top:8px}
-.addr-act{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,.24);border-bottom:1px solid transparent;transition:all .2s}
+.addr-act{font-size:11px;letter-spacing:1.5px;color:rgba(250,248,242,.5);border-bottom:1px solid transparent;transition:all .2s}
 .addr-act:hover{color:var(--gold);border-color:var(--gold)}
 .addr-act.red:hover{color:#d47a76;border-color:#d47a76}
 
@@ -150,8 +150,8 @@ nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0
     <a href="/Account/Profile" class="nl active">Tài khoản</a>
   </div>
   <div class="nav-right">
-    <a href="/Account/Profile" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
     <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></a>
+    <a href="/Account/Profile" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
   </div>
 </nav>
 

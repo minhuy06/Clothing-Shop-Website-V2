@@ -1,95 +1,143 @@
-﻿@{
-    Layout = null;
+﻿@model List<Clothing_Shop_Website.Models.Order>
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string GetStatusLabel(int s) => s switch
+    {
+        0 => "Chờ duyệt",
+        1 => "Đang giao",
+        2 => "Đã giao",
+        3 => "Đã hủy",
+        4 => "Đang hoàn chuyển",
+        _ => "Không rõ"
+    };
+    string GetStatusCss(int s) => s switch
+    {
+        0 => "sb-pending",
+        1 => "sb-shipping",
+        2 => "sb-done",
+        3 => "sb-cancel",
+        4 => "sb-returning",
+        _ => ""
+    };
 }
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEVA — Lịch sử đơn hàng</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/lich-su.css" />
-</head>
-<body>
-    <div class="toast" id="toast"></div>
-    <nav>
-        <div class="nav-logo"><a href="/">NEVA</a><span class="nav-logo-sep">|</span></div>
-        <div class="nav-mid">
-            <a href="/Product" class="nl">Bộ sưu tập</a>
-            <span class="nd">|</span>
-            <a href="/" class="nl">Haute Couture</a>
-            <span class="nd">|</span>
-            <a href="/Account/Profile" class="nl active">Tài khoản</a>
-        </div>
-        <div class="nav-right">
-            <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg></a>
-            <a href="/Account/Profile" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></a>
-        </div>
-    </nav>
-    <div class="page-wrap">
-        <aside>
-            <div class="profile-card">
-                <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">NT</div></div>
-                <div class="p-name">Nguyễn Thị B</div>
-                <div class="p-email">nguyenthib@email.com</div>
-                <div class="p-pts">✦ 1.250 điểm tích lũy</div>
-            </div>
-            <div class="side-menu">
-                <div class="smenu-item" onclick="window.location='/Account/Profile'">
-                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                    Hồ sơ của tôi
-                </div>
-                <div class="smenu-item" onclick="window.location='/Account/Profile'">
-                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                    Địa chỉ giao hàng
-                </div>
-                <div class="smenu-item active">
-                    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
-                    Lịch sử đơn hàng
-                </div>
-                <div class="smenu-item" onclick="window.location='/Account/Profile'">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-                    Cài đặt tài khoản
-                </div>
-                <div class="smenu-item danger" onclick="window.location='/Account/Login'">
-                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Đăng xuất
-                </div>
-            </div>
-        </aside>
-        <main>
-            <div class="orders-toolbar">
-                <div class="orders-title">Đơn hàng</div>
-                <div class="filter-tabs">
-                    <button class="ftab active" onclick="filterOrders('all',this)">Tất cả</button>
-                    <button class="ftab" onclick="filterOrders('pending',this)">Chờ duyệt</button>
-                    <button class="ftab" onclick="filterOrders('shipping',this)">Đang giao</button>
-                    <button class="ftab" onclick="filterOrders('done',this)">Đã giao</button>
-                    <button class="ftab" onclick="filterOrders('cancel',this)">Đã hủy</button>
-                </div>
-            </div>
-            <div id="orderList"></div>
-        </main>
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/lich-su.css" asp-append-version="true" />
+}
 
-    <div class="mo" id="detMo" onclick="if(event.target===this)closeMo()">
-        <div class="modal">
-            <div class="mhdr">
-                <div><div class="mhdr-t">Chi tiết đơn hàng</div><div class="mhdr-s" id="mhdrS"></div></div>
-                <button class="mclose" onclick="closeMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
-            </div>
-            <div class="mbody">
-                <div class="m2col">
-                    <div class="mblock"><div class="mblock-t">Thông tin đơn</div><div class="mrow"><span class="mkey">Mã đơn</span><span class="mval" id="mId" style="color:var(--gold)"></span></div><div class="mrow"><span class="mkey">Ngày đặt</span><span class="mval" id="mDate"></span></div><div class="mrow"><span class="mkey">Trạng thái</span><span class="mval" id="mStatus"></span></div><div class="mrow"><span class="mkey">Thanh toán</span><span class="mval" id="mMethod"></span></div></div>
-                    <div class="mblock"><div class="mblock-t">Địa chỉ giao hàng</div><div class="mrow"><span class="mkey">Người nhận</span><span class="mval">Nguyễn Thị B</span></div><div class="mrow"><span class="mkey">SĐT</span><span class="mval">0901 234 567</span></div><div class="mrow"><span class="mkey">Địa chỉ</span><span class="mval" id="mAddr"></span></div></div>
-                </div>
-                <div class="mitems-wrap"><div class="mitems-t">Sản phẩm</div><div id="mItems"></div></div>
-                <div class="mtotal-wrap" id="mTotals"></div>
-            </div>
-            <div class="mfoot"><button class="btn-outline" onclick="closeMo()">Đóng</button><button class="btn-gold" id="mActBtn" style="display:none" onclick="mAct()"></button></div>
-        </div>
-    </div>
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(90,154,90,.1);border-bottom:1px solid rgba(90,154,90,.25);color:#7aba7a;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Success"]</div>
+}
 
-    <script src="~/js/lich-su.js"></script>
-</body>
-</html>
+<div class="page-wrap" style="display:grid;grid-template-columns:250px 1fr;gap:16px;padding:28px 44px 60px;max-width:1280px;margin:0 auto">
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="profile-card">
+            <div class="av-wrap">
+                <div class="av-ring"></div><div class="av-ring2"></div>
+                <div class="av-circle">@(HttpContext.Session.GetString("FullName")?.Substring(0, 2).ToUpper() ?? "KH")</div>
+            </div>
+            <div class="p-name">@HttpContext.Session.GetString("FullName")</div>
+            <div class="p-email">@HttpContext.Session.GetString("Phone")</div>
+            <div class="p-pts">✦ @HttpContext.Session.GetInt32("Points").GetValueOrDefault().ToString("N0") điểm</div>
+        </div>
+        <div class="side-menu">
+            <a asp-controller="Account" asp-action="Profile" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                Hồ sơ của tôi
+            </a>
+            <a asp-controller="Account" asp-action="Profile" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                Địa chỉ giao hàng
+            </a>
+            <a asp-controller="Order" asp-action="History" class="smenu-item active">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                Lịch sử đơn hàng
+            </a>
+            <a asp-controller="Account" asp-action="Logout" class="smenu-item danger">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+        <div class="orders-toolbar">
+            <div class="orders-title">Đơn hàng</div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty" style="text-align:center;padding:60px 20px;color:rgba(250,248,242,.2)">
+                <p style="font-size:12px;letter-spacing:1.5px;margin-bottom:16px">Bạn chưa có đơn hàng nào</p>
+                <a asp-controller="Product" asp-action="Index"
+                       style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
+                    Mua sắm ngay
+                </a>
+            </div>
+        }
+
+        @foreach (var order in Model)
+        {
+            <div class="order-card">
+                <div class="order-head">
+                    <div>
+                        <div class="order-id"># NV-@order.OrderID.ToString("D8")</div>
+                        <div class="order-date">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <span class="status-badge @GetStatusCss(order.Status)">
+                        <span class="sb-dot"></span>@GetStatusLabel(order.Status)
+                    </span>
+                </div>
+                <div class="order-body">
+                    <div class="order-items">
+                        @foreach (var detail in order.OrderDetails.Take(2))
+                        {
+                            <div class="order-item">
+                                <div class="item-thumb">
+                                    <img src="@detail.Product?.ImageUrl" alt="@detail.Product?.ProductName"
+                                         onerror="this.style.display='none'">
+                                </div>
+                                <div>
+                                    <div class="item-name">@detail.Product?.ProductName x@detail.Quantity</div>
+                                    <div class="item-meta">@detail.UnitPrice.ToString("N0")đ / cái</div>
+                                </div>
+                            </div>
+                        }
+                        @if (order.OrderDetails.Count > 2)
+                        {
+                            <div class="items-more">+@(order.OrderDetails.Count - 2) sản phẩm</div>
+                        }
+                    </div>
+                    <div class="order-footer">
+                        <div>
+                            <div class="order-total-lbl">Tổng đơn hàng</div>
+                            <div class="order-total">@order.TotalAmount.ToString("N0")đ</div>
+                        </div>
+                        <div class="order-acts">
+                            @if (order.Status == 0)
+                            {
+                                <form method="post" asp-controller="Order" asp-action="Cancel">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@order.OrderID">
+                                    <button type="submit" class="btn-outline" onclick="return confirm('Hủy đơn hàng này?')" style="padding:8px 16px">Hủy đơn</button>
+                                </form>
+                            }
+                            @if (order.Status == 2)
+                            {
+                                <a asp-controller="Product" asp-action="Index" class="btn-gold" style="padding:8px 18px">Mua lại</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
+</div>
+
+@section Scripts {
+    <script src="~/js/lich-su.js" asp-append-version="true"></script>
+}

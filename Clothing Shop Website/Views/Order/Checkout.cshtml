@@ -1,157 +1,156 @@
 ﻿@{
     ViewData["Title"] = "Thanh toán";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var cartItems = ViewBag.CartItems as List<Clothing_Shop_Website.Models.CartItem>;
+    var addresses = ViewBag.Addresses as List<Clothing_Shop_Website.Models.UserAddress>;
+    decimal total = ViewBag.Total;
+    decimal shipping = total >= 500000 ? 0 : 30000;
 }
-
 @section Styles {
     <link rel="stylesheet" href="~/css/thanh-toan.css" asp-append-version="true" />
 }
 
-<!-- STEPS BAR -->
 <div class="steps-bar">
-    <div class="step done">
-        <div class="step-num">✓</div>
-        <span class="step-lbl">Giỏ hàng</span>
-    </div>
+    <div class="step done"><div class="step-num">✓</div><span class="step-lbl">Giỏ hàng</span></div>
     <div class="step-line done"></div>
-    <div class="step active">
-        <div class="step-num">2</div>
-        <span class="step-lbl">Thanh toán</span>
-    </div>
+    <div class="step active"><div class="step-num">2</div><span class="step-lbl">Thanh toán</span></div>
     <div class="step-line wait"></div>
-    <div class="step wait">
-        <div class="step-num">3</div>
-        <span class="step-lbl">Hoàn tất</span>
-    </div>
+    <div class="step wait"><div class="step-num">3</div><span class="step-lbl">Hoàn tất</span></div>
 </div>
 
 <div class="checkout-layout">
-    <!-- FORM -->
     <div>
-        <!-- Địa chỉ giao hàng -->
-        <div class="form-box">
-            <div class="form-box-title">
-                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                Địa chỉ giao hàng
-            </div>
-            <div class="frow">
-                <div class="fgroup">
-                    <label class="flabel">Họ và tên</label>
-                    <input class="finput" type="text" id="rcvName" placeholder="Nguyễn Thị A">
-                </div>
-                <div class="fgroup">
-                    <label class="flabel">Số điện thoại</label>
-                    <input class="finput" type="tel" id="rcvPhone" placeholder="09xx xxx xxx">
-                </div>
-            </div>
-            <div class="frow">
-                <div class="fgroup">
-                    <label class="flabel">Tỉnh / Thành phố</label>
-                    <select class="fselect" id="rcvCity">
-                        <option value="">Chọn tỉnh / thành phố</option>
-                        <option>Đà Nẵng</option>
-                        <option>Hà Nội</option>
-                        <option>TP. Hồ Chí Minh</option>
-                        <option>Cần Thơ</option>
-                        <option>Hải Phòng</option>
-                        <option>Huế</option>
-                        <option>Quảng Nam</option>
-                        <option>Bình Định</option>
-                        <option>Gia Lai</option>
-                        <option>Kon Tum</option>
-                    </select>
-                </div>
-                <div class="fgroup">
-                    <label class="flabel">Quận / Huyện</label>
-                    <input class="finput" type="text" id="rcvDistrict" placeholder="Quận / Huyện">
-                </div>
-            </div>
-            <div class="frow full">
-                <div class="fgroup">
-                    <label class="flabel">Địa chỉ chi tiết</label>
-                    <input class="finput" type="text" id="rcvAddr" placeholder="Số nhà, tên đường, phường/xã...">
-                </div>
-            </div>
-            <div class="frow full">
-                <div class="fgroup">
-                    <label class="flabel">Ghi chú đơn hàng (không bắt buộc)</label>
-                    <textarea class="ftextarea" id="rcvNote" placeholder="Ghi chú cho người giao hàng..."></textarea>
-                </div>
-            </div>
-        </div>
+        <form method="post" asp-controller="Order" asp-action="PlaceOrder" id="orderForm">
+            @Html.AntiForgeryToken()
 
-        <!-- Phương thức thanh toán -->
-        <div class="form-box">
-            <div class="form-box-title">
-                <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
-                Phương thức thanh toán
-            </div>
-            <div class="pay-cod">
-                <div class="pay-cod-icon">
-                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+            <!-- ĐỊA CHỈ -->
+            <div class="form-box">
+                <div class="form-box-title">
+                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    Địa chỉ giao hàng
                 </div>
-                <div>
-                    <div class="pay-cod-name">Thanh toán khi nhận hàng (COD)</div>
-                    <div class="pay-cod-desc">Thanh toán bằng tiền mặt khi nhận được hàng</div>
+
+                @if (addresses != null && addresses.Any())
+                {
+                    <div class="frow full" style="margin-bottom:14px">
+                        <div class="fgroup">
+                            <label class="flabel">Chọn địa chỉ có sẵn</label>
+                            <select class="fselect" id="addrSelect" onchange="fillAddr(this)">
+                                <option value="">-- Nhập địa chỉ mới --</option>
+                                @foreach (var addr in addresses)
+                                {
+                                    <option value="@addr.FullName|@addr.Phone|@addr.DetailedAddress|@addr.Province_City">
+                                        @addr.FullName — @addr.DetailedAddress, @addr.Province_City
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+
+                <div class="frow">
+                    <div class="fgroup">
+                        <label class="flabel">Họ và tên người nhận</label>
+                        <input class="finput" type="text" name="receiverName" id="rcvName"
+                               value="@HttpContext.Session.GetString("FullName")" required>
+                    </div>
+                    <div class="fgroup">
+                        <label class="flabel">Số điện thoại</label>
+                        <input class="finput" type="tel" name="receiverPhone" id="rcvPhone"
+                               value="@HttpContext.Session.GetString("Phone")" required>
+                    </div>
                 </div>
-                <div class="pay-cod-check"></div>
+                <div class="frow">
+                    <div class="fgroup">
+                        <label class="flabel">Tỉnh / Thành phố</label>
+                        <select class="fselect" name="shippingProvince" id="rcvProvince">
+                            <option>Đà Nẵng</option>
+                            <option>Hà Nội</option>
+                            <option>TP. Hồ Chí Minh</option>
+                            <option>Cần Thơ</option>
+                            <option>Hải Phòng</option>
+                            <option>Huế</option>
+                        </select>
+                    </div>
+                    <div class="fgroup">
+                        <label class="flabel">Địa chỉ chi tiết</label>
+                        <input class="finput" type="text" name="shippingAddress" id="rcvAddr"
+                               placeholder="Số nhà, tên đường, phường/xã..." required>
+                    </div>
+                </div>
             </div>
-            <div class="pay-note">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                NEVA hiện chỉ hỗ trợ thanh toán COD (tiền mặt khi nhận hàng). Vui lòng chuẩn bị đúng số tiền khi nhận hàng.
+
+            <!-- THANH TOÁN -->
+            <div class="form-box">
+                <div class="form-box-title">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+                    Phương thức thanh toán
+                </div>
+                <div class="pay-cod">
+                    <div class="pay-cod-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div>
+                    <div>
+                        <div class="pay-cod-name">Thanh toán khi nhận hàng (COD)</div>
+                        <div class="pay-cod-desc">Thanh toán bằng tiền mặt khi nhận được hàng</div>
+                    </div>
+                    <div class="pay-cod-check"></div>
+                </div>
+                <div class="pay-note">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                    NEVA hiện chỉ hỗ trợ thanh toán COD.
+                </div>
             </div>
-        </div>
+
+            <!-- MÃ GIẢM GIÁ -->
+            <div class="form-box">
+                <div class="form-box-title">
+                    <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>
+                    Mã giảm giá & Điểm thưởng
+                </div>
+                <div class="frow">
+                    <div class="fgroup">
+                        <label class="flabel">Mã giảm giá</label>
+                        <input class="finput" type="text" name="discountCode" placeholder="Nhập mã ưu đãi..." style="text-transform:uppercase">
+                    </div>
+                    <div class="fgroup">
+                        <label class="flabel">Dùng điểm thưởng (có @HttpContext.Session.GetInt32("Points") điểm)</label>
+                        <input class="finput" type="number" name="usePoints" min="0"
+                               max="@HttpContext.Session.GetInt32("Points")" placeholder="0" value="0">
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- ORDER SUMMARY -->
     <div class="order-side">
         <div class="summary-box">
             <div class="summary-title">Đơn hàng của bạn</div>
-
             <div class="order-items">
-                <div class="oitem">
-                    <div class="oitem-thumb">
-                        <img src="https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=100&q=80" alt="">
-                        <div class="oitem-qty">2</div>
+                @foreach (var item in cartItems!)
+                {
+                    <div class="oitem">
+                        <div class="oitem-thumb">
+                            <img src="@item.Product.ImageUrl" alt="@item.Product.ProductName"
+                                 onerror="this.style.display='none'">
+                            <div class="oitem-qty">@item.Quantity</div>
+                        </div>
+                        <div style="flex:1">
+                            <div class="oitem-name">@item.Product.ProductName</div>
+                            <div class="oitem-meta">@item.Product.Category?.CategoryName</div>
+                        </div>
+                        <div class="oitem-price">@((item.Product.Price * item.Quantity).ToString("N0"))đ</div>
                     </div>
-                    <div style="flex:1">
-                        <div class="oitem-name">Áo blouse lụa cổ V</div>
-                        <div class="oitem-meta">Kem · Size M</div>
-                    </div>
-                    <div class="oitem-price">1.960.000đ</div>
-                </div>
-                <div class="oitem">
-                    <div class="oitem-thumb">
-                        <img src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=100&q=80" alt="">
-                        <div class="oitem-qty">1</div>
-                    </div>
-                    <div style="flex:1">
-                        <div class="oitem-name">Quần wide-leg linen</div>
-                        <div class="oitem-meta">Đen · Size S</div>
-                    </div>
-                    <div class="oitem-price">1.350.000đ</div>
-                </div>
+                }
             </div>
-
             <hr class="sdiv">
+            <div class="srow"><span class="slabel">Tạm tính</span><span>@total.ToString("N0")đ</span></div>
+            <div class="srow"><span class="slabel">Vận chuyển</span><span>@(shipping == 0 ? "Miễn phí" : shipping.ToString("N0") + "đ")</span></div>
+            <div class="srow total"><span>Tổng cộng</span><span>@((total + shipping).ToString("N0"))đ</span></div>
 
-            <div class="srow"><span class="slabel">Tạm tính</span><span>3.310.000đ</span></div>
-            <div class="srow"><span class="slabel">Phí vận chuyển</span><span>Miễn phí</span></div>
-            <div class="srow"><span class="slabel">Mã giảm giá</span><span style="color:#7aba7a">— 0đ</span></div>
-            <div class="pts-used-row">
-                <span class="pts-used-label">
-                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                    Điểm thưởng
-                </span>
-                <span style="color:#7aba7a">— 0đ</span>
-            </div>
-            <div class="srow total"><span>Tổng cộng</span><span>3.310.000đ</span></div>
-
-            <button class="btn-order" onclick="placeOrder()">
+            <button type="submit" form="orderForm" class="btn-order">
                 <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                 Đặt hàng ngay
             </button>
-
             <p class="secure">
                 <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                 Thanh toán an toàn · Bảo mật 100%
@@ -160,23 +159,19 @@
     </div>
 </div>
 
-<!-- SUCCESS SCREEN -->
-<div class="success-screen" id="successScreen">
-    <div class="success-ornament">✦</div>
-    <div class="success-icon">
-        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-    </div>
-    <div class="success-title">Đặt hàng<br><em>thành công!</em></div>
-    <div class="success-line"></div>
-    <p class="success-sub">Cảm ơn bạn đã tin tưởng NEVA.<br>Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến.</p>
-    <div class="success-code" id="orderCode"># NV-20250507-0042</div>
-    <div class="success-pts">✦ Bạn nhận được 33 điểm thưởng từ đơn hàng này</div>
-    <div class="success-btns">
-        <button class="btn-track" onclick="window.location.href='/Order/History'">Theo dõi đơn hàng</button>
-        <button class="btn-shop" onclick="window.location.href='/Product'">Tiếp tục mua sắm</button>
-    </div>
-</div>
-
 @section Scripts {
+    <script>
+        function fillAddr(sel) {
+            if (!sel.value) return;
+            const parts = sel.value.split('|');
+            document.getElementById('rcvName').value     = parts[0] || '';
+            document.getElementById('rcvPhone').value    = parts[1] || '';
+            document.getElementById('rcvAddr').value     = parts[2] || '';
+            const prov = document.getElementById('rcvProvince');
+            for (let i = 0; i < prov.options.length; i++) {
+                if (prov.options[i].value === parts[3]) { prov.selectedIndex = i; break; }
+            }
+        }
+    </script>
     <script src="~/js/thanh-toan.js" asp-append-version="true"></script>
 }

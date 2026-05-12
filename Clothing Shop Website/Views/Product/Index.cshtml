@@ -1,6 +1,10 @@
-﻿@{
+﻿@model List<Clothing_Shop_Website.Models.Product>
+@{
     ViewData["Title"] = "Bộ sưu tập";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    string GetSeason(int s) => s switch {
+        1 => "Xuân", 2 => "Hạ", 3 => "Thu", 4 => "Đông", _ => ""
+    };
 }
 
 @section Styles {
@@ -18,112 +22,130 @@
     <h1 class="page-title">Tất cả <em>sản phẩm</em></h1>
 </div>
 
-<!-- SEARCH (thêm vào nav qua JS) -->
-<div style="display:none">
-    <div class="nav-search" id="navSearchBox">
-        <input type="text" id="searchInput" placeholder="Tìm sản phẩm..." oninput="applyFilters()">
-        <button class="nav-search-btn" onclick="applyFilters()">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="22" y2="22" /></svg>
-        </button>
-    </div>
-</div>
-
 <div class="shop-layout">
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="filter-hdr">
-            <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
-            Bộ lọc
-        </div>
+        <form method="get" asp-controller="Product" asp-action="Index" id="filterForm">
+            <div class="filter-hdr">
+                <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                Bộ lọc
+            </div>
 
-        <!-- Danh mục -->
-        <div class="fg">
-            <div class="fg-title">Danh mục</div>
-            <div class="fc-item" data-cat="Đầm"><div class="fc-box on"></div><label class="fc-label">Đầm & Váy</label></div>
-            <div class="fc-item" data-cat="Áo blouse"><div class="fc-box"></div><label class="fc-label">Áo blouse</label></div>
-            <div class="fc-item" data-cat="Áo khoác"><div class="fc-box"></div><label class="fc-label">Áo khoác</label></div>
-            <div class="fc-item" data-cat="Quần"><div class="fc-box"></div><label class="fc-label">Quần</label></div>
-            <div class="fc-item" data-cat="Bộ suit"><div class="fc-box"></div><label class="fc-label">Bộ suit</label></div>
-        </div>
+            <!-- Tìm kiếm -->
+            <div class="fg">
+                <div class="fg-title">Tìm kiếm</div>
+                <input type="text" name="search" value="@ViewBag.Search"
+                    class="price-in" placeholder="Tên sản phẩm..." style="width:100%">
+            </div>
 
-        <!-- Mùa -->
-        <div class="fg">
-            <div class="fg-title">Mùa</div>
-            <div class="season-grid">
-                <div class="season-btn" data-season="Xuân">
-                    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 0 20" /><path d="M12 8c-2 2-2 5 0 7" /></svg>
-                    Xuân
+            <!-- Danh mục -->
+            <div class="fg">
+                <div class="fg-title">Danh mục</div>
+                @foreach (var cat in (List<Clothing_Shop_Website.Models.Category>)ViewBag.Categories)
+                {
+                    <div class="fc-item">
+                        <input type="radio" name="categoryId" value="@cat.CategoryID"
+                            id="cat_@cat.CategoryID"
+                            @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "checked" : "")
+                            style="display:none">
+                        <div class="fc-box @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "on" : "")"
+                            onclick="toggleCat(@cat.CategoryID, this)"></div>
+                        <label class="fc-label" for="cat_@cat.CategoryID">@cat.CategoryName</label>
+                    </div>
+                }
+            </div>
+
+            <!-- Mùa -->
+            <div class="fg">
+                <div class="fg-title">Mùa</div>
+                <div class="season-grid">
+                    @foreach (var (num, name) in new[] { (1,"Xuân"),(2,"Hạ"),(3,"Thu"),(4,"Đông") })
+                    {
+                        <button type="button"
+                            class="season-btn @(ViewBag.Session?.ToString() == num.ToString() ? "on" : "")"
+                            onclick="toggleSeason(@num, this)">@name</button>
+                    }
                 </div>
-                <div class="season-btn" data-season="Hạ">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /></svg>
-                    Hạ
-                </div>
-                <div class="season-btn" data-season="Thu">
-                    <svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" /></svg>
-                    Thu
-                </div>
-                <div class="season-btn" data-season="Đông">
-                    <svg viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" /></svg>
-                    Đông
+                <input type="hidden" name="session" id="sessionInput" value="@ViewBag.Session">
+            </div>
+
+            <!-- Giá -->
+            <div class="fg">
+                <div class="fg-title">Khoảng giá</div>
+                <div class="price-inputs">
+                    <input class="price-in" type="number" name="minPrice" value="@ViewBag.MinPrice" placeholder="Từ">
+                    <span class="price-sep">—</span>
+                    <input class="price-in" type="number" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="Đến">
                 </div>
             </div>
-        </div>
 
-        <!-- Giá -->
-        <div class="fg">
-            <div class="fg-title">Khoảng giá</div>
-            <div class="price-inputs">
-                <input class="price-in" type="number" id="priceMin" value="0" placeholder="Từ">
-                <span class="price-sep">—</span>
-                <input class="price-in" type="number" id="priceMax" value="5000000" placeholder="Đến">
-            </div>
-        </div>
-
-        <!-- Size -->
-        <div class="fg">
-            <div class="fg-title">Size</div>
-            <div class="size-grid">
-                <div class="sz-btn" data-size="XS">XS</div>
-                <div class="sz-btn on" data-size="S">S</div>
-                <div class="sz-btn on" data-size="M">M</div>
-                <div class="sz-btn" data-size="L">L</div>
-                <div class="sz-btn" data-size="XL">XL</div>
-                <div class="sz-btn" data-size="28">28</div>
-                <div class="sz-btn" data-size="30">30</div>
-                <div class="sz-btn" data-size="32">32</div>
-            </div>
-        </div>
-
-        <button class="btn-apply" onclick="applyFilters()">Áp dụng bộ lọc</button>
-        <button class="btn-reset" onclick="resetFilters()">Xóa tất cả</button>
+            <button type="submit" class="btn-apply">Áp dụng bộ lọc</button>
+            <a asp-controller="Product" asp-action="Index" class="btn-reset"
+                style="display:block;text-align:center;margin-top:5px">Xóa tất cả</a>
+        </form>
     </aside>
 
     <!-- MAIN -->
     <main class="shop-main">
         <div class="toolbar">
-            <div class="result-info">Hiển thị <strong id="countDisplay">0</strong> sản phẩm</div>
+            <div class="result-info">
+                Hiển thị <strong>@Model.Count</strong> sản phẩm
+            </div>
             <div class="toolbar-right">
                 <span class="sort-label">Sắp xếp</span>
-                <select class="sort-sel" id="sortSel" onchange="applySort()">
-                    <option value="newest">Mới nhất</option>
-                    <option value="price_asc">Giá: Thấp → Cao</option>
-                    <option value="price_desc">Giá: Cao → Thấp</option>
-                    <option value="popular">Bán chạy nhất</option>
+                <select class="sort-sel" onchange="doSort(this.value)">
+                    <option value=""           @(ViewBag.Sort == null          ? "selected" : "")>Mới nhất</option>
+                    <option value="price_asc"  @(ViewBag.Sort == "price_asc"  ? "selected" : "")>Giá: Thấp → Cao</option>
+                    <option value="price_desc" @(ViewBag.Sort == "price_desc" ? "selected" : "")>Giá: Cao → Thấp</option>
                 </select>
             </div>
         </div>
 
-        <!-- Bulk bar -->
-        <div class="bulk-bar" id="bulkBar">
-            <span class="bulk-info" id="bulkInfo">0 sản phẩm được chọn</span>
-            <button class="btn-bulk-cart" onclick="addSelectedToCart()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
-                Thêm vào giỏ hàng
-            </button>
+        <!-- PRODUCT GRID -->
+        <div class="products-grid">
+            @if (!Model.Any())
+            {
+                <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(250,248,242,.2)">
+                    <p>Không tìm thấy sản phẩm phù hợp</p>
+                </div>
+            }
+            @foreach (var p in Model)
+            {
+                <div class="pcard">
+                    <div class="pthumb">
+                        <div class="pimg-inner">
+                            <img src="@p.ImageUrl" alt="@p.ProductName" loading="lazy"
+                                onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
+                        </div>
+                        @if (p.Price < p.OriginalPrice)
+                        {
+                            <span class="pbadge badge-sale">Sale</span>
+                        }
+                        <div class="pquick" onclick="openModal(@p.ProductID)">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+                            Xem nhanh
+                        </div>
+                    </div>
+                    <div class="pinfo">
+                        <div class="pcat">@p.Category?.CategoryName · @GetSeason(p.Session)</div>
+                        <div class="pname">@p.ProductName</div>
+                        <div class="price-row">
+                            <span class="price">@p.Price.ToString("N0")đ</span>
+                            @if (p.OriginalPrice > p.Price)
+                            {
+                                <span class="price-old">@p.OriginalPrice.ToString("N0")đ</span>
+                            }
+                        </div>
+                        <div class="szrow">
+                            @foreach (var sz in p.ProductSizes.Take(4))
+                            {
+                                <span class="s">@sz.Size</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-
-        <div class="products-grid" id="productGrid"></div>
-        <div class="pagination" id="pagination"></div>
     </main>
 </div>
 
@@ -133,7 +155,7 @@
         <div class="mgallery">
             <img id="mImg" src="" alt="">
             <div class="mclose" onclick="closeMo()">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </div>
         </div>
         <div class="minfo">
@@ -141,21 +163,19 @@
             <div class="m-name" id="mName"></div>
             <div class="m-prow">
                 <span class="m-price" id="mPrice"></span>
-                <span class="m-old" id="mOld"></span>
+                <span class="m-old"   id="mOld"></span>
             </div>
             <hr class="m-div">
-            <div class="m-lbl">Màu sắc</div>
-            <div class="m-colors" id="mColors"></div>
             <div class="m-lbl">Chọn size</div>
             <div class="m-sizes" id="mSizes"></div>
             <div class="m-lbl">Số lượng</div>
             <div class="m-qty">
-                <button class="qbtn" onclick="chQty(-1)">−</button>
-                <input class="qval" type="number" value="1" min="1" id="qtyIn">
-                <button class="qbtn" onclick="chQty(1)">+</button>
+                <button class="qbtn" type="button" onclick="chQty(-1)">−</button>
+                <input  class="qval" type="number" value="1" min="1" id="qtyIn">
+                <button class="qbtn" type="button" onclick="chQty(1)">+</button>
             </div>
             <button class="btn-cart" onclick="addCart()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 Thêm vào giỏ hàng
             </button>
             <p class="m-desc" id="mDesc"></p>
@@ -165,18 +185,87 @@
 
 @section Scripts {
     <script>
-        // Data sản phẩm — sau này thay bằng data từ Controller
+        // Data từ Razor — lấy từ database thật!
         const ALL_PRODUCTS = [
-            { id:1, cat:'Đầm', name:'Đầm dạ hội ren thêu', price:3850000, old:0, badge:'new', pop:95, season:'Đông', img:'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=85', sizes:['XS','S','M','L'], colors:[{c:'#1a1a1a',n:'Đen'},{c:'#d4a535',n:'Vàng'}], desc:'Đầm dạ hội thêu ren tinh xảo. Chất liệu lụa cao cấp.' },
-            { id:2, cat:'Đầm', name:'Váy midi dáng A-line', price:1650000, old:0, badge:'', pop:88, season:'Xuân', img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&q=85', sizes:['XS','S','M','L','XL'], colors:[{c:'#f5f0e8',n:'Kem'},{c:'#1a1a1a',n:'Đen'}], desc:'Váy midi dáng A-line thanh lịch.' },
-            { id:3, cat:'Áo khoác', name:'Áo khoác blazer linen', price:2250000, old:2800000, badge:'sale', pop:76, season:'Thu', img:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=85', sizes:['S','M','L','XL'], colors:[{c:'#3d3530',n:'Nâu'},{c:'#1a1a1a',n:'Đen'}], desc:'Blazer linen cao cấp dáng structured.' },
-            { id:4, cat:'Áo blouse', name:'Áo blouse lụa cổ V', price:980000, old:0, badge:'new', pop:82, season:'Hạ', img:'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=600&q=85', sizes:['XS','S','M','L'], colors:[{c:'#f5f0e8',n:'Kem'},{c:'#c9a84c',n:'Vàng'}], desc:'Áo blouse lụa mềm mại, cổ chữ V thanh lịch.' },
-            { id:5, cat:'Quần', name:'Quần wide-leg linen', price:1350000, old:0, badge:'', pop:71, season:'Hạ', img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=85', sizes:['XS','S','M','L','XL'], colors:[{c:'#f5f0e8',n:'Kem'},{c:'#1a1a1a',n:'Đen'}], desc:'Quần ống rộng chất linen cao cấp.' },
-            { id:6, cat:'Đầm', name:'Đầm xẻ tà tối giản', price:2100000, old:2600000, badge:'sale', pop:90, season:'Thu', img:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=85', sizes:['XS','S','M'], colors:[{c:'#1a1a1a',n:'Đen'},{c:'#3d3530',n:'Nâu'}], desc:'Đầm xẻ tà dáng maxi tinh tế.' },
-            { id:7, cat:'Áo khoác', name:'Áo khoác dạ tweed', price:3200000, old:0, badge:'new', pop:65, season:'Đông', img:'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=600&q=85', sizes:['S','M','L'], colors:[{c:'#6b4c3b',n:'Caramel'},{c:'#1a1a1a',n:'Đen'}], desc:'Áo khoác dạ tweed cao cấp.' },
-            { id:8, cat:'Bộ suit', name:'Bộ suit vest nữ tính', price:4500000, old:0, badge:'', pop:60, season:'Thu', img:'https://images.unsplash.com/photo-1632149877166-f75d49000351?w=600&q=85', sizes:['XS','S','M','L'], colors:[{c:'#f5f0e8',n:'Kem'},{c:'#1a1a1a',n:'Đen'}], desc:'Bộ suit vest nữ tính.' },
-            { id:9, cat:'Đầm', name:'Đầm cocktail vai trần', price:1890000, old:0, badge:'new', pop:85, season:'Xuân', img:'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=600&q=85', sizes:['XS','S','M','L'], colors:[{c:'#1a1a1a',n:'Đen'},{c:'#d4a535',n:'Vàng'}], desc:'Đầm cocktail vai trần thanh lịch.' },
+            @foreach (var p in Model)
+            {
+                <text>{
+                    id:    @p.ProductID,
+                    cat:   '@Html.Raw((p.Category?.CategoryName ?? "").Replace("'","\\\'"))',
+                    name:  '@Html.Raw(p.ProductName.Replace("'","\\\'"))',
+                    price: @p.Price,
+                    old:   @p.OriginalPrice,
+                    img:   '@p.ImageUrl',
+                    season:'@GetSeason(p.Session)',
+                    sizes: [@Html.Raw(string.Join(",", p.ProductSizes.Select(s => $"'{s.Size}'")))],
+                    desc:  '@Html.Raw((p.Description ?? "").Replace("'","\\\'"))'
+                },</text>
+            }
         ];
+
+        function openModal(id) {
+            const p = ALL_PRODUCTS.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('mImg').src   = p.img;
+            document.getElementById('mCat').textContent  = p.cat + ' · ' + p.season;
+            document.getElementById('mName').textContent = p.name;
+            document.getElementById('mPrice').textContent = p.price.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('mOld').textContent   = p.old > p.price ? p.old.toLocaleString('vi-VN') + 'đ' : '';
+            document.getElementById('mDesc').textContent  = p.desc;
+            document.getElementById('mSizes').innerHTML   = p.sizes.map((s,i) =>
+                `<div class="msz ${i===0?'on':''}" onclick="selSize(this)">${s}</div>`).join('');
+            document.getElementById('mo').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMo() {
+            document.getElementById('mo').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function selSize(el) {
+            document.querySelectorAll('.msz').forEach(s => s.classList.remove('on'));
+            el.classList.add('on');
+        }
+
+        function chQty(d) {
+            const i = document.getElementById('qtyIn');
+            i.value = Math.max(1, parseInt(i.value) + d);
+        }
+
+        function addCart() {
+            const sz = document.querySelector('.msz.on');
+            if (!sz) { alert('Vui lòng chọn size!'); return; }
+            closeMo();
+            alert('Đã thêm vào giỏ hàng!');
+        }
+
+        function doSort(val) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', val);
+            window.location.href = url.toString();
+        }
+
+        function toggleCat(id, box) {
+            const input = document.getElementById('cat_' + id);
+            if (box.classList.contains('on')) {
+                box.classList.remove('on'); input.checked = false;
+            } else {
+                document.querySelectorAll('.fc-box').forEach(b => b.classList.remove('on'));
+                document.querySelectorAll('input[name="categoryId"]').forEach(i => i.checked = false);
+                box.classList.add('on'); input.checked = true;
+            }
+        }
+
+        function toggleSeason(num, btn) {
+            const input = document.getElementById('sessionInput');
+            if (btn.classList.contains('on')) {
+                btn.classList.remove('on'); input.value = '';
+            } else {
+                document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('on'));
+                btn.classList.add('on'); input.value = num;
+            }
+        }
     </script>
     <script src="~/js/san-pham.js" asp-append-version="true"></script>
 }

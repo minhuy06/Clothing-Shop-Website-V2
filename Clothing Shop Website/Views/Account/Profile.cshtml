@@ -1,134 +1,132 @@
-﻿@{
-    Layout = null;
+﻿@model Clothing_Shop_Website.Models.User
+@{
+    ViewData["Title"] = "Hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var initials = Model.FullName.Length >= 2 ? Model.FullName.Substring(0, 2).ToUpper() : Model.FullName.ToUpper();
 }
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEVA — Tài khoản</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/hoso.css" />
-</head>
-<body>
-    <div class="toast" id="toast"></div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/hoso.css" asp-append-version="true" />
+}
 
-    <!-- NAV -->
-    <nav>
-        <div class="nav-logo">
-            <a href="/">NEVA</a>
-            <span class="nav-logo-sep">|</span>
-        </div>
-        <div class="nav-mid">
-            <a href="/Product" class="nl">Bộ sưu tập</a>
-            <span class="nd">|</span>
-            <a href="/" class="nl">Haute Couture</a>
-            <span class="nd">|</span>
-            <a href="/Account/Profile" class="nl active">Tài khoản</a>
-        </div>
-        <div class="nav-right">
-            <a href="/Cart" class="ni"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg></a>
-            <a href="/Account/Profile" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></a>
-        </div>
-    </nav>
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(90,154,90,.1);border-bottom:1px solid rgba(90,154,90,.25);color:#7aba7a;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Success"]</div>
+}
+@if (TempData["PassError"] != null)
+{
+    <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">@TempData["PassError"]</div>
+}
 
-    <div class="page-wrap">
-        <aside>
-            <!-- Avatar card -->
-            <div class="profile-card">
-                <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">NT</div></div>
-                <div class="p-name">Nguyễn Thị B</div>
-                <div class="p-email">nguyenthib@email.com</div>
-                <div class="p-pts">✦ 1.250 điểm tích lũy</div>
+<div class="page-wrap">
+    <aside>
+        <div class="profile-card">
+            <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">@initials</div></div>
+            <div class="p-name">@Model.FullName</div>
+            <div class="p-email">@Model.Phone</div>
+            <div class="p-pts">✦ @Model.RewardPoints.ToString("N0") điểm tích lũy</div>
+        </div>
+        <div class="side-menu">
+            <div class="smenu-item active" onclick="sw('profile',this)">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                Hồ sơ của tôi
             </div>
-
-            <!-- Vertical menu -->
-            <div class="side-menu">
-                <div class="smenu-item active" onclick="sw('profile',this)">
-                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                    Hồ sơ của tôi
-                </div>
-                <div class="smenu-item" onclick="sw('address',this)">
-                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                    Địa chỉ giao hàng
-                </div>
-                <div class="smenu-item" onclick="window.location='/Order/History'">
-                    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
-                    Lịch sử đơn hàng
-                </div>
-                <div class="smenu-item" onclick="sw('settings',this)">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-                    Cài đặt tài khoản
-                </div>
-                <div class="smenu-item danger" onclick="openConf()">
-                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Đăng xuất
-                </div>
+            <div class="smenu-item" onclick="sw('address',this)">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                Địa chỉ giao hàng
             </div>
-        </aside>
+            <a asp-controller="Order" asp-action="History" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                Lịch sử đơn hàng
+            </a>
+            <div class="smenu-item" onclick="sw('settings',this)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                Cài đặt tài khoản
+            </div>
+            <a asp-controller="Account" asp-action="Logout" class="smenu-item danger">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
 
-        <main>
-            <!-- PROFILE TAB -->
-            <div class="tab-content active" id="profileTab">
-                <div class="sbox">
-                    <div class="sbox-hdr">
-                        <div class="sbox-title">Thông tin cá nhân</div>
-                        <button class="btn-gold" onclick="toggleEdit()" id="editBtn">Chỉnh sửa</button>
+    <main>
+        <!-- HỒ SƠ -->
+        <div class="tab-content active" id="profileTab">
+            <div class="sbox">
+                <div class="sbox-hdr">
+                    <div class="sbox-title">Thông tin cá nhân</div>
+                    <button class="btn-gold" onclick="toggleEdit()" id="editBtn">Chỉnh sửa</button>
+                </div>
+                <div id="infoView">
+                    <div class="info-grid">
+                        <div><div class="info-lbl">Họ và tên</div><div class="info-val">@Model.FullName</div></div>
+                        <div><div class="info-lbl">Số điện thoại</div><div class="info-val">@Model.Phone</div></div>
+                        <div><div class="info-lbl">Điểm thưởng</div><div class="info-val" style="color:var(--gold)">@Model.RewardPoints.ToString("N0") điểm</div></div>
+                        <div><div class="info-lbl">Trạng thái</div><div class="info-val" style="color:#7aba7a">@(Model.Status == 1 ? "Hoạt động" : "Đã khóa")</div></div>
                     </div>
-                    <div id="infoView">
-                        <div class="info-grid">
-                            <div><div class="info-lbl">Họ và tên</div><div class="info-val" id="vName">Nguyễn Thị B</div></div>
-                            <div><div class="info-lbl">Số điện thoại</div><div class="info-val" id="vPhone">0901 234 567</div></div>
-                            <div><div class="info-lbl">Ngày sinh</div><div class="info-val" id="vDob">01/01/2000</div></div>
-                            <div><div class="info-lbl">Giới tính</div><div class="info-val" id="vGender">Nữ</div></div>
-                            <div><div class="info-lbl">Thành viên từ</div><div class="info-val">Tháng 3, 2024</div></div>
-                            <div><div class="info-lbl">Hạng thành viên</div><div class="info-val" style="color:var(--gold)">NEVA Member</div></div>
-                        </div>
-                    </div>
-                    <div id="infoEdit" style="display:none">
+                </div>
+                <div id="infoEdit" style="display:none">
+                    <form method="post" asp-controller="Account" asp-action="UpdateProfile">
+                        @Html.AntiForgeryToken()
                         <div class="frow">
-                            <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="eName" value="Nguyễn Thị B"></div>
-                            <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="ePhone" value="0901 234 567"></div>
-                        </div>
-                        <div class="frow">
-                            <div class="fgroup"><label class="flabel">Ngày sinh</label><input class="finput" type="date" id="eDob" value="2000-01-01"></div>
-                            <div class="fgroup"><label class="flabel">Giới tính</label><select class="fselect" id="eGender"><option>Nữ</option><option>Nam</option><option>Khác</option></select></div>
+                            <div class="fgroup">
+                                <label class="flabel">Họ và tên</label>
+                                <input class="finput" type="text" name="fullName" value="@Model.FullName" required>
+                            </div>
+                            <div class="fgroup">
+                                <label class="flabel">Số điện thoại</label>
+                                <input class="finput" type="tel" name="phone" value="@Model.Phone" required>
+                            </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:8px">
-                            <button class="btn-gold" onclick="saveProfile()">Lưu thay đổi</button>
-                            <button class="btn-outline" onclick="cancelEdit()">Hủy</button>
+                            <button type="submit" class="btn-gold">Lưu thay đổi</button>
+                            <button type="button" class="btn-outline" onclick="cancelEdit()">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ĐỊA CHỈ -->
+        <div class="tab-content" id="addressTab">
+            <div class="sbox">
+                <div class="sbox-hdr">
+                    <div class="sbox-title">Địa chỉ giao hàng</div>
+                    <button class="btn-gold" onclick="openAddrMo()">+ Thêm mới</button>
+                </div>
+                @if (!Model.UserAddresses.Any())
+                {
+                    <p style="font-size:11px;color:rgba(250,248,242,.22);padding:12px 0">Chưa có địa chỉ nào.</p>
+                }
+                @foreach (var addr in Model.UserAddresses)
+                {
+                    <div class="addr-card">
+                        <div class="addr-name">@addr.FullName · @addr.Phone</div>
+                        <div class="addr-text">@addr.DetailedAddress, @addr.Province_City</div>
+                        <div class="addr-acts">
+                            <form method="post" asp-controller="Account" asp-action="DeleteAddress" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="addressId" value="@addr.AddressID">
+                                <button type="submit" class="addr-act red" onclick="return confirm('Xóa địa chỉ này?')">Xóa</button>
+                            </form>
                         </div>
                     </div>
-                </div>
+                }
             </div>
+        </div>
 
-            <!-- ADDRESS TAB -->
-            <div class="tab-content" id="addressTab">
-                <div class="sbox">
-                    <div class="sbox-hdr">
-                        <div class="sbox-title">Địa chỉ giao hàng</div>
-                        <button class="btn-gold" onclick="openAddrMo(-1)">+ Thêm mới</button>
-                    </div>
-                    <div id="addrList"></div>
-                </div>
-            </div>
-
-            <!-- SETTINGS TAB -->
-            <div class="tab-content" id="settingsTab">
-                <div class="sbox">
-                    <div class="sbox-hdr"><div class="sbox-title">Cài đặt tài khoản</div></div>
-                    <div class="sub-lbl">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                        Đổi mật khẩu
-                    </div>
+        <!-- CÀI ĐẶT -->
+        <div class="tab-content" id="settingsTab">
+            <div class="sbox">
+                <div class="sbox-hdr"><div class="sbox-title">Đổi mật khẩu</div></div>
+                <form method="post" asp-controller="Account" asp-action="ChangePassword">
+                    @Html.AntiForgeryToken()
                     <div class="frow full">
                         <div class="fgroup">
                             <label class="flabel">Mật khẩu hiện tại</label>
                             <div class="finput-wrap">
-                                <input class="finput" type="password" id="curP" placeholder="••••••••" readonly onfocus="this.removeAttribute('readonly')">
-                                <button class="eye-btn" type="button" onclick="tp('curP')">
-                                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                </button>
+                                <input class="finput" type="password" name="currentPassword" id="curP" placeholder="••••••••" required>
+                                <button class="eye-btn" type="button" onclick="tp('curP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
                             </div>
                         </div>
                     </div>
@@ -136,55 +134,66 @@
                         <div class="fgroup">
                             <label class="flabel">Mật khẩu mới</label>
                             <div class="finput-wrap">
-                                <input class="finput" type="password" id="newP" placeholder="Tối thiểu 8 ký tự">
-                                <button class="eye-btn" type="button" onclick="tp('newP')">
-                                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                </button>
+                                <input class="finput" type="password" name="newPassword" id="newP" placeholder="Tối thiểu 6 ký tự" required>
+                                <button class="eye-btn" type="button" onclick="tp('newP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
                             </div>
-                            <div class="pass-hint">Ít nhất 8 ký tự, chữ hoa, số và ký tự đặc biệt.</div>
                         </div>
                         <div class="fgroup">
                             <label class="flabel">Xác nhận mật khẩu mới</label>
                             <div class="finput-wrap">
-                                <input class="finput" type="password" id="cfP" placeholder="Nhập lại mật khẩu mới">
-                                <button class="eye-btn" type="button" onclick="tp('cfP')">
-                                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                </button>
+                                <input class="finput" type="password" name="confirmPassword" id="cfP" placeholder="Nhập lại mật khẩu mới" required>
+                                <button class="eye-btn" type="button" onclick="tp('cfP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
                             </div>
                         </div>
                     </div>
-                    <button class="btn-gold" onclick="updPass()">Cập nhật mật khẩu</button>
+                    <button type="submit" class="btn-gold">Cập nhật mật khẩu</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL THÊM ĐỊA CHỈ -->
+<div class="mo" id="addrMo" onclick="if(event.target===this)closeAddrMo()">
+    <div class="modal">
+        <div class="mhdr">
+            <div class="mhdr-t">Thêm địa chỉ mới</div>
+            <button class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
+        </div>
+        <form method="post" asp-controller="Account" asp-action="AddAddress">
+            @Html.AntiForgeryToken()
+            <div class="mbody">
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" name="fullName" required></div>
+                    <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" name="phone" required></div>
+                </div>
+                <div class="frow">
+                    <div class="fgroup">
+                        <label class="flabel">Tỉnh / Thành phố</label>
+                        <select class="fselect" name="province_City">
+                            <option>Đà Nẵng</option>
+                            <option>Hà Nội</option>
+                            <option>TP. Hồ Chí Minh</option>
+                            <option>Cần Thơ</option>
+                            <option>Hải Phòng</option>
+                            <option>Huế</option>
+                        </select>
+                    </div>
+                    <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" name="detailedAddress" placeholder="Số nhà, tên đường, phường/xã..." required></div>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <!-- MODAL ĐỊA CHỈ -->
-    <div class="mo" id="addrMo" onclick="if(event.target===this)closeAddrMo()">
-        <div class="modal">
-            <div class="mhdr">
-                <div class="mhdr-t" id="addrMoT">Thêm địa chỉ mới</div>
-                <button class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
+            <div class="mfoot">
+                <button type="button" class="btn-outline" onclick="closeAddrMo()">Hủy</button>
+                <button type="submit" class="btn-gold">Lưu địa chỉ</button>
             </div>
-            <div class="mbody">
-                <div class="frow"><div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" id="adN"></div><div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" id="adP"></div></div>
-                <div class="frow"><div class="fgroup"><label class="flabel">Tỉnh / Thành phố</label><select class="fselect" id="adC"><option>Đà Nẵng</option><option>Hà Nội</option><option>TP. Hồ Chí Minh</option></select></div><div class="fgroup"><label class="flabel">Quận / Huyện</label><input class="finput" id="adD"></div></div>
-                <div class="frow full"><div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" id="adA" placeholder="Số nhà, tên đường..."></div></div>
-                <div style="display:flex;align-items:center;gap:8px;margin-top:5px"><input type="checkbox" id="adDef" style="accent-color:var(--gold);width:13px;height:13px"><label for="adDef" style="font-size:9px;letter-spacing:1px;color:rgba(250,248,242,.38)">Đặt làm địa chỉ mặc định</label></div>
-            </div>
-            <div class="mfoot"><button class="btn-outline" onclick="closeAddrMo()">Hủy</button><button class="btn-gold" onclick="saveAddr()">Lưu địa chỉ</button></div>
-        </div>
+        </form>
     </div>
+</div>
 
-    <!-- CONFIRM LOGOUT -->
-    <div class="mo" id="confMo">
-        <div class="conf-box">
-            <div class="conf-t">Đăng xuất?</div>
-            <p class="conf-s">Bạn có chắc muốn đăng xuất khỏi tài khoản NEVA không?</p>
-            <div class="conf-b"><button class="btn-outline" onclick="closeConf()">Hủy</button><button class="btn-danger" onclick="window.location='/Account/Login'">Đăng xuất</button></div>
-        </div>
-    </div>
-
-    <script src="~/js/hoso.js"></script>
-</body>
-</html>
+@section Scripts {
+    <script>
+        function openAddrMo() { document.getElementById('addrMo').classList.add('open'); }
+        function closeAddrMo() { document.getElementById('addrMo').classList.remove('open'); }
+    </script>
+    <script src="~/js/hoso.js" asp-append-version="true"></script>
+}

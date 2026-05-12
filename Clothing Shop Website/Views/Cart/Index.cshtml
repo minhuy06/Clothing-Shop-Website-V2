@@ -1,458 +1,123 @@
 ﻿@{
-    Layout = null;
+    ViewData["Title"] = "Giỏ hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEVA — Giỏ hàng</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#c9a84c;--gold2:#e8c96a;
-  --black:#050402;--dark:#0c0a07;--dark2:#14100a;
-  --white:#faf8f2;--border:rgba(201,168,76,0.18);
-  --font-d:'Playfair Display',serif;--font-b:'Josefin Sans',sans-serif;--font-a:'EB Garamond',serif;
-  --nav-h:52px;
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/gio-hang.css" asp-append-version="true" />
 }
-body{font-family:var(--font-b);background:var(--black);color:var(--white)}
-a{text-decoration:none;color:inherit}
-img{display:block;width:100%;height:100%;object-fit:cover}
 
-/* NAV — đồng bộ trang chủ */
-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;justify-self:start;display:flex;align-items:center;gap:12px}
-.nav-logo a{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
-.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
-.nav-mid{display:flex;align-items:center;justify-content:center}
-.nl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(250,248,242,.7);padding:0 14px;transition:color .2s}
-.nl:hover{color:var(--white)}.nl.active{color:var(--gold)}
-.nd{color:rgba(250,248,242,.14);font-size:10px}
-.nav-right{display:flex;gap:14px;justify-self:end;align-items:center}
-.ni{color:rgba(250,248,242,.55);transition:color .2s;display:flex;align-items:center}
-.ni:hover{color:var(--gold)}
-.ni svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
-/* PAGE HEADER */
-.page-header{padding:26px 52px 22px;background:linear-gradient(160deg,var(--dark2),var(--black));border-bottom:1px solid var(--border);position:relative;overflow:hidden}
-.page-header::after{content:'';position:absolute;bottom:0;left:52px;right:52px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-.ph-bg{position:absolute;right:60px;top:50%;transform:translateY(-50%);font-family:var(--font-d);font-size:140px;font-weight:700;color:rgba(201,168,76,.03);letter-spacing:-8px;user-select:none}
-.breadcrumb{font-size:10px;letter-spacing:2px;color:rgba(250,248,242,.28);margin-bottom:12px;display:flex;gap:8px;align-items:center}
-.breadcrumb a{color:rgba(250,248,242,.28)}.breadcrumb a:hover{color:var(--gold)}
-.page-title{font-family:var(--font-d);font-size:44px;font-weight:400;line-height:1}
-.page-title em{font-style:italic;color:var(--gold)}
-.page-sub{font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.55);margin-top:8px}
-
-/* LAYOUT */
-.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:18px;padding:28px 52px 80px;max-width:1360px;margin:0 auto}
-
-/* CART TABLE */
-.cart-box{background:var(--dark);border:1px solid var(--border);overflow:hidden}
-.cart-box::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-
-/* Select all bar */
-.select-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-bottom:1px solid var(--border);background:rgba(201,168,76,.02)}
-.select-all-wrap{display:flex;align-items:center;gap:10px}
-.cb{width:14px;height:14px;flex-shrink:0;border:1px solid rgba(201,168,76,.35);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.cb.on{background:var(--gold);border-color:var(--gold)}
-.cb.on::after{content:'';width:7px;height:5px;border-left:1.5px solid var(--black);border-bottom:1.5px solid var(--black);transform:rotate(-45deg) translateY(-1px);display:block}
-.select-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,.75)}
-.del-selected{font-size:12px;letter-spacing:1.5px;color:rgba(212,122,118,.75);border:none;background:transparent;transition:color .2s;display:flex;align-items:center;gap:6px}
-.del-selected:hover{color:#d47a76}
-.del-selected svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-
-/* Cart head */
-.cart-head{display:grid;grid-template-columns:32px 2.5fr 1fr 1fr 1fr 36px;padding:12px 22px;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.8)}
-
-/* Cart row */
-.cart-row{display:grid;grid-template-columns:32px 2.5fr 1fr 1fr 1fr 36px;padding:18px 22px;border-bottom:1px solid var(--border);align-items:center;gap:8px;transition:background .2s}
-.cart-row:last-child{border-bottom:none}
-.cart-row:hover{background:rgba(201,168,76,.02)}
-
-/* Product cell */
-.cart-product{display:flex;align-items:center;gap:14px}
-.cart-thumb{width:64px;height:80px;flex-shrink:0;overflow:hidden;position:relative}
-.cart-thumb img{filter:brightness(.82)}
-.cart-pname{font-family:var(--font-a);font-size:16px;font-style:italic;margin-bottom:5px}
-.cart-pmeta{font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.6)}
-.cart-price{font-size:15px;font-weight:300;letter-spacing:.5px;color:rgba(250,248,242,.85)}
-.qty-row{display:flex;align-items:center;gap:5px}
-.qbtn{width:28px;height:28px;border:1px solid var(--border);background:transparent;color:var(--white);font-size:15px;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
-.qbtn:hover{border-color:var(--gold)}
-.qval{width:34px;height:28px;border:1px solid var(--border);background:var(--dark2);text-align:center;font-size:12px;font-family:var(--font-b);color:var(--white);outline:none}
-.cart-total{font-size:15px;font-weight:400;color:var(--gold)}
-.cart-remove{display:flex;align-items:center;justify-content:center;color:rgba(250,248,242,.2);transition:color .2s}
-.cart-remove:hover{color:#d47a76}
-.cart-remove svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-
-/* Empty cart */
-.empty-cart{padding:60px;text-align:center}
-.empty-cart svg{width:48px;height:48px;fill:none;stroke:rgba(201,168,76,.2);stroke-width:1;stroke-linecap:round;margin:0 auto 16px;display:block}
-.empty-cart p{font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.25);margin-bottom:20px}
-
-/* SUMMARY SIDE */
-.summary-side{position:sticky;top:calc(var(--nav-h) + 20px)}
-
-.coupon-box{background:var(--dark);border:1px solid var(--border);padding:18px 22px;margin-bottom:10px;position:relative;overflow:hidden}
-.coupon-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-.box-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
-.coup-row{display:flex;gap:8px}
-.coup-in{flex:1;padding:10px 13px;border:1px solid var(--border);background:var(--dark2);font-size:13px;letter-spacing:2px;font-family:var(--font-b);color:var(--white);text-transform:uppercase;outline:none}
-.coup-in:focus{border-color:var(--gold)}
-.coup-btn{padding:10px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:11px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}
-.coup-btn:hover{opacity:.85}
-
-.summary-box{background:var(--dark);border:1px solid var(--border);padding:24px 22px;margin-bottom:10px;position:relative;overflow:hidden}
-.summary-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-.summary-title{font-family:var(--font-d);font-size:24px;font-weight:400;margin-bottom:22px;font-style:italic}
-.srow{display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;font-weight:200;letter-spacing:.5px}
-.srow.total{font-size:17px;font-weight:400;padding-top:16px;border-top:1px solid var(--border);margin-top:4px;color:var(--gold)}
-.slabel{color:rgba(250,248,242,.65)}
-.ship-note{background:rgba(201,168,76,.06);border:1px solid var(--border);padding:12px 16px;font-size:13px;letter-spacing:1px;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.ship-note svg{width:14px;height:14px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;flex-shrink:0}
-
-.btn-checkout{
-  width:100%;padding:16px;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  color:var(--black);font-size:10px;letter-spacing:3px;text-transform:uppercase;
-  border:none;font-family:var(--font-b);margin-bottom:8px;
-  transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:10px;
-}
-.btn-checkout:hover{opacity:.85}
-.btn-checkout svg{width:14px;height:14px;fill:none;stroke:var(--black);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.btn-continue{
-  width:100%;padding:13px;background:transparent;
-  color:rgba(250,248,242,.65);font-size:11px;letter-spacing:2px;text-transform:uppercase;
-  border:1px solid var(--border);font-family:var(--font-b);text-align:center;
-  display:block;transition:all .2s;
-}
-.btn-continue:hover{border-color:var(--gold);color:var(--gold)}
-.secure{text-align:center;font-size:11px;letter-spacing:1.5px;color:rgba(250,248,242,.45);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px}
-.secure svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-
-/* POINTS BOX */
-.points-box{background:var(--dark);border:1px solid var(--border);padding:18px 22px;margin-bottom:10px;position:relative;overflow:hidden}
-.points-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-.points-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.points-balance{display:flex;align-items:center;gap:8px}
-.points-badge{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;font-family:var(--font-b)}
-.points-amount{font-size:18px;font-weight:300;color:var(--gold);letter-spacing:.5px}
-.points-label{font-size:11px;letter-spacing:1.5px;color:rgba(250,248,242,.65)}
-.points-rate{font-size:11px;letter-spacing:1px;color:rgba(250,248,242,.6);margin-bottom:12px;padding:8px 10px;border:1px solid rgba(201,168,76,.12);background:rgba(201,168,76,.03)}
-.points-rate span{color:var(--gold)}
-.points-input-wrap{display:flex;gap:8px;margin-bottom:10px}
-.points-in{
-  flex:1;padding:10px 13px;border:1px solid var(--border);
-  background:var(--dark2);font-size:13px;font-family:var(--font-b);
-  font-weight:200;color:var(--white);outline:none;transition:border-color .2s;
-}
-.points-in:focus{border-color:var(--gold)}
-.points-in::placeholder{color:rgba(250,248,242,.2)}
-.points-btn{padding:10px 16px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:11px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s;white-space:nowrap}
-.points-btn:hover{opacity:.85}
-.points-slider-wrap{margin-bottom:6px}
-.points-slider{width:100%;-webkit-appearance:none;height:2px;background:var(--border);outline:none;border-radius:0}
-.points-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer}
-.points-slider::-moz-range-thumb{width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer;border:none}
-.points-info{display:flex;justify-content:space-between;font-size:11px;letter-spacing:1px;color:rgba(250,248,242,.55);margin-top:5px}
-.points-info .pts-discount{color:#7aba7a;font-size:11px;font-weight:300}
-.points-applied{display:none;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(106,173,106,.08);border:1px solid rgba(106,173,106,.25);margin-top:8px}
-.points-applied.show{display:flex}
-.pts-applied-text{font-size:12px;letter-spacing:1px;color:#7aba7a;display:flex;align-items:center;gap:6px}
-.pts-applied-text svg{width:13px;height:13px;fill:none;stroke:#7aba7a;stroke-width:1.8;stroke-linecap:round}
-.pts-cancel{font-size:9px;color:rgba(250,248,242,.3);border:none;background:transparent;letter-spacing:1px;transition:color .2s}
-.pts-cancel:hover{color:#d47a76}
-.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:10px;letter-spacing:1.5px;border:1px solid;display:none}
-.toast.ok{background:rgba(90,154,90,.12);border-color:rgba(90,154,90,.4);color:#7aba7a}
-.toast.info{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28);color:var(--gold)}
-.toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
-</style>
-</head>
-<body>
-<div class="toast" id="toast"></div>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <a href="/">NEVA</a>
-    <span class="nav-logo-sep">|</span>
-  </div>
-  <div class="nav-mid">
-    <a href="/Product" class="nl">Bộ sưu tập</a>
-    <span class="nd">|</span>
-    <a href="/" class="nl">Haute Couture</a>
-    <span class="nd">|</span>
-    <a href="/Account/Login" class="nl">Tài khoản</a>
-  </div>
-  <div class="nav-right">
-    <a href="/Cart" class="ni" style="color:var(--gold)"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></a>
-    <a href="/Account/Profile" class="ni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
-  </div>
-</nav>
-
-<!-- PAGE HEADER -->
-<div class="page-header">
-  <div class="ph-bg">CART</div>
-  <div class="breadcrumb"><a href="/">Trang chủ</a><span>›</span><span style="color:var(--gold)">Giỏ hàng</span></div>
-  <h1 class="page-title">Giỏ <em>hàng</em></h1>
-  <p class="page-sub" id="cartSubtitle">0 sản phẩm được chọn</p>
+<!-- PAGE BANNER -->
+<div class="page-banner">
+    <div class="page-banner-bg">CART</div>
+    <div class="breadcrumb">
+        <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+        <span>›</span>
+        <span style="color:var(--gold)">Giỏ hàng</span>
+    </div>
+    <h1 class="page-title">Giỏ <em>hàng</em></h1>
+    <p class="page-sub" id="cartSubtitle">0 sản phẩm</p>
 </div>
 
 <div class="cart-layout">
-  <!-- CART TABLE -->
-  <div>
-    <div class="cart-box">
-      <div class="select-bar">
-        <div class="select-all-wrap">
-          <div class="cb" id="cbAll" onclick="toggleSelectAll()"></div>
-          <span class="select-label">Chọn tất cả</span>
+    <!-- CART TABLE -->
+    <div>
+        <div class="cart-box">
+            <div class="select-bar">
+                <div class="select-all-wrap">
+                    <div class="cb" id="cbAll" onclick="toggleSelectAll()"></div>
+                    <span class="select-label">Chọn tất cả</span>
+                </div>
+                <button class="del-selected" onclick="deleteSelected()">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /></svg>
+                    Xóa đã chọn
+                </button>
+            </div>
+            <div class="cart-head">
+                <span></span>
+                <span>Sản phẩm</span>
+                <span>Đơn giá</span>
+                <span>Số lượng</span>
+                <span>Tổng</span>
+                <span></span>
+            </div>
+            <div id="cartRows"></div>
         </div>
-        <button class="del-selected" onclick="deleteSelected()">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-          Xóa đã chọn
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-side">
+        <!-- Ship note -->
+        <div class="ship-note">
+            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
+            Thêm <strong id="shipRemain" style="margin:0 4px">—</strong> để được miễn phí vận chuyển
+        </div>
+
+        <!-- Mã giảm giá -->
+        <div class="coupon-box">
+            <div class="box-title">◆ Mã giảm giá</div>
+            <div class="coup-row">
+                <input class="coup-in" type="text" id="couponInput" placeholder="Nhập mã ưu đãi...">
+                <button class="coup-btn" onclick="applyCoupon()">Áp dụng</button>
+            </div>
+        </div>
+
+        <!-- Điểm thưởng -->
+        <div class="points-box">
+            <div class="box-title">✦ Điểm thưởng</div>
+            <div class="points-header">
+                <div>
+                    <div class="points-label">Số điểm hiện có</div>
+                    <div class="points-amount" id="pointsDisplay">1.250 điểm</div>
+                </div>
+                <div class="points-badge">NEVA Member</div>
+            </div>
+            <div class="points-rate">
+                <span>100 điểm</span> = giảm <span>10.000đ</span> &nbsp;·&nbsp; Tối đa dùng <span>30%</span> giá trị đơn
+            </div>
+            <div class="points-input-wrap">
+                <input class="points-in" type="number" id="pointsInput" placeholder="Nhập số điểm muốn dùng..." min="0" max="1250" oninput="syncSlider()">
+                <button class="points-btn" onclick="applyPoints()">Dùng điểm</button>
+            </div>
+            <div class="points-slider-wrap">
+                <input class="points-slider" type="range" id="pointsSlider" min="0" max="1250" value="0" step="100" oninput="syncInput()">
+                <div class="points-info">
+                    <span>0 điểm</span>
+                    <span class="pts-discount" id="ptsSaving">Giảm: 0đ</span>
+                    <span>1.250 điểm</span>
+                </div>
+            </div>
+            <div class="points-applied" id="pointsApplied">
+                <div class="pts-applied-text">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                    <span id="pointsAppliedText">Đã dùng 0 điểm</span>
+                </div>
+                <button class="pts-cancel" onclick="cancelPoints()">Hủy</button>
+            </div>
+        </div>
+
+        <!-- Tóm tắt đơn -->
+        <div class="summary-box">
+            <div class="summary-title">Tóm tắt đơn</div>
+            <div class="srow"><span class="slabel">Tạm tính</span><span id="sumSubtotal">0đ</span></div>
+            <div class="srow"><span class="slabel">Phí vận chuyển</span><span id="sumShip">30.000đ</span></div>
+            <div class="srow"><span class="slabel">Mã giảm giá</span><span id="sumDiscount" style="color:#7aba7a">— 0đ</span></div>
+            <div class="srow"><span class="slabel">Điểm thưởng</span><span id="sumPoints" style="color:#7aba7a">— 0đ</span></div>
+            <div class="srow total"><span>Tổng cộng</span><span id="sumTotal">0đ</span></div>
+        </div>
+
+        <button class="btn-checkout" onclick="checkout()">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+            Thanh toán ngay
         </button>
-      </div>
-      <div class="cart-head">
-        <span></span>
-        <span>Sản phẩm</span>
-        <span>Đơn giá</span>
-        <span>Số lượng</span>
-        <span>Tổng</span>
-        <span></span>
-      </div>
-      <div id="cartRows"></div>
+        <a asp-controller="Product" asp-action="Index" class="btn-continue">← Tiếp tục mua sắm</a>
+        <p class="secure">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            Thanh toán an toàn · COD toàn quốc
+        </p>
     </div>
-  </div>
-
-  <!-- SUMMARY -->
-  <div class="summary-side">
-    <div class="ship-note">
-      <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-      Thêm <strong id="shipRemain" style="margin:0 4px">—</strong> để được miễn phí vận chuyển
-    </div>
-
-    <div class="coupon-box">
-      <div class="box-title">◆ Mã giảm giá</div>
-      <div class="coup-row">
-        <input class="coup-in" type="text" id="couponInput" placeholder="Nhập mã ưu đãi...">
-        <button class="coup-btn" onclick="applyCoupon()">Áp dụng</button>
-      </div>
-    </div>
-
-    <!-- ĐIỂM THƯỞNG -->
-    <div class="points-box">
-      <div class="box-title">✦ Điểm thưởng</div>
-      <div class="points-header">
-        <div>
-          <div class="points-label">Số điểm hiện có</div>
-          <div class="points-amount" id="pointsDisplay">1.250 điểm</div>
-        </div>
-        <div class="points-badge">NEVA Member</div>
-      </div>
-      <div class="points-rate">
-        <span>100 điểm</span> = giảm <span>10.000đ</span> &nbsp;·&nbsp; Tối đa dùng <span>30%</span> giá trị đơn
-      </div>
-      <div class="points-input-wrap">
-        <input class="points-in" type="number" id="pointsInput" placeholder="Nhập số điểm muốn dùng..." min="0" max="1250" oninput="syncSlider()">
-        <button class="points-btn" onclick="applyPoints()">Dùng điểm</button>
-      </div>
-      <div class="points-slider-wrap">
-        <input class="points-slider" type="range" id="pointsSlider" min="0" max="1250" value="0" step="100" oninput="syncInput()">
-        <div class="points-info">
-          <span>0 điểm</span>
-          <span class="pts-discount" id="ptsSaving">Giảm: 0đ</span>
-          <span>1.250 điểm</span>
-        </div>
-      </div>
-      <div class="points-applied" id="pointsApplied">
-        <div class="pts-applied-text">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          <span id="pointsAppliedText">Đã dùng 0 điểm · Giảm 0đ</span>
-        </div>
-        <button class="pts-cancel" onclick="cancelPoints()">Hủy</button>
-      </div>
-    </div>
-
-    <div class="summary-box">
-      <div class="summary-title">Tóm tắt đơn</div>
-      <div class="srow"><span class="slabel">Tạm tính</span><span id="sumSubtotal">0đ</span></div>
-      <div class="srow"><span class="slabel">Phí vận chuyển</span><span id="sumShip">30.000đ</span></div>
-      <div class="srow"><span class="slabel">Mã giảm giá</span><span id="sumDiscount" style="color:#7aba7a">— 0đ</span></div>
-      <div class="srow"><span class="slabel">Điểm thưởng</span><span id="sumPoints" style="color:#7aba7a">— 0đ</span></div>
-      <div class="srow total"><span>Tổng cộng</span><span id="sumTotal">0đ</span></div>
-    </div>
-
-    <button class="btn-checkout" onclick="checkout()">
-      <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-      Thanh toán ngay
-    </button>
-    <a href="/Product" class="btn-continue">← Tiếp tục mua sắm</a>
-    <p class="secure">
-      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Thanh toán an toàn · COD toàn quốc
-    </p>
-  </div>
 </div>
 
-<script>
-function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
-function fmt(n){return n.toLocaleString('vi-VN')+'đ'}
-
-// Cart data với ảnh thật
-let cartItems=[
-  {id:1,name:'Áo blouse lụa cổ V',meta:'Kem · Size M',price:980000,qty:2,
-   img:'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=200&q=80',selected:true},
-  {id:2,name:'Quần wide-leg linen',meta:'Đen · Size S',price:1350000,qty:1,
-   img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=200&q=80',selected:true},
-  {id:3,name:'Váy midi dáng A-line',meta:'Kem · Size M',price:1650000,qty:1,
-   img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200&q=80',selected:false},
-];
-
-const FREE_SHIP=500000;
-let discount=0;
-let pointsDiscount=0;
-const TOTAL_POINTS=1250;
-const POINTS_RATE=100; // 100 điểm = 10.000đ
-const MAX_POINTS_PCT=0.3; // tối đa 30% đơn hàng
-
-function calcSubtotal(){
-  return cartItems.filter(i=>i.selected).reduce((s,i)=>s+i.price*i.qty,0);
+@section Scripts {
+    <script src="~/js/gio-hang.js" asp-append-version="true"></script>
 }
-function updateSummary(){
-  const sub=calcSubtotal();
-  const ship=sub>=FREE_SHIP?0:30000;
-  const total=sub+ship-discount-pointsDiscount;
-  const remain=FREE_SHIP-sub;
-  document.getElementById('sumSubtotal').textContent=fmt(sub);
-  document.getElementById('sumShip').textContent=ship===0?'Miễn phí':fmt(ship);
-  document.getElementById('sumDiscount').textContent='— '+fmt(discount);
-  document.getElementById('sumPoints').textContent='— '+fmt(pointsDiscount);
-  document.getElementById('sumTotal').textContent=fmt(Math.max(0,total));
-  document.getElementById('shipRemain').textContent=remain>0?fmt(remain):'đã đủ!';
-  if(remain<=0) document.getElementById('shipRemain').style.color='#7aba7a';
-  const selectedCount=cartItems.filter(i=>i.selected).length;
-  document.getElementById('cartSubtitle').textContent=selectedCount+' sản phẩm được chọn · '+cartItems.length+' sản phẩm trong giỏ';
-  // Update select all checkbox
-  const allSel=cartItems.length>0&&cartItems.every(i=>i.selected);
-  const cbAll=document.getElementById('cbAll');
-  if(allSel) cbAll.classList.add('on'); else cbAll.classList.remove('on');
-  // Update slider max based on current subtotal
-  const maxPts=Math.min(TOTAL_POINTS,Math.floor(sub*MAX_POINTS_PCT/(10000/POINTS_RATE)));
-  document.getElementById('pointsSlider').max=maxPts;
-}
-
-// ĐIỂM THƯỞNG
-function syncSlider(){
-  const v=parseInt(document.getElementById('pointsInput').value)||0;
-  document.getElementById('pointsSlider').value=v;
-  updatePtsSaving(v);
-}
-function syncInput(){
-  const v=parseInt(document.getElementById('pointsSlider').value)||0;
-  document.getElementById('pointsInput').value=v;
-  updatePtsSaving(v);
-}
-function updatePtsSaving(pts){
-  const saving=Math.floor(pts/POINTS_RATE)*10000;
-  document.getElementById('ptsSaving').textContent='Giảm: '+fmt(saving);
-}
-function applyPoints(){
-  const sub=calcSubtotal();
-  let pts=parseInt(document.getElementById('pointsInput').value)||0;
-  if(pts<=0){toast('Vui lòng nhập số điểm muốn dùng!','err');return}
-  if(pts>TOTAL_POINTS){toast('Bạn không đủ điểm!','err');return}
-  const maxDisc=sub*MAX_POINTS_PCT;
-  const saving=Math.floor(pts/POINTS_RATE)*10000;
-  if(saving>maxDisc){
-    pts=Math.floor(maxDisc/10000)*POINTS_RATE;
-    toast('Điều chỉnh xuống mức tối đa cho phép (30% đơn hàng)','info');
-  }
-  pointsDiscount=Math.floor(pts/POINTS_RATE)*10000;
-  // Show applied state
-  document.getElementById('pointsApplied').classList.add('show');
-  document.getElementById('pointsAppliedText').textContent=`Đã dùng ${pts.toLocaleString('vi-VN')} điểm · Giảm ${fmt(pointsDiscount)}`;
-  document.getElementById('pointsDisplay').textContent=(TOTAL_POINTS-pts).toLocaleString('vi-VN')+' điểm';
-  renderCart();
-  toast('✦ Đã áp dụng điểm thưởng!','info');
-}
-function cancelPoints(){
-  pointsDiscount=0;
-  document.getElementById('pointsInput').value='';
-  document.getElementById('pointsSlider').value=0;
-  document.getElementById('pointsApplied').classList.remove('show');
-  document.getElementById('ptsSaving').textContent='Giảm: 0đ';
-  document.getElementById('pointsDisplay').textContent=TOTAL_POINTS.toLocaleString('vi-VN')+' điểm';
-  renderCart();
-  toast('Đã hủy sử dụng điểm');
-}
-
-function renderCart(){
-  const rows=document.getElementById('cartRows');
-  if(!cartItems.length){
-    rows.innerHTML=`<div class="empty-cart">
-      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      <p>Giỏ hàng của bạn đang trống</p>
-      <a href="/Product" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">Khám phá sản phẩm</a>
-    </div>`;
-    updateSummary();return;
-  }
-  rows.innerHTML=cartItems.map((item,i)=>`
-    <div class="cart-row">
-      <div class="cb ${item.selected?'on':''}" onclick="toggleItem(${i})"></div>
-      <div class="cart-product">
-        <div class="cart-thumb">
-          <img src="${item.img}" alt="${item.name}" loading="lazy"
-            onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
-        </div>
-        <div>
-          <div class="cart-pname">${item.name}</div>
-          <div class="cart-pmeta">${item.meta}</div>
-        </div>
-      </div>
-      <div class="cart-price">${fmt(item.price)}</div>
-      <div class="qty-row">
-        <button class="qbtn" onclick="changeQty(${i},-1)">−</button>
-        <input class="qval" type="number" value="${item.qty}" min="1" onchange="setQty(${i},this.value)">
-        <button class="qbtn" onclick="changeQty(${i},1)">+</button>
-      </div>
-      <div class="cart-total">${fmt(item.price*item.qty)}</div>
-      <div class="cart-remove" onclick="removeItem(${i})">
-        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-      </div>
-    </div>`).join('');
-  updateSummary();
-}
-
-function toggleItem(i){cartItems[i].selected=!cartItems[i].selected;renderCart()}
-function toggleSelectAll(){
-  const allSel=cartItems.every(i=>i.selected);
-  cartItems.forEach(i=>i.selected=!allSel);
-  renderCart();
-}
-function deleteSelected(){
-  const count=cartItems.filter(i=>i.selected).length;
-  if(!count){toast('Chưa chọn sản phẩm nào!','err');return}
-  cartItems=cartItems.filter(i=>!i.selected);
-  renderCart();
-  toast(`Đã xóa ${count} sản phẩm`);
-}
-function removeItem(i){cartItems.splice(i,1);renderCart();toast('Đã xóa sản phẩm')}
-function changeQty(i,d){cartItems[i].qty=Math.max(1,cartItems[i].qty+d);renderCart()}
-function setQty(i,v){cartItems[i].qty=Math.max(1,parseInt(v)||1);renderCart()}
-function applyCoupon(){
-  const code=document.getElementById('couponInput').value.trim().toUpperCase();
-  if(code==='NEVA20'){discount=calcSubtotal()*0.2;renderCart();toast('✦ Giảm 20% đã được áp dụng!','info')}
-  else if(code==='SALE50K'){discount=50000;renderCart();toast('✦ Giảm 50.000đ đã được áp dụng!','info')}
-  else toast('Mã giảm giá không hợp lệ!','err');
-}
-function checkout(){
-  const sel=cartItems.filter(i=>i.selected);
-  if(!sel.length){toast('Vui lòng chọn ít nhất 1 sản phẩm!','err');return}
-  window.location='/Order/Checkout';
-}
-
-renderCart();
-</script>
-</body>
-</html>

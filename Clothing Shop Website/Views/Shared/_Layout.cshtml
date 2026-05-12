@@ -1,50 +1,116 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Clothing_Shop_Website</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Clothing_Shop_Website.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] — NEVA</title>
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true" />
+
+    <!-- CSS riêng của từng trang -->
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Clothing_Shop_Website</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Clothing_Shop_Website - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Toast chung -->
+    <div class="neva-toast" id="nevaToast"></div>
+
+    <!-- ── NAV ── -->
+    <nav class="neva-nav">
+        <!-- Logo trái -->
+        <div class="nav-logo">
+            <a asp-controller="Home" asp-action="Index">NEVA</a>
+            <span class="nav-logo-sep">|</span>
+        </div>
+
+        <!-- Links giữa -->
+        <div class="nav-mid">
+            <a asp-controller="Product" asp-action="Index"
+                   class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                Bộ sưu tập
+            </a>
+            <span class="nav-divider">|</span>
+            <a href="#" class="nav-link">Haute Couture</a>
+            <span class="nav-divider">|</span>
+            <a asp-controller="Account" asp-action="@(User.Identity!.IsAuthenticated ? "Profile" : "Login")"
+                   class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")">
+                Tài khoản
+            </a>
+        </div>
+
+        <!-- Icons phải -->
+        <div class="nav-right">
+            <!-- Giỏ hàng -->
+            <a asp-controller="Cart" asp-action="Index"
+                   class="nav-icon @(ViewContext.RouteData.Values["controller"]?.ToString() == "Cart" ? "active" : "")"
+                   data-page="cart">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+            </a>
+            <!-- Tài khoản -->
+            <a asp-controller="Account" asp-action="@(User.Identity!.IsAuthenticated ? "Profile" : "Login")"
+                   class="nav-icon @(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")"
+                   data-page="account">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ── NỘI DUNG TRANG ── -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer class="neva-footer">
+        <div class="footer-line"></div>
+        <div class="footer-grid">
+            <div>
+                <span class="footer-logo">NEVA</span>
+                <p class="footer-tagline">
+                    Nghệ thuật thời trang. Mỗi sản phẩm là một tác phẩm được tạo ra để tồn tại vượt thời gian.
+                </p>
+            </div>
+            <div class="footer-col">
+                <div class="footer-col-title">Khám phá</div>
+                <a asp-controller="Product" asp-action="Index">Bộ sưu tập mới</a>
+                <a href="#">Haute Couture</a>
+                <a href="#">Nam</a>
+                <a href="#">Nữ</a>
+            </div>
+            <div class="footer-col">
+                <div class="footer-col-title">Hỗ trợ</div>
+                <a href="#">Hướng dẫn size</a>
+                <a href="#">Chính sách đổi trả</a>
+                <a asp-controller="Order" asp-action="History">Theo dõi đơn hàng</a>
+                <a href="#">Liên hệ</a>
+            </div>
+            <div class="footer-col">
+                <div class="footer-col-title">Theo dõi</div>
+                <a href="#">Instagram</a>
+                <a href="#">TikTok</a>
+                <a href="#">Facebook</a>
+                <a href="#">Pinterest</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2025 NEVA Fashion House. All rights reserved.</span>
+            <span>Da Nang · Vietnam</span>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Base JS -->
+    <script src="~/js/neva-base.js" asp-append-version="true"></script>
+
+    <!-- JS riêng của từng trang -->
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

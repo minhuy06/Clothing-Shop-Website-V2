@@ -14,9 +14,7 @@ namespace Clothing_Shop_Website.Controllers
         // ── Kiểm tra quyền Admin ──
         private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 1;
 
-        // ═══════════════════════════════
-        //   DASHBOARD
-        // ═══════════════════════════════
+    
         public async Task<IActionResult> Dashboard()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");

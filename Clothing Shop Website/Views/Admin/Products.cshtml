@@ -1,4 +1,5 @@
 ﻿@model List<Clothing_Shop_Website.Models.Product>
+@inject Clothing_Shop_Website.Data.AppDbContext Db
 @{
     ViewData["Title"] = "Sản phẩm";
     Layout = null;
@@ -61,14 +62,20 @@
                     <option value="">Tất cả danh mục</option>
                     @foreach (var cat in categories!)
                     {
-                        <option value="@cat.CategoryID" @(ViewBag.CategoryId?.ToString()==cat.CategoryID.ToString()?"selected":"")>@cat.CategoryName</option>
+                        @if (ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString())
+                        { <option value="@cat.CategoryID" selected>@cat.CategoryName</option> }
+                        else
+                        { <option value="@cat.CategoryID">@cat.CategoryName</option> }
                     }
                 </select>
                 <select name="season" style="padding:9px 13px;border:1px solid var(--border);background:var(--dark2);font-size:12px;font-family:var(--font-b);color:var(--white);outline:none">
                     <option value="">Tất cả mùa</option>
                     @foreach (var (num,name) in new[]{(1,"Xuân"),(2,"Hạ"),(3,"Thu"),(4,"Đông")})
                     {
-                        <option value="@num" @(ViewBag.Season==num.ToString()?"selected":"")>@name</option>
+                        @if (ViewBag.Season == num.ToString())
+                        { <option value="@num" selected>@name</option> }
+                        else
+                        { <option value="@num">@name</option> }
                     }
                 </select>
                 <button type="submit" style="padding:9px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b)">Lọc</button>
@@ -139,10 +146,7 @@
                     <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Thao tác</th>
                 </tr></thead>
                 <tbody id="discBody">
-                @{
-                    var discs = await Context.RequestServices.GetService<AppDbContext>()!.Discounts.ToListAsync();
-                }
-                @foreach (var d in discs)
+                @foreach (var d in Db.Discounts.OrderByDescending(x => x.DiscountID))
                 {
                     var isExp = d.ExpirationDate < DateTime.Now || d.UsedCount >= d.Quantity;
                     <tr>
@@ -150,7 +154,7 @@
                             <span style="font-size:11px;letter-spacing:2px;color:var(--gold);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);padding:3px 10px">@d.Code</span>
                         </td>
                         <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;color:var(--gold)">
-                            @(d.DiscountType == "percent" ? d.DiscountValue + "%" : d.DiscountValue.ToString("N0") + "đ")
+                            @(d.DiscountType == 1 ? $"{d.DiscountValue}%" : d.DiscountValue.ToString("N0") + "đ")
                         </td>
                         <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;color:rgba(250,248,242,.8)">@d.UsedCount/@d.Quantity</td>
                         <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200">

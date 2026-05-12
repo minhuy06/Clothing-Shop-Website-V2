@@ -38,7 +38,7 @@
         </aside>
         <main class="admin-main">
             <div class="page-title">Dashboard</div>
-            <div class="page-sub">Xin chào, @HttpContext.Session.GetString("FullName")!</div>
+            <div class="page-sub">Xin chào, @Context.Session.GetString("FullName")!</div>
 
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div><div class="stat-lbl">Doanh thu</div><div class="stat-val g">@totalRevenue.ToString("N0")đ</div></div>

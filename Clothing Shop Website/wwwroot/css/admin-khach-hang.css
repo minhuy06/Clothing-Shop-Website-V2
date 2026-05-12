@@ -1,0 +1,199 @@
+﻿/* ==========================================
+   NEVA Admin — Khách hàng CSS
+   ========================================== */
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    background: var(--dark2);
+    flex: 1;
+    max-width: 360px;
+}
+
+    .search-box svg {
+        width: 13px;
+        height: 13px;
+        fill: none;
+        stroke: rgba(250,248,242,.4);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        margin-right: 10px;
+        margin-left: 12px;
+        flex-shrink: 0;
+    }
+
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 9px 0;
+        font-size: 12px;
+        letter-spacing: 1px;
+        font-family: var(--font-b);
+        color: var(--white);
+        width: 100%;
+    }
+
+        .search-box input::placeholder {
+            color: rgba(250,248,242,.3);
+        }
+
+.result-info {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: rgba(250,248,242,.55);
+    margin-left: auto;
+}
+
+    .result-info strong {
+        color: var(--gold);
+    }
+
+/* TABLE */
+.cust-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+}
+
+    .cust-table th {
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(201,168,76,.55);
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        font-weight: 300;
+        background: rgba(0,0,0,.15);
+    }
+
+    .cust-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid rgba(201,168,76,.05);
+        font-size: 12px;
+        font-weight: 200;
+        letter-spacing: .5px;
+        vertical-align: middle;
+        color: rgba(250,248,242,.8);
+    }
+
+    .cust-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .cust-table tr:hover td {
+        background: rgba(201,168,76,.02);
+    }
+
+/* STATUS */
+.cust-status {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border: 1px solid;
+    display: inline-block;
+}
+
+.cs-active {
+    border-color: rgba(80,180,80,.4);
+    color: #7aba7a;
+}
+
+.cs-locked {
+    border-color: rgba(212,120,116,.4);
+    color: #d47a76;
+}
+
+/* POINTS */
+.pts-badge {
+    color: var(--gold);
+    font-size: 12px;
+}
+
+/* BOOM warning */
+.boom-warn {
+    color: #d47a76;
+}
+
+/* LOCK BUTTON */
+.lock-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    cursor: pointer;
+}
+
+    .lock-btn:hover {
+        border-color: #d47a76;
+    }
+
+    .lock-btn svg {
+        width: 12px;
+        height: 12px;
+        fill: none;
+        stroke: rgba(250,248,242,.45);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: stroke .2s;
+    }
+
+    .lock-btn:hover svg {
+        stroke: #d47a76;
+    }
+
+    .lock-btn.locked {
+        border-color: rgba(201,168,76,.4);
+    }
+
+        .lock-btn.locked svg {
+            stroke: var(--gold);
+        }
+
+/* TOAST */
+.toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9000;
+    padding: 11px 20px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    border: 1px solid;
+    display: none;
+    font-family: var(--font-b);
+}
+
+    .toast.ok {
+        background: rgba(90,154,90,.12);
+        border-color: rgba(90,154,90,.4);
+        color: #7aba7a;
+    }
+
+    .toast.info {
+        background: rgba(201,168,76,.08);
+        border-color: rgba(201,168,76,.28);
+        color: var(--gold);
+    }
+
+    .toast.err {
+        background: rgba(201,80,76,.08);
+        border-color: rgba(201,80,76,.3);
+        color: #d47a76;
+    }

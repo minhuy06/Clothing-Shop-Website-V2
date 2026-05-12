@@ -4,430 +4,155 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEVA Admin — Sản phẩm</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#050402;--dark:#0c0a07;--dark2:#14100a;--white:#faf8f2;--border:rgba(201,168,76,0.18);--font-d:'Playfair Display',serif;--font-b:'Josefin Sans',sans-serif;--font-a:'EB Garamond',serif;--nav-h:52px;--side-w:220px}
-body{font-family:var(--font-b);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column}
-a{text-decoration:none;color:inherit}
-img{display:block;width:100%;height:100%;object-fit:cover}
-
-/* NAV — chỉ NEVA | Admin */
-nav{display:flex;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0;gap:14px}
-.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
-.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
-.nav-badge{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.7);border:1px solid rgba(201,168,76,.3);padding:3px 12px}
-
-/* ADMIN LAYOUT */
-.admin-wrap{display:flex;flex:1}
-.admin-sidebar{width:var(--side-w);flex-shrink:0;background:var(--dark);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto}
-.sb-section{margin-bottom:6px;padding:0 14px}
-.sb-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:6px;padding:0 6px}
-.sitem{display:flex;align-items:center;gap:11px;padding:12px 12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,248,242,.55);transition:all .2s;position:relative;border-left:2px solid transparent}
-.sitem:hover{background:rgba(201,168,76,.04);color:rgba(250,248,242,.9);border-left-color:rgba(201,168,76,.3)}
-.sitem.active{color:var(--gold);background:rgba(201,168,76,.06);border-left-color:var(--gold)}
-.sitem svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
-.sitem.active svg{opacity:1}
-.sitem.danger{color:rgba(212,122,118,.6)}
-.sitem.danger:hover{color:#d47a76;background:rgba(212,122,118,.04)}
-
-/* Tabs */
-.admin-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:22px}
-.atab{padding:10px 22px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;background:transparent;border:none;font-family:var(--font-b);color:rgba(250,248,242,.45);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
-.atab:hover{color:rgba(250,248,242,.8)}
-.atab.active{color:var(--gold);border-bottom-color:var(--gold)}
-
-.admin-main{flex:1;padding:26px 30px;overflow-y:auto}
-.top-bar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
-.page-title{font-family:var(--font-d);font-size:34px;font-weight:400;font-style:italic}
-.page-sub{font-size:12px;letter-spacing:2px;color:rgba(250,248,242,.45);margin-top:4px}
-.btn-add{padding:10px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s;display:flex;align-items:center;gap:8px}
-.btn-add:hover{opacity:.85}
-.btn-add svg{width:13px;height:13px;fill:none;stroke:var(--black);stroke-width:2;stroke-linecap:round}
-
-.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.search-box{display:flex;align-items:center;border:1px solid var(--border);background:var(--dark2);flex:1;min-width:200px;max-width:300px}
-.search-box input{background:transparent;border:none;outline:none;padding:9px 13px;font-size:12px;letter-spacing:1px;font-family:var(--font-b);color:var(--white);width:100%}
-.search-box input::placeholder{color:rgba(250,248,242,.3)}
-.search-box svg{width:13px;height:13px;fill:none;stroke:rgba(250,248,242,.4);stroke-width:1.5;stroke-linecap:round;margin-right:10px}
-.fsel{padding:9px 13px;border:1px solid var(--border);background:var(--dark2);font-size:12px;letter-spacing:1px;font-family:var(--font-b);color:var(--white);outline:none}
-.fsel:focus{border-color:var(--gold)}
-/* Fix select options background */
-.fsel option{background:var(--dark2);color:var(--white)}
-.result-info{font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.55);margin-left:auto}
-.result-info strong{color:var(--gold)}
-
-.ptable{width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)}
-.ptable th{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)}
-.ptable td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;letter-spacing:.5px;vertical-align:middle;color:rgba(250,248,242,.8)}
-.ptable tr:last-child td{border-bottom:none}
-.ptable tr:hover td{background:rgba(201,168,76,.02)}
-.prow-thumb{width:44px;height:55px;flex-shrink:0;overflow:hidden}
-.prow-thumb img{filter:brightness(.82)}
-.prow-info{display:flex;align-items:center;gap:12px}
-.prow-name{font-family:var(--font-a);font-size:14px;font-style:italic;margin-bottom:2px;color:var(--white)}
-.prow-cat{font-size:10px;letter-spacing:1.5px;color:rgba(201,168,76,.65)}
-.badge-new{font-size:8px;letter-spacing:2px;padding:2px 8px;background:var(--gold);color:var(--black)}
-.badge-sale{font-size:8px;letter-spacing:2px;padding:2px 8px;border:1px solid rgba(201,168,76,.4);color:var(--gold)}
-.act-row{display:flex;gap:6px}
-.ia-btn{width:30px;height:30px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.ia-btn:hover{border-color:var(--gold)}
-.ia-btn svg{width:12px;height:12px;fill:none;stroke:rgba(250,248,242,.5);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
-.ia-btn:hover svg{stroke:var(--gold)}
-.ia-btn.del:hover{border-color:#d47a76}
-.ia-btn.del:hover svg{stroke:#d47a76}
-.pstock{font-size:12px;font-weight:200}
-.pstock.low{color:#d47a76}.pstock.ok{color:#7aba7a}
-
-/* Discount table */
-.dtable{width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)}
-.dtable th{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)}
-.dtable td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;letter-spacing:.5px;vertical-align:middle;color:rgba(250,248,242,.8)}
-.dtable tr:last-child td{border-bottom:none}
-.dtable tr:hover td{background:rgba(201,168,76,.02)}
-.code-tag{font-size:11px;letter-spacing:2px;color:var(--gold);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);padding:3px 10px;font-family:var(--font-b)}
-.exp-date{font-size:11px;color:rgba(250,248,242,.5)}
-.exp-date.expired{color:#d47a76}
-
-.pagination{display:flex;justify-content:flex-end;gap:3px;margin-top:16px}
-.pp{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid var(--border);background:transparent;color:rgba(250,248,242,.45);transition:all .2s;font-family:var(--font-b)}
-.pp:hover,.pp.on{background:var(--gold);color:var(--black);border-color:var(--gold)}
-
-/* Toast */
-.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none}
-.toast.ok{background:rgba(90,154,90,.12);border-color:rgba(90,154,90,.4);color:#7aba7a}
-.toast.info{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28);color:var(--gold)}
-.toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
-
-/* MODAL */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
-.mo.open{opacity:1;pointer-events:all}
-.modal{background:var(--dark2);width:90%;max-width:600px;border:1px solid var(--border);transform:translateY(14px);transition:transform .3s cubic-bezier(.16,1,.3,1)}
-.mo.open .modal{transform:translateY(0)}
-.mhdr{padding:17px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.mhdr-t{font-family:var(--font-d);font-size:20px;font-style:italic;color:var(--white)}
-.mclose{width:28px;height:28px;border:1px solid var(--border);background:none;color:var(--white);display:flex;align-items:center;justify-content:center;transition:border-color .2s}
-.mclose:hover{border-color:var(--gold)}
-.mclose svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-.mbody{padding:22px;max-height:72vh;overflow-y:auto}
-.mbody::-webkit-scrollbar{width:2px}.mbody::-webkit-scrollbar-thumb{background:var(--border)}
-.mfoot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
-
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
-.frow.full{grid-template-columns:1fr}
-.fgroup{display:flex;flex-direction:column;gap:7px}
-.flabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)}
-.finput,.fselect,.ftextarea{padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);font-weight:200;color:var(--white);outline:none;transition:border-color .2s;width:100%}
-.finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--gold)}
-.finput::placeholder,.ftextarea::placeholder{color:rgba(250,248,242,.25)}
-/* Fix select options dark */
-.fselect option{background:#14100a;color:var(--white)}
-
-/* Image upload */
-.img-upload-area{border:1px dashed rgba(201,168,76,.3);padding:20px;text-align:center;background:rgba(201,168,76,.03);transition:border-color .2s;position:relative}
-.img-upload-area:hover{border-color:rgba(201,168,76,.6)}
-.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
-.img-upload-icon svg{width:28px;height:28px;fill:none;stroke:rgba(201,168,76,.4);stroke-width:1.2;stroke-linecap:round;margin:0 auto 8px}
-.img-upload-text{font-size:12px;letter-spacing:1px;color:rgba(250,248,242,.4);margin-bottom:4px}
-.img-upload-hint{font-size:10px;color:rgba(250,248,242,.22)}
-.img-preview{display:none;margin-top:10px;position:relative}
-.img-preview img{width:100%;max-height:160px;object-fit:contain;border:1px solid var(--border)}
-.img-preview-clear{position:absolute;top:4px;right:4px;background:rgba(5,4,2,.7);border:1px solid var(--border);width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:13px;transition:border-color .2s}
-.img-preview-clear:hover{border-color:#d47a76;color:#d47a76}
-
-.btn-gold{padding:10px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);transition:opacity .2s}.btn-gold:hover{opacity:.85}
-.btn-outline{padding:10px 18px;background:transparent;color:rgba(250,248,242,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);transition:all .2s}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-
-/* Stats cards nhỏ */
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.mini-stat{background:var(--dark2);border:1px solid var(--border);padding:14px 16px;position:relative;overflow:hidden}
-.mini-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.25}
-.ms-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,.45);margin-bottom:6px}
-.ms-val{font-size:22px;font-weight:300;color:var(--gold)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEVA Admin — Sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/admin-sanpham.css" />
 </head>
 <body>
-<div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
-<!-- NAV — chỉ NEVA | Admin -->
-<nav>
-  <span class="nav-logo">NEVA</span>
-  <span class="nav-logo-sep">|</span>
-  <span class="nav-badge">Admin</span>
-</nav>
+    <!-- NAV -->
+    <nav>
+        <span class="nav-logo">NEVA</span>
+        <span class="nav-logo-sep">|</span>
+        <span class="nav-badge">Admin</span>
+    </nav>
 
-<div class="admin-wrap">
-  <aside class="admin-sidebar">
-    <div class="sb-section">
-      <div class="sb-lbl">Quản lý</div>
-      <a href="/Admin/Dashboard" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
-      <a href="/Admin/Products" class="sitem active"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Sản phẩm</a>
-      <a href="/Admin/Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
-      <a href="/Admin/Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
+    <div class="admin-wrap">
+        <aside class="admin-sidebar">
+            <div class="sb-section">
+                <div class="sb-lbl">Quản lý</div>
+                <a href="/Admin/Dashboard" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>Dashboard</a>
+                <a href="/Admin/Products" class="sitem active"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>Sản phẩm</a>
+                <a href="/Admin/Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>Đơn hàng</a>
+                <a href="/Admin/Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>Khách hàng</a>
+            </div>
+            <div class="sb-section" style="margin-top:12px">
+                <a href="/Account/Login" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Đăng xuất</a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <!-- TABS -->
+            <div class="admin-tabs">
+                <button class="atab active" onclick="switchTab('products',this)">Sản phẩm</button>
+                <button class="atab" onclick="switchTab('discounts',this)">Mã giảm giá</button>
+            </div>
+
+            <!-- TAB: SẢN PHẨM -->
+            <div id="productsTab">
+                <div class="top-bar">
+                    <div><div class="page-title">Sản phẩm</div><div class="page-sub">Quản lý toàn bộ sản phẩm</div></div>
+                    <button class="btn-add" onclick="openProdMo(-1)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>Thêm sản phẩm</button>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="22" y2="22" /></svg><input type="text" placeholder="Tìm sản phẩm..." id="searchInput" oninput="renderTable()"></div>
+                    <select class="fsel" id="catFilter" onchange="renderTable()">
+                        <option value="">Tất cả danh mục</option>
+                        <option>Đầm</option>
+                        <option>Áo blouse</option>
+                        <option>Áo khoác</option>
+                        <option>Quần</option>
+                        <option>Bộ suit</option>
+                    </select>
+                    <select class="fsel" id="seasonFilter" onchange="renderTable()">
+                        <option value="">Tất cả mùa</option>
+                        <option>Xuân</option>
+                        <option>Hạ</option>
+                        <option>Thu</option>
+                        <option>Đông</option>
+                    </select>
+                    <div class="result-info">Hiển thị <strong id="countDisplay">0</strong> sản phẩm</div>
+                </div>
+                <table class="ptable">
+                    <thead><tr><th style="width:50px"></th><th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th></tr></thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+                <div class="pagination"><div class="pp on">1</div><div class="pp">2</div><div class="pp">›</div></div>
+            </div>
+
+            <!-- TAB: MÃ GIẢM GIÁ -->
+            <div id="discountsTab" style="display:none">
+                <div class="top-bar">
+                    <div><div class="page-title">Mã giảm giá</div><div class="page-sub">Quản lý mã khuyến mãi</div></div>
+                    <button class="btn-add" onclick="openDiscMo(-1)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>Thêm mã mới</button>
+                </div>
+                <div class="mini-stats">
+                    <div class="mini-stat"><div class="ms-lbl">Tổng mã</div><div class="ms-val" id="totalCodes">0</div></div>
+                    <div class="mini-stat"><div class="ms-lbl">Đang hoạt động</div><div class="ms-val" id="activeCodes">0</div></div>
+                    <div class="mini-stat"><div class="ms-lbl">Đã hết hạn</div><div class="ms-val" id="expiredCodes">0</div></div>
+                </div>
+                <table class="dtable">
+                    <thead><tr><th>Mã code</th><th>Giảm giá</th><th>Số lượng</th><th>Ngày hết hạn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                    <tbody id="discBody"></tbody>
+                </table>
+            </div>
+        </main>
     </div>
-    <div class="sb-section" style="margin-top:12px">
-      <a href="/Account/Login" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
-    </div>
-  </aside>
 
-  <main class="admin-main">
-    <!-- TABS -->
-    <div class="admin-tabs">
-      <button class="atab active" onclick="switchTab('products',this)">Sản phẩm</button>
-      <button class="atab" onclick="switchTab('discounts',this)">Mã giảm giá</button>
-    </div>
-
-    <!-- TAB: SẢN PHẨM -->
-    <div id="productsTab">
-      <div class="top-bar">
-        <div><div class="page-title">Sản phẩm</div><div class="page-sub">Quản lý toàn bộ sản phẩm</div></div>
-        <button class="btn-add" onclick="openProdMo(-1)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm sản phẩm</button>
-      </div>
-      <div class="toolbar">
-        <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg><input type="text" placeholder="Tìm sản phẩm..." id="searchInput" oninput="renderTable()"></div>
-        <select class="fsel" id="catFilter" onchange="renderTable()">
-          <option value="">Tất cả danh mục</option>
-          <option>Đầm</option><option>Áo blouse</option><option>Áo khoác</option><option>Quần</option><option>Bộ suit</option>
-        </select>
-        <select class="fsel" id="seasonFilter" onchange="renderTable()">
-          <option value="">Tất cả mùa</option>
-          <option>Xuân</option><option>Hạ</option><option>Thu</option><option>Đông</option>
-        </select>
-        <div class="result-info">Hiển thị <strong id="countDisplay">0</strong> sản phẩm</div>
-      </div>
-      <table class="ptable">
-        <thead><tr><th style="width:50px"></th><th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th></tr></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div class="pagination"><div class="pp on">1</div><div class="pp">2</div><div class="pp">›</div></div>
-    </div>
-
-    <!-- TAB: MÃ GIẢM GIÁ -->
-    <div id="discountsTab" style="display:none">
-      <div class="top-bar">
-        <div><div class="page-title">Mã giảm giá</div><div class="page-sub">Quản lý mã khuyến mãi</div></div>
-        <button class="btn-add" onclick="openDiscMo(-1)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm mã mới</button>
-      </div>
-      <div class="mini-stats">
-        <div class="mini-stat"><div class="ms-lbl">Tổng mã</div><div class="ms-val" id="totalCodes">0</div></div>
-        <div class="mini-stat"><div class="ms-lbl">Đang hoạt động</div><div class="ms-val" id="activeCodes">0</div></div>
-        <div class="mini-stat"><div class="ms-lbl">Đã hết hạn</div><div class="ms-val" id="expiredCodes">0</div></div>
-      </div>
-      <table class="dtable">
-        <thead><tr><th>Mã code</th><th>Giảm giá</th><th>Số lượng</th><th>Ngày hết hạn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
-        <tbody id="discBody"></tbody>
-      </table>
-    </div>
-  </main>
-</div>
-
-<!-- MODAL SẢN PHẨM -->
-<div class="mo" id="prodMo" onclick="if(event.target===this)closeProdMo()">
-  <div class="modal">
-    <div class="mhdr"><div class="mhdr-t" id="prodMoTitle">Thêm sản phẩm mới</div><button class="mclose" onclick="closeProdMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="mbody">
-      <div class="frow full"><div class="fgroup"><label class="flabel">Tên sản phẩm</label><input class="finput" id="fName" placeholder="VD: Đầm dạ hội ren thêu"></div></div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Danh mục</label><select class="fselect" id="fCat"><option>Đầm</option><option>Áo blouse</option><option>Áo khoác</option><option>Quần</option><option>Bộ suit</option></select></div>
-        <div class="fgroup"><label class="flabel">Mùa</label><select class="fselect" id="fSeason"><option>Xuân</option><option>Hạ</option><option>Thu</option><option>Đông</option></select></div>
-      </div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Giá bán (đ)</label><input class="finput" id="fPrice" type="number" placeholder="1350000"></div>
-        <div class="fgroup"><label class="flabel">Giá gốc (đ, nếu sale)</label><input class="finput" id="fOldPrice" type="number" placeholder="0"></div>
-      </div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Tồn kho</label><input class="finput" id="fStock" type="number" placeholder="50"></div>
-        <div class="fgroup"><label class="flabel">Trạng thái</label><select class="fselect" id="fBadge"><option value="">Bình thường</option><option value="new">Mới</option><option value="sale">Sale</option></select></div>
-      </div>
-
-      <!-- Upload ảnh -->
-      <div class="frow full">
-        <div class="fgroup">
-          <label class="flabel">Ảnh sản phẩm</label>
-          <div class="img-upload-area" id="uploadArea">
-            <input type="file" accept="image/*" id="fImgFile" onchange="previewImage(this)">
-            <div class="img-upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>
-            <div class="img-upload-text">Nhấp hoặc kéo ảnh vào đây</div>
-            <div class="img-upload-hint">JPG, PNG, WEBP · Tối đa 5MB</div>
-          </div>
-          <div class="img-preview" id="imgPreview">
-            <img id="previewImg" src="" alt="">
-            <div class="img-preview-clear" onclick="clearImage()">×</div>
-          </div>
-          <!-- Fallback URL -->
-          <input class="finput" id="fImg" placeholder="Hoặc nhập URL ảnh..." style="margin-top:6px">
+    <!-- MODAL SẢN PHẨM -->
+    <div class="mo" id="prodMo" onclick="if(event.target===this)closeProdMo()">
+        <div class="modal">
+            <div class="mhdr"><div class="mhdr-t" id="prodMoTitle">Thêm sản phẩm mới</div><button class="mclose" onclick="closeProdMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button></div>
+            <div class="mbody">
+                <div class="frow full"><div class="fgroup"><label class="flabel">Tên sản phẩm</label><input class="finput" id="fName" placeholder="VD: Đầm dạ hội ren thêu"></div></div>
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Danh mục</label><select class="fselect" id="fCat"><option>Đầm</option><option>Áo blouse</option><option>Áo khoác</option><option>Quần</option><option>Bộ suit</option></select></div>
+                    <div class="fgroup"><label class="flabel">Mùa</label><select class="fselect" id="fSeason"><option>Xuân</option><option>Hạ</option><option>Thu</option><option>Đông</option></select></div>
+                </div>
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Giá bán (đ)</label><input class="finput" id="fPrice" type="number" placeholder="1350000"></div>
+                    <div class="fgroup"><label class="flabel">Giá gốc (đ, nếu sale)</label><input class="finput" id="fOldPrice" type="number" placeholder="0"></div>
+                </div>
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Tồn kho</label><input class="finput" id="fStock" type="number" placeholder="50"></div>
+                    <div class="fgroup"><label class="flabel">Trạng thái</label><select class="fselect" id="fBadge"><option value="">Bình thường</option><option value="new">Mới</option><option value="sale">Sale</option></select></div>
+                </div>
+                <!-- Upload ảnh -->
+                <div class="frow full">
+                    <div class="fgroup">
+                        <label class="flabel">Ảnh sản phẩm</label>
+                        <div class="img-upload-area" id="uploadArea">
+                            <input type="file" accept="image/*" id="fImgFile" onchange="previewImage(this)">
+                            <div class="img-upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21,15 16,10 5,21" /></svg></div>
+                            <div class="img-upload-text">Nhấp hoặc kéo ảnh vào đây</div>
+                            <div class="img-upload-hint">JPG, PNG, WEBP · Tối đa 5MB</div>
+                        </div>
+                        <div class="img-preview" id="imgPreview">
+                            <img id="previewImg" src="" alt="">
+                            <div class="img-preview-clear" onclick="clearImage()">×</div>
+                        </div>
+                        <input class="finput" id="fImg" placeholder="Hoặc nhập URL ảnh..." style="margin-top:6px">
+                    </div>
+                </div>
+                <div class="frow full"><div class="fgroup"><label class="flabel">Mô tả</label><input class="finput" id="fDesc" placeholder="Mô tả ngắn về sản phẩm..."></div></div>
+            </div>
+            <div class="mfoot"><button class="btn-outline" onclick="closeProdMo()">Hủy</button><button class="btn-gold" onclick="saveProd()">Lưu sản phẩm</button></div>
         </div>
-      </div>
-
-      <div class="frow full"><div class="fgroup"><label class="flabel">Mô tả</label><input class="finput" id="fDesc" placeholder="Mô tả ngắn về sản phẩm..."></div></div>
     </div>
-    <div class="mfoot"><button class="btn-outline" onclick="closeProdMo()">Hủy</button><button class="btn-gold" onclick="saveProd()">Lưu sản phẩm</button></div>
-  </div>
-</div>
 
-<!-- MODAL MÃ GIẢM GIÁ -->
-<div class="mo" id="discMo" onclick="if(event.target===this)closeDiscMo()">
-  <div class="modal">
-    <div class="mhdr"><div class="mhdr-t" id="discMoTitle">Thêm mã giảm giá</div><button class="mclose" onclick="closeDiscMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="mbody">
-      <div class="frow full"><div class="fgroup"><label class="flabel">Mã code</label><input class="finput" id="dCode" placeholder="VD: NEVA20" style="text-transform:uppercase"></div></div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Giá trị giảm</label><input class="finput" id="dValue" type="number" placeholder="VD: 20 (%) hoặc 50000 (đ)"></div>
-        <div class="fgroup"><label class="flabel">Loại giảm</label><select class="fselect" id="dType"><option value="percent">Phần trăm (%)</option><option value="fixed">Số tiền cố định (đ)</option></select></div>
-      </div>
-      <div class="frow">
-        <div class="fgroup"><label class="flabel">Số lượng</label><input class="finput" id="dQty" type="number" placeholder="100"></div>
-        <div class="fgroup"><label class="flabel">Ngày hết hạn</label><input class="finput" id="dExp" type="date"></div>
-      </div>
-      <div class="frow full"><div class="fgroup"><label class="flabel">Mô tả (không bắt buộc)</label><input class="finput" id="dDesc" placeholder="Mô tả ngắn về mã..."></div></div>
+    <!-- MODAL MÃ GIẢM GIÁ -->
+    <div class="mo" id="discMo" onclick="if(event.target===this)closeDiscMo()">
+        <div class="modal">
+            <div class="mhdr"><div class="mhdr-t" id="discMoTitle">Thêm mã giảm giá</div><button class="mclose" onclick="closeDiscMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button></div>
+            <div class="mbody">
+                <div class="frow full"><div class="fgroup"><label class="flabel">Mã code</label><input class="finput" id="dCode" placeholder="VD: NEVA20" style="text-transform:uppercase"></div></div>
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Giá trị giảm</label><input class="finput" id="dValue" type="number" placeholder="VD: 20 (%) hoặc 50000 (đ)"></div>
+                    <div class="fgroup"><label class="flabel">Loại giảm</label><select class="fselect" id="dType"><option value="percent">Phần trăm (%)</option><option value="fixed">Số tiền cố định (đ)</option></select></div>
+                </div>
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Số lượng</label><input class="finput" id="dQty" type="number" placeholder="100"></div>
+                    <div class="fgroup"><label class="flabel">Ngày hết hạn</label><input class="finput" id="dExp" type="date"></div>
+                </div>
+                <div class="frow full"><div class="fgroup"><label class="flabel">Mô tả (không bắt buộc)</label><input class="finput" id="dDesc" placeholder="Mô tả ngắn về mã..."></div></div>
+            </div>
+            <div class="mfoot"><button class="btn-outline" onclick="closeDiscMo()">Hủy</button><button class="btn-gold" onclick="saveDisc()">Lưu mã</button></div>
+        </div>
     </div>
-    <div class="mfoot"><button class="btn-outline" onclick="closeDiscMo()">Hủy</button><button class="btn-gold" onclick="saveDisc()">Lưu mã</button></div>
-  </div>
-</div>
 
-<script>
-function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
-function fmt(n){return n.toLocaleString('vi-VN')+'đ'}
-
-// TABS
-function switchTab(tab,btn){
-  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('productsTab').style.display=tab==='products'?'block':'none';
-  document.getElementById('discountsTab').style.display=tab==='discounts'?'block':'none';
-  if(tab==='discounts') renderDiscounts();
-}
-
-// PRODUCTS
-let products=[
-  {id:1,name:'Đầm dạ hội ren thêu',cat:'Đầm',season:'Đông',price:3850000,old:0,stock:12,badge:'new',img:'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=100&q=80',desc:'Đầm dạ hội thêu ren tinh xảo.'},
-  {id:2,name:'Váy midi dáng A-line',cat:'Đầm',season:'Xuân',price:1650000,old:0,stock:24,badge:'',img:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&q=80',desc:'Váy midi dáng A-line thanh lịch.'},
-  {id:3,name:'Áo khoác blazer linen',cat:'Áo khoác',season:'Thu',price:2250000,old:2800000,stock:8,badge:'sale',img:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100&q=80',desc:'Blazer linen cao cấp.'},
-  {id:4,name:'Áo blouse lụa cổ V',cat:'Áo blouse',season:'Hạ',price:980000,old:0,stock:31,badge:'new',img:'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=100&q=80',desc:'Áo blouse lụa mềm mại.'},
-  {id:5,name:'Quần wide-leg linen',cat:'Quần',season:'Hạ',price:1350000,old:0,stock:19,badge:'',img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=100&q=80',desc:'Quần ống rộng chất linen.'},
-  {id:6,name:'Đầm xẻ tà tối giản',cat:'Đầm',season:'Thu',price:2100000,old:2600000,stock:5,badge:'sale',img:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=100&q=80',desc:'Đầm xẻ tà dáng maxi.'},
-  {id:7,name:'Áo khoác dạ tweed',cat:'Áo khoác',season:'Đông',price:3200000,old:0,stock:3,badge:'new',img:'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=100&q=80',desc:'Áo khoác dạ tweed cao cấp.'},
-  {id:8,name:'Bộ suit vest nữ tính',cat:'Bộ suit',season:'Thu',price:4500000,old:0,stock:7,badge:'',img:'https://images.unsplash.com/photo-1632149877166-f75d49000351?w=100&q=80',desc:'Bộ suit vest nữ tính.'},
-];
-let editProdId=-1;
-let previewDataUrl='';
-
-function renderTable(){
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  const cat=document.getElementById('catFilter').value;
-  const season=document.getElementById('seasonFilter').value;
-  let list=products.filter(p=>{
-    if(q&&!p.name.toLowerCase().includes(q)&&!p.cat.toLowerCase().includes(q)) return false;
-    if(cat&&p.cat!==cat) return false;
-    if(season&&p.season!==season) return false;
-    return true;
-  });
-  document.getElementById('countDisplay').textContent=list.length;
-  document.getElementById('tbody').innerHTML=list.map(p=>`
-    <tr>
-      <td><div class="prow-thumb"><img src="${p.img}" alt="" loading="lazy" onerror="this.style.display='none'"></div></td>
-      <td><div class="prow-info"><div><div class="prow-name">${p.name}</div><div class="prow-cat">${p.desc.substring(0,38)}...</div></div>${p.badge==='new'?'<span class="badge-new">Mới</span>':p.badge==='sale'?'<span class="badge-sale">Sale</span>':''}</div></td>
-      <td>${p.cat}</td>
-      <td>${p.season}</td>
-      <td style="white-space:nowrap">${fmt(p.price)}${p.old?`<br><span style="font-size:11px;color:rgba(250,248,242,.35);text-decoration:line-through">${fmt(p.old)}</span>`:''}</td>
-      <td><span class="pstock ${p.stock<=5?'low':'ok'}">${p.stock} cái</span></td>
-      <td><div class="act-row">
-        <button class="ia-btn" onclick="openProdMo(${p.id})" title="Sửa"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ia-btn del" onclick="delProd(${p.id})" title="Xóa"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
-      </div></td>
-    </tr>`).join('');
-}
-
-function openProdMo(id){
-  editProdId=id;previewDataUrl='';
-  document.getElementById('prodMoTitle').textContent=id===-1?'Thêm sản phẩm mới':'Chỉnh sửa sản phẩm';
-  if(id!==-1){const p=products.find(x=>x.id===id);document.getElementById('fName').value=p.name;document.getElementById('fCat').value=p.cat;document.getElementById('fSeason').value=p.season;document.getElementById('fPrice').value=p.price;document.getElementById('fOldPrice').value=p.old;document.getElementById('fStock').value=p.stock;document.getElementById('fBadge').value=p.badge;document.getElementById('fImg').value=p.img;document.getElementById('fDesc').value=p.desc;
-    document.getElementById('previewImg').src=p.img;document.getElementById('imgPreview').style.display='block';document.getElementById('uploadArea').style.display='none'}
-  else{['fName','fPrice','fOldPrice','fStock','fImg','fDesc'].forEach(i=>document.getElementById(i).value='');clearImage()}
-  document.getElementById('prodMo').classList.add('open');
-}
-function closeProdMo(){document.getElementById('prodMo').classList.remove('open')}
-function previewImage(input){
-  if(!input.files||!input.files[0])return;
-  const file=input.files[0];
-  const reader=new FileReader();
-  reader.onload=e=>{
-    previewDataUrl=e.target.result;
-    document.getElementById('previewImg').src=previewDataUrl;
-    document.getElementById('imgPreview').style.display='block';
-    document.getElementById('uploadArea').style.opacity='.5';
-  };
-  reader.readAsDataURL(file);
-}
-function clearImage(){
-  previewDataUrl='';
-  document.getElementById('fImgFile').value='';
-  document.getElementById('imgPreview').style.display='none';
-  document.getElementById('uploadArea').style.display='block';
-  document.getElementById('uploadArea').style.opacity='1';
-}
-function saveProd(){
-  const name=document.getElementById('fName').value.trim();
-  if(!name){toast('Vui lòng nhập tên sản phẩm!','err');return}
-  const img=previewDataUrl||document.getElementById('fImg').value||'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&q=80';
-  const p={name,cat:document.getElementById('fCat').value,season:document.getElementById('fSeason').value,price:parseInt(document.getElementById('fPrice').value)||0,old:parseInt(document.getElementById('fOldPrice').value)||0,stock:parseInt(document.getElementById('fStock').value)||0,badge:document.getElementById('fBadge').value,img,desc:document.getElementById('fDesc').value};
-  if(editProdId===-1){p.id=Date.now();products.push(p);toast('✦ Đã thêm sản phẩm!','info')}
-  else{const i=products.findIndex(x=>x.id===editProdId);products[i]={...products[i],...p};toast('✦ Đã cập nhật sản phẩm!','info')}
-  closeProdMo();renderTable();
-}
-function delProd(id){if(!confirm('Xóa sản phẩm này?'))return;products=products.filter(x=>x.id!==id);renderTable();toast('Đã xóa sản phẩm.')}
-
-// DISCOUNTS
-let discounts=[
-  {id:1,code:'NEVA20',value:20,type:'percent',qty:100,used:32,exp:'2025-12-31',desc:'Giảm 20% toàn đơn'},
-  {id:2,code:'SALE50K',value:50000,type:'fixed',qty:50,used:50,exp:'2025-06-30',desc:'Giảm 50.000đ'},
-  {id:3,code:'VIP30',value:30,type:'percent',qty:20,used:5,exp:'2025-08-15',desc:'Ưu đãi thành viên VIP'},
-];
-let editDiscId=-1;
-
-function renderDiscounts(){
-  const now=new Date();
-  let active=0,expired=0;
-  document.getElementById('totalCodes').textContent=discounts.length;
-  document.getElementById('discBody').innerHTML=discounts.map(d=>{
-    const isExp=new Date(d.exp)<now||d.used>=d.qty;
-    if(isExp)expired++;else active++;
-    return`<tr>
-      <td><span class="code-tag">${d.code}</span></td>
-      <td style="color:var(--gold)">${d.type==='percent'?d.value+'%':fmt(d.value)}</td>
-      <td>${d.used}/${d.qty} <span style="font-size:10px;color:rgba(250,248,242,.35)">đã dùng</span></td>
-      <td><span class="exp-date ${isExp?'expired':''}">${d.exp}</span></td>
-      <td><span style="font-size:10px;letter-spacing:1.5px;padding:3px 9px;border:1px solid;${isExp?'border-color:rgba(212,120,116,.4);color:#d47a76':'border-color:rgba(80,180,80,.4);color:#7aba7a'}">${isExp?'Hết hạn':'Hoạt động'}</span></td>
-      <td><div class="act-row">
-        <button class="ia-btn" onclick="openDiscMo(${d.id})" title="Sửa"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ia-btn del" onclick="delDisc(${d.id})" title="Xóa"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
-      </div></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('activeCodes').textContent=active;
-  document.getElementById('expiredCodes').textContent=expired;
-}
-function openDiscMo(id){
-  editDiscId=id;
-  document.getElementById('discMoTitle').textContent=id===-1?'Thêm mã giảm giá':'Chỉnh sửa mã';
-  if(id!==-1){const d=discounts.find(x=>x.id===id);document.getElementById('dCode').value=d.code;document.getElementById('dValue').value=d.value;document.getElementById('dType').value=d.type;document.getElementById('dQty').value=d.qty;document.getElementById('dExp').value=d.exp;document.getElementById('dDesc').value=d.desc||''}
-  else{['dCode','dValue','dQty','dExp','dDesc'].forEach(i=>document.getElementById(i).value='')}
-  document.getElementById('discMo').classList.add('open');
-}
-function closeDiscMo(){document.getElementById('discMo').classList.remove('open')}
-function saveDisc(){
-  const code=document.getElementById('dCode').value.trim().toUpperCase();
-  if(!code){toast('Vui lòng nhập mã code!','err');return}
-  const d={code,value:parseFloat(document.getElementById('dValue').value)||0,type:document.getElementById('dType').value,qty:parseInt(document.getElementById('dQty').value)||0,used:0,exp:document.getElementById('dExp').value,desc:document.getElementById('dDesc').value};
-  if(editDiscId===-1){d.id=Date.now();discounts.push(d);toast('✦ Đã thêm mã giảm giá!','info')}
-  else{const i=discounts.findIndex(x=>x.id===editDiscId);discounts[i]={...discounts[i],...d};toast('✦ Đã cập nhật!','info')}
-  closeDiscMo();renderDiscounts();
-}
-function delDisc(id){if(!confirm('Xóa mã này?'))return;discounts=discounts.filter(x=>x.id!==id);renderDiscounts();toast('Đã xóa mã.')}
-
-renderTable();
-</script>
+    <script src="~/js/admin-sanpham.js"></script>
 </body>
 </html>

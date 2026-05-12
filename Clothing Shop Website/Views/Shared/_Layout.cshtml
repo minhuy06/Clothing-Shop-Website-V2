@@ -31,7 +31,10 @@
                 Bộ sưu tập
             </a>
             <span class="nav-divider">|</span>
-            <a href="#" class="nav-link">Haute Couture</a>
+            <a asp-controller="Home" asp-action="Index"
+                   class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                Haute Couture
+            </a>
             <span class="nav-divider">|</span>
             <a asp-controller="Account" asp-action="@(User.Identity!.IsAuthenticated ? "Profile" : "Login")"
                    class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")">
@@ -81,7 +84,7 @@
             <div class="footer-col">
                 <div class="footer-col-title">Khám phá</div>
                 <a asp-controller="Product" asp-action="Index">Bộ sưu tập mới</a>
-                <a href="#">Haute Couture</a>
+                <a asp-controller="Home" asp-action="Index">Haute Couture</a>
                 <a href="#">Nam</a>
                 <a href="#">Nữ</a>
             </div>

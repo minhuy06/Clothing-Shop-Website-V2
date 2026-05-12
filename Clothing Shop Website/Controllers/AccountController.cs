@@ -80,7 +80,9 @@ namespace Clothing_Shop_Website.Controllers
                 Password = HashPassword(password),
                 Role = 0,
                 Status = 1,
-                RewardPoints = 0
+                RewardPoints = 0,
+                Gender = 0,
+                DateOfBirth = null
             };
             _db.Users.Add(newUser);
             await _db.SaveChangesAsync();
@@ -103,7 +105,7 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateProfile(string fullName, string phone)
+        public async Task<IActionResult> UpdateProfile(string fullName, string phone, string? dateOfBirth, int gender)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login");
@@ -111,6 +113,11 @@ namespace Clothing_Shop_Website.Controllers
             if (user == null) return RedirectToAction("Login");
             user.FullName = fullName;
             user.Phone = phone;
+            user.Gender = gender;
+            if (string.IsNullOrWhiteSpace(dateOfBirth))
+                user.DateOfBirth = null;
+            else if (DateTime.TryParse(dateOfBirth, out var dob))
+                user.DateOfBirth = dob.Date;
             await _db.SaveChangesAsync();
             HttpContext.Session.SetString("FullName", fullName);
             HttpContext.Session.SetString("Phone", phone);

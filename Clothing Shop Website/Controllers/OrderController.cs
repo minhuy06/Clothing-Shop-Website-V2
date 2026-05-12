@@ -76,8 +76,9 @@ namespace Clothing_Shop_Website.Controllers
                         && d.UsedCount < d.Quantity);
                 if (disc != null)
                 {
-                    discount = disc.DiscountType == "percent"
-                        ? subtotal * disc.DiscountValue / 100
+                    // DiscountType: 0 = VNĐ, 1 = phần trăm (theo model)
+                    discount = disc.DiscountType == 1
+                        ? subtotal * disc.DiscountValue / 100m
                         : disc.DiscountValue;
                     discountId = disc.DiscountID;
                     disc.UsedCount++;

@@ -52,12 +52,12 @@
                     <div class="fgroup">
                         <label class="flabel">Họ và tên người nhận</label>
                         <input class="finput" type="text" name="receiverName" id="rcvName"
-                               value="@HttpContext.Session.GetString("FullName")" required>
+                               value="@Context.Session.GetString("FullName")" required>
                     </div>
                     <div class="fgroup">
                         <label class="flabel">Số điện thoại</label>
                         <input class="finput" type="tel" name="receiverPhone" id="rcvPhone"
-                               value="@HttpContext.Session.GetString("Phone")" required>
+                               value="@Context.Session.GetString("Phone")" required>
                     </div>
                 </div>
                 <div class="frow">
@@ -112,9 +112,9 @@
                         <input class="finput" type="text" name="discountCode" placeholder="Nhập mã ưu đãi..." style="text-transform:uppercase">
                     </div>
                     <div class="fgroup">
-                        <label class="flabel">Dùng điểm thưởng (có @HttpContext.Session.GetInt32("Points") điểm)</label>
+                        <label class="flabel">Dùng điểm thưởng (có @Context.Session.GetInt32("Points") điểm)</label>
                         <input class="finput" type="number" name="usePoints" min="0"
-                               max="@HttpContext.Session.GetInt32("Points")" placeholder="0" value="0">
+                               max="@Context.Session.GetInt32("Points")" placeholder="0" value="0">
                     </div>
                 </div>
             </div>

@@ -37,11 +37,11 @@
         <div class="profile-card">
             <div class="av-wrap">
                 <div class="av-ring"></div><div class="av-ring2"></div>
-                <div class="av-circle">@(HttpContext.Session.GetString("FullName")?.Substring(0, 2).ToUpper() ?? "KH")</div>
+                <div class="av-circle">@(Context.Session.GetString("FullName") is string fn && fn.Length >= 2 ? fn.Substring(0, 2).ToUpper() : "KH")</div>
             </div>
-            <div class="p-name">@HttpContext.Session.GetString("FullName")</div>
-            <div class="p-email">@HttpContext.Session.GetString("Phone")</div>
-            <div class="p-pts">✦ @HttpContext.Session.GetInt32("Points").GetValueOrDefault().ToString("N0") điểm</div>
+            <div class="p-name">@Context.Session.GetString("FullName")</div>
+            <div class="p-email">@Context.Session.GetString("Phone")</div>
+            <div class="p-pts">✦ @Context.Session.GetInt32("Points").GetValueOrDefault().ToString("N0") điểm</div>
         </div>
         <div class="side-menu">
             <a asp-controller="Account" asp-action="Profile" class="smenu-item">

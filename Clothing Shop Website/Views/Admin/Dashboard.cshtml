@@ -1,251 +1,77 @@
 ﻿@{
+    ViewData["Title"] = "Dashboard";
     Layout = null;
+    int totalProducts = ViewBag.TotalProducts ?? 0;
+    int totalOrders = ViewBag.TotalOrders ?? 0;
+    int totalCustomers = ViewBag.TotalCustomers ?? 0;
+    decimal totalRevenue = ViewBag.TotalRevenue ?? 0;
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEVA Admin — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--gold2:#e8c96a;--black:#050402;--dark:#0c0a07;--dark2:#14100a;--white:#faf8f2;--border:rgba(201,168,76,0.18);--font-d:'Playfair Display',serif;--font-b:'Josefin Sans',sans-serif;--nav-h:52px;--side-w:220px}
-body{font-family:var(--font-b);background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column}
-a{text-decoration:none;color:inherit}
-img{display:block;width:100%;height:100%;object-fit:cover}
-nav{display:flex;align-items:center;padding:0 44px;height:var(--nav-h);background:rgba(5,4,2,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0;gap:14px}
-.nav-logo{font-family:var(--font-d);font-size:18px;letter-spacing:8px;color:var(--white)}
-.nav-logo-sep{color:rgba(250,248,242,.2);font-size:16px;font-weight:200}
-.nav-badge{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.7);border:1px solid rgba(201,168,76,.3);padding:3px 12px}
-.admin-wrap{display:flex;flex:1}
-.admin-sidebar{width:var(--side-w);flex-shrink:0;background:var(--dark);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto}
-.sb-section{margin-bottom:6px;padding:0 14px}
-.sb-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:6px;padding:0 6px}
-.sitem{display:flex;align-items:center;gap:11px;padding:12px 12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,248,242,.55);transition:all .2s;position:relative;border-left:2px solid transparent}
-.sitem:hover{background:rgba(201,168,76,.04);color:rgba(250,248,242,.9);border-left-color:rgba(201,168,76,.3)}
-.sitem.active{color:var(--gold);background:rgba(201,168,76,.06);border-left-color:var(--gold)}
-.sitem svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;opacity:.7}
-.sitem.active svg{opacity:1}
-.sitem.danger{color:rgba(212,122,118,.6)}
-.sitem.danger:hover{color:#d47a76;background:rgba(212,122,118,.04)}
-
-.admin-main{flex:1;padding:26px 30px;overflow-y:auto}
-
-/* Dashboard */
-.page-title{font-family:var(--font-d);font-size:34px;font-weight:400;font-style:italic;margin-bottom:4px}
-.page-sub{font-size:12px;letter-spacing:2px;color:rgba(250,248,242,.45);margin-bottom:22px}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.stat-card{background:var(--dark2);border:1px solid var(--border);padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
-.stat-card:hover{border-color:rgba(201,168,76,.3)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.28}
-.stat-icon{width:34px;height:34px;border:1px solid rgba(201,168,76,.2);background:rgba(201,168,76,.06);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.stat-icon svg{width:15px;height:15px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.stat-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,248,242,.45);margin-bottom:6px}
-.stat-val{font-size:24px;font-weight:300;letter-spacing:.5px;margin-bottom:5px}
-.stat-val.g{color:var(--gold)}
-.stat-chg{font-size:11px;letter-spacing:1px;color:#7aba7a;display:flex;align-items:center;gap:4px}
-.stat-chg.dn{color:#d47a76}
-.stat-chg svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:12px}
-.abox{background:var(--dark2);border:1px solid var(--border);overflow:hidden}
-.abox::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.2}
-.abox-hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;border-bottom:1px solid var(--border)}
-.abox-t{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(250,248,242,.7);display:flex;align-items:center;gap:8px}
-.abox-t svg{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.abox-lnk{font-size:10px;letter-spacing:1.5px;color:rgba(201,168,76,.6);border-bottom:1px solid rgba(201,168,76,.22);padding-bottom:1px;transition:color .2s}
-.abox-lnk:hover{color:var(--gold)}
-.chart-wrap{padding:18px 16px;display:flex;align-items:flex-end;gap:7px;height:150px}
-.bg{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
-.bar{width:100%;background:linear-gradient(180deg,var(--gold),rgba(201,168,76,.25));min-height:4px;position:relative;transition:opacity .2s}
-.bar:hover{opacity:.75}
-.bar-tip{position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--dark);border:1px solid var(--border);padding:3px 8px;font-size:10px;letter-spacing:1px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
-.bar:hover .bar-tip{opacity:1}
-.blbl{font-size:9px;letter-spacing:1px;color:rgba(250,248,242,.4)}
-.atable{width:100%;border-collapse:collapse}
-.atable th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.55);padding:11px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300}
-.atable td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;letter-spacing:.5px;vertical-align:middle;color:rgba(250,248,242,.8)}
-.atable tr:last-child td{border-bottom:none}
-.atable tr:hover td{background:rgba(201,168,76,.02)}
-.otag{font-size:9px;letter-spacing:1.5px;padding:4px 10px;border:1px solid;display:inline-flex;align-items:center;gap:5px}
-.otag-d{width:4px;height:4px;border-radius:50%}
-.t-p{border-color:rgba(201,168,76,.35);color:var(--gold)}.t-p .otag-d{background:var(--gold)}
-.t-s{border-color:rgba(150,100,220,.4);color:#c084e8}.t-s .otag-d{background:#c084e8}
-.t-d{border-color:rgba(80,180,80,.4);color:#7aba7a}.t-d .otag-d{background:#7aba7a}
-.t-c{border-color:rgba(212,120,116,.4);color:#d47a76}.t-c .otag-d{background:#d47a76}
-.t-r{border-color:rgba(80,160,220,.4);color:#7ab8e8}.t-r .otag-d{background:#7ab8e8}
-.act-btn{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,.4);border:1px solid var(--border);background:transparent;padding:4px 10px;transition:all .2s;font-family:var(--font-b)}
-.act-btn:hover{border-color:var(--gold);color:var(--gold)}
-.prod-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05)}
-.prod-item:last-child{border-bottom:none}
-.prod-thumb{width:38px;height:48px;flex-shrink:0;overflow:hidden}
-.prod-thumb img{filter:brightness(.8)}
-.prod-name{font-size:12px;font-weight:200;margin-bottom:2px;color:var(--white)}
-.prod-cat{font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.55)}
-.prod-num{font-size:15px;font-weight:300;color:var(--gold)}
-.prod-lbl{font-size:9px;letter-spacing:1.5px;color:rgba(250,248,242,.3)}
-.prod-rank{width:18px;font-size:12px;font-weight:200;color:rgba(250,248,242,.25);flex-shrink:0}
-.prod-rank.top{color:var(--gold);font-weight:400}
-
-/* Customers */
-.cust-page{display:none}
-.cust-table{width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)}
-.cust-table th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.55);padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)}
-.cust-table td{padding:13px 14px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;letter-spacing:.5px;vertical-align:middle;color:rgba(250,248,242,.8)}
-.cust-table tr:last-child td{border-bottom:none}
-.cust-table tr:hover td{background:rgba(201,168,76,.02)}
-.cust-status{font-size:9px;letter-spacing:1.5px;padding:3px 9px;border:1px solid;display:inline-block}
-.cs-active{border-color:rgba(80,180,80,.4);color:#7aba7a}
-.cs-locked{border-color:rgba(212,120,116,.4);color:#d47a76}
-.pts-badge{color:var(--gold);font-size:12px}
-.boom-warn{color:#d47a76}
-.lock-btn{width:28px;height:28px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.lock-btn:hover{border-color:#d47a76}
-.lock-btn svg{width:12px;height:12px;fill:none;stroke:rgba(250,248,242,.45);stroke-width:1.5;stroke-linecap:round;transition:stroke .2s}
-.lock-btn:hover svg{stroke:#d47a76}
-.lock-btn.locked{border-color:rgba(201,168,76,.4)}
-.lock-btn.locked svg{stroke:var(--gold)}
-.toast{position:fixed;bottom:28px;right:28px;z-index:9000;padding:11px 20px;font-size:11px;letter-spacing:1.5px;border:1px solid;display:none}
-.toast.ok{background:rgba(90,154,90,.12);border-color:rgba(90,154,90,.4);color:#7aba7a}
-.toast.info{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28);color:var(--gold)}
-.toast.err{background:rgba(201,80,76,.08);border-color:rgba(201,80,76,.3);color:#d47a76}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NEVA Admin — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
 </head>
 <body>
-<div class="toast" id="toast"></div>
-<nav>
-  <span class="nav-logo">NEVA</span>
-  <span class="nav-logo-sep">|</span>
-  <span class="nav-badge">Admin</span>
-</nav>
-<div class="admin-wrap">
-  <aside class="admin-sidebar">
-    <div class="sb-section">
-      <div class="sb-lbl">Quản lý</div>
-      <a href="/Admin/Dashboard" class="sitem active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
-      <a href="/Admin/Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Sản phẩm</a>
-      <a href="/Admin/Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
-      <a href="#" class="sitem" onclick="showPage('customers');event.preventDefault()" id="custLink"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Khách hàng</a>
+    <div class="toast" id="toast"></div>
+    <nav class="admin-nav">
+        <span class="admin-nav-logo">NEVA</span>
+        <span class="admin-nav-sep">|</span>
+        <span class="admin-nav-badge">Admin</span>
+    </nav>
+    <div class="admin-wrap">
+        <aside class="admin-sidebar">
+            <div class="sb-section">
+                <div class="sb-lbl">Quản lý</div>
+                <a asp-controller="Admin" asp-action="Dashboard" class="sitem active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>Dashboard</a>
+                <a asp-controller="Admin" asp-action="Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>Sản phẩm</a>
+                <a asp-controller="Admin" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>Đơn hàng</a>
+                <a asp-controller="Admin" asp-action="Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>Khách hàng</a>
+            </div>
+            <div class="sb-section" style="margin-top:12px">
+                <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Đăng xuất</a>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Xin chào, @HttpContext.Session.GetString("FullName")!</div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div><div class="stat-lbl">Doanh thu</div><div class="stat-val g">@totalRevenue.ToString("N0")đ</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg></div><div class="stat-lbl">Đơn hàng</div><div class="stat-val">@totalOrders</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></div><div class="stat-lbl">Khách hàng</div><div class="stat-val">@totalCustomers</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /></svg></div><div class="stat-lbl">Sản phẩm</div><div class="stat-val">@totalProducts</div></div>
+            </div>
+
+            <div class="abox">
+                <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /></svg>Đơn hàng gần đây</div><a asp-controller="Admin" asp-action="Orders" class="abox-lnk">Xem tất cả</a></div>
+                <table class="atable">
+                    <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        @foreach (var o in (ViewBag.RecentOrders as dynamic[] ?? Array.Empty<dynamic>()))
+                        {
+                            <tr>
+                                <td style="color:var(--gold)">#NV-@o.OrderID.ToString("D8")</td>
+                                <td>@o.ReceiverName</td>
+                                <td>@o.TotalAmount.ToString("N0")đ</td>
+                                <td>
+                                    <span class="otag @(o.Status == 0 ? "t-p" : o.Status == 1 ? "t-s" : o.Status == 2 ? "t-d" : o.Status == 4 ? "t-r" : "t-c")">
+                                        <span class="otag-d"></span>
+                                        @(o.Status == 0 ? "Chờ duyệt" : o.Status == 1 ? "Đang giao" : o.Status == 2 ? "Đã giao" : o.Status == 4 ? "Hoàn chuyển" : "Đã hủy")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
-    <div class="sb-section" style="margin-top:12px">
-      <a href="/Account/Login" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
-    </div>
-  </aside>
-
-  <main class="admin-main">
-    <!-- DASHBOARD -->
-    <div id="dashPage">
-      <div class="page-title">Dashboard</div>
-      <div class="page-sub">Tổng quan hoạt động · Tháng 5, 2025</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-lbl">Doanh thu tháng</div><div class="stat-val g">84,2M đ</div><div class="stat-chg"><svg viewBox="0 0 12 12"><polyline points="2,8 6,4 10,8"/></svg>+12.4%</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="stat-lbl">Đơn hàng</div><div class="stat-val">148</div><div class="stat-chg"><svg viewBox="0 0 12 12"><polyline points="2,8 6,4 10,8"/></svg>+8.1%</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-lbl">Khách hàng mới</div><div class="stat-val">36</div><div class="stat-chg dn"><svg viewBox="0 0 12 12"><polyline points="2,4 6,8 10,4"/></svg>-3.2%</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="stat-lbl">Sản phẩm</div><div class="stat-val">98</div><div class="stat-chg"><svg viewBox="0 0 12 12"><polyline points="2,8 6,4 10,8"/></svg>+5 mới</div></div>
-      </div>
-      <div class="grid2">
-        <div class="abox">
-          <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Doanh thu 6 tháng</div></div>
-          <div class="chart-wrap" id="chart"></div>
-        </div>
-        <div class="abox">
-          <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Bán chạy nhất</div><a href="/Admin/Products" class="abox-lnk">Xem tất cả</a></div>
-          <div>
-            <div class="prod-item"><div class="prod-rank top">1</div><div class="prod-thumb"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=100&q=80" alt=""></div><div style="flex:1"><div class="prod-name">Đầm xẻ tà tối giản</div><div class="prod-cat">Đầm · Thu</div></div><div style="text-align:right"><div class="prod-num">42</div><div class="prod-lbl">đã bán</div></div></div>
-            <div class="prod-item"><div class="prod-rank top">2</div><div class="prod-thumb"><img src="https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=100&q=80" alt=""></div><div style="flex:1"><div class="prod-name">Áo blouse lụa cổ V</div><div class="prod-cat">Áo blouse · Hạ</div></div><div style="text-align:right"><div class="prod-num">38</div><div class="prod-lbl">đã bán</div></div></div>
-            <div class="prod-item"><div class="prod-rank top">3</div><div class="prod-thumb"><img src="https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=100&q=80" alt=""></div><div style="flex:1"><div class="prod-name">Đầm dạ hội ren thêu</div><div class="prod-cat">Đầm · Đông</div></div><div style="text-align:right"><div class="prod-num">29</div><div class="prod-lbl">đã bán</div></div></div>
-            <div class="prod-item"><div class="prod-rank">4</div><div class="prod-thumb"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100&q=80" alt=""></div><div style="flex:1"><div class="prod-name">Áo khoác blazer linen</div><div class="prod-cat">Áo khoác · Thu</div></div><div style="text-align:right"><div class="prod-num">24</div><div class="prod-lbl">đã bán</div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="abox">
-        <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng gần đây</div><a href="/Admin/Orders" class="abox-lnk">Xem tất cả</a></div>
-        <table class="atable">
-          <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
-          <tbody>
-            <tr><td style="color:var(--gold)">#NV-20250507-0042</td><td>Nguyễn Thị B</td><td>3 SP</td><td>5.150.000đ</td><td><span class="otag t-s"><span class="otag-d"></span>Đang giao</span></td><td><button class="act-btn" onclick="window.location='/Admin/Orders'">Xem</button></td></tr>
-            <tr><td style="color:var(--gold)">#NV-20250506-0041</td><td>Trần Minh K</td><td>1 SP</td><td>3.880.000đ</td><td><span class="otag t-p"><span class="otag-d"></span>Chờ duyệt</span></td><td><button class="act-btn" onclick="window.location='/Admin/Orders'">Xem</button></td></tr>
-            <tr><td style="color:var(--gold)">#NV-20250505-0040</td><td>Lê Thị H</td><td>2 SP</td><td>3.900.000đ</td><td><span class="otag t-d"><span class="otag-d"></span>Đã giao</span></td><td><button class="act-btn" onclick="window.location='/Admin/Orders'">Xem</button></td></tr>
-            <tr><td style="color:var(--gold)">#NV-20250503-0038</td><td>Hoàng Thị M</td><td>1 SP</td><td>4.050.000đ</td><td><span class="otag t-r"><span class="otag-d"></span>Đang hoàn</span></td><td><button class="act-btn" onclick="window.location='/Admin/Orders'">Xem</button></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- KHÁCH HÀNG -->
-    <div id="custPage" class="cust-page">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px">
-        <div><div class="page-title">Khách hàng</div><div class="page-sub">Quản lý tài khoản khách hàng</div></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;border:1px solid var(--border);background:var(--dark2);flex:1;max-width:360px">
-          <svg style="width:13px;height:13px;fill:none;stroke:rgba(250,248,242,.4);stroke-width:1.5;stroke-linecap:round;margin:0 10px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-          <input type="text" placeholder="Tìm tên, SĐT..." id="custSearch" oninput="renderCustomers()"
-            style="background:transparent;border:none;outline:none;padding:9px 0;font-size:12px;font-family:var(--font-b);color:var(--white);width:100%">
-        </div>
-        <div style="font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.55);margin-left:auto;display:flex;align-items:center">Hiển thị <strong id="custCount" style="color:var(--gold);margin:0 5px">0</strong> khách hàng</div>
-      </div>
-      <table class="cust-table">
-        <thead><tr><th>Họ và tên</th><th>Số điện thoại</th><th>Điểm thưởng</th><th>Số đặt hàng</th><th>Số hủy / boom</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
-        <tbody id="custBody"></tbody>
-      </table>
-    </div>
-  </main>
-</div>
-
-<script>
-function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
-
-// Chart
-const data=[{m:'T12',v:52},{m:'T1',v:48},{m:'T2',v:61},{m:'T3',v:70},{m:'T4',v:65},{m:'T5',v:84}];
-const max=Math.max(...data.map(d=>d.v));
-document.getElementById('chart').innerHTML=data.map(d=>`<div class="bg"><div class="bar" style="height:${(d.v/max)*118}px"><div class="bar-tip">${d.v}M đ</div></div><div class="blbl">${d.m}</div></div>`).join('');
-
-// Pages
-function showPage(page){
-  document.getElementById('dashPage').style.display=page==='dashboard'?'block':'none';
-  document.getElementById('custPage').style.display=page==='customers'?'block':'none';
-  document.querySelectorAll('.sitem').forEach(s=>s.classList.remove('active'));
-  if(page==='dashboard') document.querySelector('.sitem').classList.add('active');
-  else document.getElementById('custLink').classList.add('active');
-  if(page==='customers') renderCustomers();
-}
-
-// Customers data
-let customers=[
-  {id:1,name:'Nguyễn Thị B',phone:'0901 234 567',points:1250,orders:8,cancels:0,locked:false},
-  {id:2,name:'Trần Minh K',phone:'0912 345 678',points:480,orders:3,cancels:1,locked:false},
-  {id:3,name:'Lê Thị H',phone:'0933 456 789',points:920,orders:6,cancels:0,locked:false},
-  {id:4,name:'Phạm Văn D',phone:'0944 567 890',points:0,orders:4,cancels:3,locked:true},
-  {id:5,name:'Hoàng Thị M',phone:'0955 678 901',points:2100,orders:15,cancels:1,locked:false},
-  {id:6,name:'Võ Minh T',phone:'0966 789 012',points:50,orders:1,cancels:0,locked:false},
-];
-
-function renderCustomers(){
-  const q=document.getElementById('custSearch').value.toLowerCase();
-  let list=customers.filter(cu=>!q||(cu.name.toLowerCase().includes(q)||cu.phone.includes(q)));
-  document.getElementById('custCount').textContent=list.length;
-  document.getElementById('custBody').innerHTML=list.map(cu=>`
-    <tr>
-      <td style="font-family:'EB Garamond',serif;font-style:italic;font-size:14px;color:var(--white)">${cu.name}</td>
-      <td>${cu.phone}</td>
-      <td><span class="pts-badge">✦ ${cu.points.toLocaleString('vi-VN')}</span></td>
-      <td>${cu.orders} đơn</td>
-      <td><span class="${cu.cancels>=3?'boom-warn':''}">${cu.cancels} lần${cu.cancels>=3?' ⚠️':''}</span></td>
-      <td><span class="cust-status ${cu.locked?'cs-locked':'cs-active'}">${cu.locked?'Đã khóa':'Hoạt động'}</span></td>
-      <td>
-        <button class="lock-btn ${cu.locked?'locked':''}" onclick="toggleLock(${cu.id})" title="${cu.locked?'Mở khóa':'Khóa tài khoản'}">
-          <svg viewBox="0 0 24 24">${cu.locked?'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>':'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'}</svg>
-        </button>
-      </td>
-    </tr>`).join('');
-}
-
-function toggleLock(id){
-  const cu=customers.find(x=>x.id===id);
-  cu.locked=!cu.locked;
-  renderCustomers();
-  toast(cu.locked?`Đã khóa tài khoản ${cu.name}`:`Đã mở khóa tài khoản ${cu.name}`,cu.locked?'err':'ok');
-}
-</script>
+    <script src="~/js/neva-base.js" asp-append-version="true"></script>
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
 </body>
 </html>

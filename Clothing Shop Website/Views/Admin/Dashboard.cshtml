@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = null;
+    int totalProducts = ViewBag.TotalProducts ?? 0;
+    int totalOrders = ViewBag.TotalOrders ?? 0;
+    int totalCustomers = ViewBag.TotalCustomers ?? 0;
+    decimal totalRevenue = ViewBag.TotalRevenue ?? 0;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NEVA Admin — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+    <nav class="admin-nav">
+        <span class="admin-nav-logo">NEVA</span>
+        <span class="admin-nav-sep">|</span>
+        <span class="admin-nav-badge">Admin</span>
+    </nav>
+    <div class="admin-wrap">
+        <aside class="admin-sidebar">
+            <div class="sb-section">
+                <div class="sb-lbl">Quản lý</div>
+                <a asp-controller="Admin" asp-action="Dashboard" class="sitem active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>Dashboard</a>
+                <a asp-controller="Admin" asp-action="Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>Sản phẩm</a>
+                <a asp-controller="Admin" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>Đơn hàng</a>
+                <a asp-controller="Admin" asp-action="Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>Khách hàng</a>
+            </div>
+            <div class="sb-section" style="margin-top:12px">
+                <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Đăng xuất</a>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Xin chào, @HttpContext.Session.GetString("FullName")!</div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div><div class="stat-lbl">Doanh thu</div><div class="stat-val g">@totalRevenue.ToString("N0")đ</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg></div><div class="stat-lbl">Đơn hàng</div><div class="stat-val">@totalOrders</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></div><div class="stat-lbl">Khách hàng</div><div class="stat-val">@totalCustomers</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /></svg></div><div class="stat-lbl">Sản phẩm</div><div class="stat-val">@totalProducts</div></div>
+            </div>
+
+            <div class="abox">
+                <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /></svg>Đơn hàng gần đây</div><a asp-controller="Admin" asp-action="Orders" class="abox-lnk">Xem tất cả</a></div>
+                <table class="atable">
+                    <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        @foreach (var o in (ViewBag.RecentOrders as dynamic[] ?? Array.Empty<dynamic>()))
+                        {
+                            <tr>
+                                <td style="color:var(--gold)">#NV-@o.OrderID.ToString("D8")</td>
+                                <td>@o.ReceiverName</td>
+                                <td>@o.TotalAmount.ToString("N0")đ</td>
+                                <td>
+                                    <span class="otag @(o.Status == 0 ? "t-p" : o.Status == 1 ? "t-s" : o.Status == 2 ? "t-d" : o.Status == 4 ? "t-r" : "t-c")">
+                                        <span class="otag-d"></span>
+                                        @(o.Status == 0 ? "Chờ duyệt" : o.Status == 1 ? "Đang giao" : o.Status == 2 ? "Đã giao" : o.Status == 4 ? "Hoàn chuyển" : "Đã hủy")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="~/js/neva-base.js" asp-append-version="true"></script>
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

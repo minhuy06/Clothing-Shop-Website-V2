@@ -94,9 +94,21 @@
             <div class="toolbar-right">
                 <span class="sort-label">Sắp xếp</span>
                 <select class="sort-sel" onchange="doSort(this.value)">
-                    <option value=""           @(ViewBag.Sort == null          ? "selected" : "")>Mới nhất</option>
-                    <option value="price_asc"  @(ViewBag.Sort == "price_asc"  ? "selected" : "")>Giá: Thấp → Cao</option>
-                    <option value="price_desc" @(ViewBag.Sort == "price_desc" ? "selected" : "")>Giá: Cao → Thấp</option>
+                    @{
+                        var sortSel = ViewBag.Sort as string;
+                    }
+                    @if (sortSel == null)
+                    { <option value="" selected>Mới nhất</option> }
+                    else
+                    { <option value="">Mới nhất</option> }
+                    @if (sortSel == "price_asc")
+                    { <option value="price_asc" selected>Giá: Thấp → Cao</option> }
+                    else
+                    { <option value="price_asc">Giá: Thấp → Cao</option> }
+                    @if (sortSel == "price_desc")
+                    { <option value="price_desc" selected>Giá: Cao → Thấp</option> }
+                    else
+                    { <option value="price_desc">Giá: Cao → Thấp</option> }
                 </select>
             </div>
         </div>
@@ -139,7 +151,7 @@
                         <div class="szrow">
                             @foreach (var sz in p.ProductSizes.Take(4))
                             {
-                                <span class="s">@sz.Size</span>
+                                <span class="s">@sz.SizeName</span>
                             }
                         </div>
                     </div>
@@ -197,7 +209,7 @@
                     old:   @p.OriginalPrice,
                     img:   '@p.ImageUrl',
                     season:'@GetSeason(p.Session)',
-                    sizes: [@Html.Raw(string.Join(",", p.ProductSizes.Select(s => $"'{s.Size}'")))],
+                    sizes: [@Html.Raw(string.Join(",", p.ProductSizes.Select(s => $"'{s.SizeName}'")))],
                     desc:  '@Html.Raw((p.Description ?? "").Replace("'","\\\'"))'
                 },</text>
             }

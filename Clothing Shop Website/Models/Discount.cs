@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,6 +26,10 @@ namespace Clothing_Shop_Website.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Số lượng mã không được âm")]
         public int Quantity { get; set; }
+
+        /// <summary>Số lần mã đã được áp dụng (đồng bộ khi đặt hàng thành công).</summary>
+        [Range(0, int.MaxValue)]
+        public int UsedCount { get; set; }
 
         [Required(ErrorMessage = "Ngày hết hạn không được để trống")]
         public DateTime ExpirationDate { get; set; }

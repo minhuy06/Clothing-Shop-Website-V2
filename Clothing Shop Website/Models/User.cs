@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -30,6 +30,13 @@ namespace Clothing_Shop_Website.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "Điểm thưởng không được âm")]
         public int RewardPoints { get; set; } = 0;
+
+        /// <summary>0 = chưa cập nhật, 1 = nữ, 2 = nam, 3 = khác</summary>
+        [Range(0, 3)]
+        public int Gender { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; }
 
         [Required]
         public int Status { get; set; } // 1: Hoạt động, 0: Khóa

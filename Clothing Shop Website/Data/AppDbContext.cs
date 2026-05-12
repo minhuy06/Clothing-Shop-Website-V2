@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Models;
 
 namespace Clothing_Shop_Website.Data

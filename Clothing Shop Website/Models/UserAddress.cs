@@ -17,6 +17,10 @@ namespace Clothing_Shop_Website.Models
         [StringLength(50)]
         public string Province_City { get; set; } = null!;
 
+        [Required(ErrorMessage = "Quốc gia không được để trống")]
+        [StringLength(50)]
+        public string Country { get; set; } = null!;
+
         [Required(ErrorMessage = "Địa chỉ chi tiết không được để trống")]
         [StringLength(100)]
         public string DetailedAddress { get; set; } = null!;

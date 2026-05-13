@@ -1,4 +1,4 @@
-﻿@model List<Clothing_Shop_Website.Models.Product>
+@model List<Clothing_Shop_Website.Models.Product>
 @{
     ViewData["Title"] = "Bộ sưu tập";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -129,10 +129,7 @@
                             <img src="@p.ImageUrl" alt="@p.ProductName" loading="lazy"
                                 onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
                         </div>
-                        @if (p.Price < p.OriginalPrice)
-                        {
-                            <span class="pbadge badge-sale">Sale</span>
-                        }
+
                         <div class="pquick" onclick="openModal(@p.ProductID)">
                             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
                             Xem nhanh
@@ -143,10 +140,7 @@
                         <div class="pname">@p.ProductName</div>
                         <div class="price-row">
                             <span class="price">@p.Price.ToString("N0")đ</span>
-                            @if (p.OriginalPrice > p.Price)
-                            {
-                                <span class="price-old">@p.OriginalPrice.ToString("N0")đ</span>
-                            }
+
                         </div>
                         <div class="szrow">
                             @foreach (var sz in p.ProductSizes.Take(4))
@@ -206,7 +200,7 @@
                     cat:   '@Html.Raw((p.Category?.CategoryName ?? "").Replace("'","\\\'"))',
                     name:  '@Html.Raw(p.ProductName.Replace("'","\\\'"))',
                     price: @p.Price,
-                    old:   @p.OriginalPrice,
+                    old:   0,
                     img:   '@p.ImageUrl',
                     season:'@GetSeason(p.Session)',
                     sizes: [@Html.Raw(string.Join(",", p.ProductSizes.Select(s => $"'{s.SizeName}'")))],

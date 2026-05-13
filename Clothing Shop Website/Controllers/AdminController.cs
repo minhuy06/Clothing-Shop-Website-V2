@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
@@ -73,7 +73,7 @@ namespace Clothing_Shop_Website.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProduct(
             string productName, int categoryID, int session,
-            decimal price, decimal originalPrice,
+            decimal price,
             int stock, string? imageUrl, string? description)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -84,7 +84,6 @@ namespace Clothing_Shop_Website.Controllers
                 CategoryID = categoryID,
                 Session = session,
                 Price = price,
-                OriginalPrice = originalPrice,
                 ImageUrl = imageUrl,
                 Description = description
             });
@@ -96,7 +95,7 @@ namespace Clothing_Shop_Website.Controllers
         [HttpPost]
         public async Task<IActionResult> EditProduct(
             int productID, string productName, int categoryID, int session,
-            decimal price, decimal originalPrice,
+            decimal price,
             string? imageUrl, string? description)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -108,7 +107,6 @@ namespace Clothing_Shop_Website.Controllers
                 p.CategoryID = categoryID;
                 p.Session = session;
                 p.Price = price;
-                p.OriginalPrice = originalPrice;
                 p.ImageUrl = imageUrl;
                 p.Description = description;
                 await _db.SaveChangesAsync();

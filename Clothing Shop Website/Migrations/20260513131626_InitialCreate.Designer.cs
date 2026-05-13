@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Clothing_Shop_Website.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260513070726_InitialCreate")]
+    [Migration("20260513131626_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -120,7 +120,7 @@ namespace Clothing_Shop_Website.Migrations
 
                     b.HasIndex("SupplierID");
 
-                    b.ToTable("InventoryReceipt");
+                    b.ToTable("InventoryReceipts");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.InventoryReceiptDetail", b =>
@@ -149,7 +149,7 @@ namespace Clothing_Shop_Website.Migrations
 
                     b.HasIndex("SizeID");
 
-                    b.ToTable("InventoryReceiptDetail");
+                    b.ToTable("InventoryReceiptDetails");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Order", b =>
@@ -159,6 +159,11 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("DiscountID")
                         .HasColumnType("int");
@@ -263,9 +268,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal>("OriginalPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -348,7 +350,7 @@ namespace Clothing_Shop_Website.Migrations
 
                     b.HasKey("SupplierID");
 
-                    b.ToTable("Supplier");
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.User", b =>
@@ -401,6 +403,11 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddressID"));
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("DetailedAddress")
                         .IsRequired()

@@ -24,6 +24,10 @@ namespace Clothing_Shop_Website.Models
         [StringLength(50)]
         public string ShippingProvince { get; set; } = null!;
 
+        [Required(ErrorMessage = "Quốc gia không được để trống")]
+        [StringLength(50)]
+        public string Country { get; set; } = null!;
+
         [Required(ErrorMessage = "Tên người nhận không được để trống")]
         [StringLength(50)]
         public string ReceiverName { get; set; } = null!;

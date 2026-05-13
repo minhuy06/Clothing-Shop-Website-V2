@@ -17,6 +17,8 @@ namespace Clothing_Shop_Website.Data
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
-
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<InventoryReceipt> InventoryReceipts { get; set; }
+        public DbSet<InventoryReceiptDetail> InventoryReceiptDetails { get; set; }
     }
 }

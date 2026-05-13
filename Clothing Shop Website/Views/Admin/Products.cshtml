@@ -1,4 +1,4 @@
-﻿@model List<Clothing_Shop_Website.Models.Product>
+@model List<Clothing_Shop_Website.Models.Product>
 @inject Clothing_Shop_Website.Data.AppDbContext Db
 @{
     ViewData["Title"] = "Sản phẩm";
@@ -94,20 +94,16 @@
                         <td><div style="width:44px;height:55px;overflow:hidden"><img src="@p.ImageUrl" style="width:100%;height:100%;object-fit:cover;filter:brightness(.82)" onerror="this.style.display='none'"></div></td>
                         <td>
                             <div style="font-family:'EB Garamond',serif;font-size:14px;font-style:italic;color:var(--white);margin-bottom:2px">@p.ProductName</div>
-                            <div style="font-size:10px;color:rgba(201,168,76,.6)">@(p.Price < p.OriginalPrice ? "Sale" : "")</div>
                         </td>
                         <td>@p.Category?.CategoryName</td>
                         <td>@GetSeason(p.Session)</td>
                         <td style="white-space:nowrap">
                             @p.Price.ToString("N0")đ
-                            @if (p.OriginalPrice > p.Price)
-                            {
-                                <br><span style="font-size:11px;color:rgba(250,248,242,.35);text-decoration:line-through">@p.OriginalPrice.ToString("N0")đ</span>
-                            }
+
                         </td>
                         <td>
                             <div style="display:flex;gap:6px">
-                                <button onclick="openEditMo(@p.ProductID,'@Html.Raw(p.ProductName.Replace("'","\\'"))','@p.CategoryID','@p.Session','@p.Price','@p.OriginalPrice','@p.ImageUrl','@Html.Raw((p.Description??"").Replace("'","\\\'"))')"
+                                <button onclick="openEditMo(@p.ProductID,'@Html.Raw(p.ProductName.Replace("'","\\'"))','@p.CategoryID','@p.Session','@p.Price',0,'@p.ImageUrl','@Html.Raw((p.Description??"").Replace("'","\\\'"))')"
                                     style="width:30px;height:30px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s"
                                     onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
                                     <svg style="width:12px;height:12px;fill:none;stroke:rgba(250,248,242,.5);stroke-width:1.5;stroke-linecap:round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -206,10 +202,7 @@
                     <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Giá bán (đ)</label>
                     <input name="price" type="number" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
                 </div>
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Giá gốc (đ)</label>
-                    <input name="originalPrice" type="number" value="0" style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
-                </div>
+
                 <div style="display:flex;flex-direction:column;gap:7px">
                     <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">URL ảnh</label>
                     <input name="imageUrl" style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%" placeholder="https://...">
@@ -258,10 +251,7 @@
                     <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Giá bán (đ)</label>
                     <input name="price" id="editPrice" type="number" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
                 </div>
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Giá gốc (đ)</label>
-                    <input name="originalPrice" id="editOldPrice" type="number" style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
-                </div>
+
                 <div style="display:flex;flex-direction:column;gap:7px">
                     <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">URL ảnh</label>
                     <input name="imageUrl" id="editImg" style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
@@ -330,7 +320,6 @@ function openEditMo(id,name,cat,season,price,oldPrice,img,desc){
     document.getElementById('editCat').value=cat;
     document.getElementById('editSeason').value=season;
     document.getElementById('editPrice').value=price;
-    document.getElementById('editOldPrice').value=oldPrice;
     document.getElementById('editImg').value=img||'';
     document.getElementById('editDesc').value=desc||'';
     const mo=document.getElementById('editMo');

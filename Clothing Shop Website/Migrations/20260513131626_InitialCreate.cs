@@ -43,7 +43,7 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Supplier",
+                name: "Suppliers",
                 columns: table => new
                 {
                     SupplierID = table.Column<int>(type: "int", nullable: false)
@@ -56,7 +56,7 @@ namespace Clothing_Shop_Website.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Supplier", x => x.SupplierID);
+                    table.PrimaryKey("PK_Suppliers", x => x.SupplierID);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,7 +88,6 @@ namespace Clothing_Shop_Website.Migrations
                     CategoryID = table.Column<int>(type: "int", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ImageUrl = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Session = table.Column<int>(type: "int", nullable: false),
@@ -108,7 +107,7 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryReceipt",
+                name: "InventoryReceipts",
                 columns: table => new
                 {
                     ReceiptID = table.Column<int>(type: "int", nullable: false)
@@ -118,11 +117,11 @@ namespace Clothing_Shop_Website.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InventoryReceipt", x => x.ReceiptID);
+                    table.PrimaryKey("PK_InventoryReceipts", x => x.ReceiptID);
                     table.ForeignKey(
-                        name: "FK_InventoryReceipt_Supplier_SupplierID",
+                        name: "FK_InventoryReceipts_Suppliers_SupplierID",
                         column: x => x.SupplierID,
-                        principalTable: "Supplier",
+                        principalTable: "Suppliers",
                         principalColumn: "SupplierID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -138,6 +137,7 @@ namespace Clothing_Shop_Website.Migrations
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ShippingAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ShippingProvince = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ReceiverName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ReceiverPhone = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -168,6 +168,7 @@ namespace Clothing_Shop_Website.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     Province_City = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DetailedAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Phone = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false)
@@ -261,7 +262,7 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryReceiptDetail",
+                name: "InventoryReceiptDetails",
                 columns: table => new
                 {
                     DetailID = table.Column<int>(type: "int", nullable: false)
@@ -273,15 +274,15 @@ namespace Clothing_Shop_Website.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InventoryReceiptDetail", x => x.DetailID);
+                    table.PrimaryKey("PK_InventoryReceiptDetails", x => x.DetailID);
                     table.ForeignKey(
-                        name: "FK_InventoryReceiptDetail_InventoryReceipt_ReceiptID",
+                        name: "FK_InventoryReceiptDetails_InventoryReceipts_ReceiptID",
                         column: x => x.ReceiptID,
-                        principalTable: "InventoryReceipt",
+                        principalTable: "InventoryReceipts",
                         principalColumn: "ReceiptID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InventoryReceiptDetail_ProductSizes_SizeID",
+                        name: "FK_InventoryReceiptDetails_ProductSizes_SizeID",
                         column: x => x.SizeID,
                         principalTable: "ProductSizes",
                         principalColumn: "SizeID",
@@ -299,19 +300,19 @@ namespace Clothing_Shop_Website.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryReceipt_SupplierID",
-                table: "InventoryReceipt",
-                column: "SupplierID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InventoryReceiptDetail_ReceiptID",
-                table: "InventoryReceiptDetail",
+                name: "IX_InventoryReceiptDetails_ReceiptID",
+                table: "InventoryReceiptDetails",
                 column: "ReceiptID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryReceiptDetail_SizeID",
-                table: "InventoryReceiptDetail",
+                name: "IX_InventoryReceiptDetails_SizeID",
+                table: "InventoryReceiptDetails",
                 column: "SizeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryReceipts_SupplierID",
+                table: "InventoryReceipts",
+                column: "SupplierID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderID",
@@ -356,7 +357,7 @@ namespace Clothing_Shop_Website.Migrations
                 name: "CartItems");
 
             migrationBuilder.DropTable(
-                name: "InventoryReceiptDetail");
+                name: "InventoryReceiptDetails");
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
@@ -365,7 +366,7 @@ namespace Clothing_Shop_Website.Migrations
                 name: "UserAddresses");
 
             migrationBuilder.DropTable(
-                name: "InventoryReceipt");
+                name: "InventoryReceipts");
 
             migrationBuilder.DropTable(
                 name: "ProductSizes");
@@ -374,7 +375,7 @@ namespace Clothing_Shop_Website.Migrations
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Supplier");
+                name: "Suppliers");
 
             migrationBuilder.DropTable(
                 name: "Products");

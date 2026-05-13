@@ -22,11 +22,6 @@ namespace Clothing_Shop_Website.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Giá gốc phải lớn hơn hoặc bằng 0")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal OriginalPrice { get; set; }
-
         [StringLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string? ImageUrl { get; set; }

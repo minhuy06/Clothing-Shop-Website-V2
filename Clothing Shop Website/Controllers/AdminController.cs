@@ -226,12 +226,15 @@ namespace Clothing_Shop_Website.Controllers
                 return RedirectToAction("Products");
             }
 
+            int typeInt = string.Equals(discountType, "percent", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+
             _db.Discounts.Add(new Discount
             {
                 Code = code.ToUpper(),
                 DiscountValue = discountValue,
-                DiscountType = discountType,
+                DiscountType = typeInt,
                 Quantity = quantity,
+                UsedCount = 0,
                 ExpirationDate = expirationDate
             });
             await _db.SaveChangesAsync();

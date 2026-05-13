@@ -36,6 +36,15 @@ namespace Clothing_Shop_Website.Models
 
         public int Session { get; set; }
 
+        [MaxLength(10)]
+        public string? Color { get; set; }
+
+        [MaxLength(50)]
+        public string? Style { get; set; }
+
+        [MaxLength(50)]
+        public string? Material { get; set; }
+
         [ForeignKey("CategoryID")]
         public virtual Category Category { get; set; } = null!;
 

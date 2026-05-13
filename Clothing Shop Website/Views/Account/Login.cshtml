@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dang-nhap.css" asp-append-version="true" />
+}
+
+<div class="auth-layout">
+    <!-- LEFT -->
+    <div class="auth-visual">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=85" alt="NEVA">
+        <div class="visual-overlay"></div>
+        <div class="visual-content">
+            <div class="visual-top">
+                <div class="crest-area">
+                    <div class="crest">
+                        <div class="crest-outer-ring"></div>
+                        <div class="crest-inner-ring"></div>
+                        <div class="crest-center"><span>N</span></div>
+                    </div>
+                </div>
+                <div class="visual-brand">NEVA</div>
+                <div class="visual-tagline">Haute Couture · Vietnamese Fashion</div>
+            </div>
+            <div class="visual-quote">
+                "Mỗi bộ trang phục là một tác phẩm nghệ thuật,<br>
+                được tạo ra để tôn vinh vẻ đẹp của người mặc."
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="auth-form-wrap">
+        <div class="auth-form">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchTab('login')">Đăng nhập</button>
+                <button class="auth-tab" data-tab="register" onclick="switchTab('register')">Tạo tài khoản</button>
+            </div>
+
+            <!-- THÔNG BÁO LỖI / THÀNH CÔNG -->
+            @if (TempData["Error"] != null)
+            {
+                <div style="padding:10px 14px;background:rgba(212,122,118,.1);border:1px solid rgba(212,122,118,.3);color:#d47a76;font-size:11px;letter-spacing:1px;margin-bottom:16px">
+                    @TempData["Error"]
+                </div>
+            }
+            @if (TempData["RegError"] != null)
+            {
+                <div style="padding:10px 14px;background:rgba(212,122,118,.1);border:1px solid rgba(212,122,118,.3);color:#d47a76;font-size:11px;letter-spacing:1px;margin-bottom:16px">
+                    @TempData["RegError"]
+                </div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div style="padding:10px 14px;background:rgba(90,154,90,.1);border:1px solid rgba(90,154,90,.3);color:#7aba7a;font-size:11px;letter-spacing:1px;margin-bottom:16px">
+                    @TempData["Success"]
+                </div>
+            }
+
+            <!-- LOGIN TAB -->
+            <div class="tab-pane active" id="loginTab">
+                <form method="post" asp-controller="Account" asp-action="Login">
+                    @Html.AntiForgeryToken()
+                    <div class="f-group">
+                        <label class="f-label">Số điện thoại</label>
+                        <input class="f-input" type="tel" name="phone" placeholder="09xx xxx xxx" autocomplete="tel" required>
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Mật khẩu</label>
+                        <div class="f-input-wrap">
+                            <input class="f-input" type="password" name="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required>
+                            <button class="eye-btn" type="button" onclick="togglePass('loginPass')">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                            </button>
+                        </div>
+                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn-submit">Đăng nhập</button>
+                    <div class="f-divider"><span>hoặc</span></div>
+                    <p style="text-align:center;font-size:12px;color:rgba(250,248,242,.28);letter-spacing:1px">
+                        Chưa có tài khoản?
+                        <a href="#" onclick="switchTab('register')" style="color:var(--gold);border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:1px">
+                            Tạo tài khoản ngay
+                        </a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- REGISTER TAB -->
+            <div class="tab-pane" id="registerTab">
+                <form method="post" asp-controller="Account" asp-action="Register">
+                    @Html.AntiForgeryToken()
+                    <div class="f-group">
+                        <label class="f-label">Họ và tên</label>
+                        <input class="f-input" type="text" name="fullName" placeholder="Nguyễn Thị A" autocomplete="name" required>
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Số điện thoại</label>
+                        <input class="f-input" type="tel" name="phone" placeholder="09xx xxx xxx" autocomplete="tel" required>
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Mật khẩu</label>
+                        <div class="f-input-wrap">
+                            <input class="f-input" type="password" name="password" id="regPass" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" required>
+                            <button class="eye-btn" type="button" onclick="togglePass('regPass')">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label">Xác nhận mật khẩu</label>
+                        <div class="f-input-wrap">
+                            <input class="f-input" type="password" name="confirmPassword" id="regConfirm" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required>
+                            <button class="eye-btn" type="button" onclick="togglePass('regConfirm')">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" style="margin-top:22px">Tạo tài khoản</button>
+                    <p class="terms-text">
+                        Bằng cách đăng ký, bạn đồng ý với
+                        <a href="#">Điều khoản</a> và <a href="#">Chính sách bảo mật</a> của NEVA.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/dang-nhap.js" asp-append-version="true"></script>
+}

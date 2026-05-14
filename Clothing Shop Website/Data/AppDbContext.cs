@@ -8,17 +8,17 @@ namespace Clothing_Shop_Website.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         // Khai báo các bảng sẽ được tạo trong Database
-        public DbSet<User> Users {  get; set; }
-        public DbSet<UserAddress> UserAddresses { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductSize> ProductSizes { get; set; }
-        public DbSet<CartItem> CartItems { get; set; }
-        public DbSet<Discount> Discounts { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Supplier> Suppliers { get; set; }
-        public DbSet<InventoryReceipt> InventoryReceipts { get; set; }
-        public DbSet<InventoryReceiptDetail> InventoryReceiptDetails { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<UserAddress> UserAddresses { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<ProductSize> ProductSizes { get; set; } = null!;
+        public DbSet<CartItem> CartItems { get; set; } = null!;
+        public DbSet<Discount> Discounts { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+        public DbSet<Supplier> Suppliers { get; set; } = null!;
+        public DbSet<InventoryReceipt> InventoryReceipts { get; set; } = null!;
+        public DbSet<InventoryReceiptDetail> InventoryReceiptDetails { get; set; } = null!;
     }
 }

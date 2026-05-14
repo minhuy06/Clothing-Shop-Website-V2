@@ -1,14 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 namespace Clothing_Shop_Website.Migrations
 {
-    /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Net5Initial : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -88,6 +84,7 @@ namespace Clothing_Shop_Website.Migrations
                     CategoryID = table.Column<int>(type: "int", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     ImageUrl = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Session = table.Column<int>(type: "int", nullable: false),
@@ -151,7 +148,8 @@ namespace Clothing_Shop_Website.Migrations
                         name: "FK_Orders_Discounts_DiscountID",
                         column: x => x.DiscountID,
                         principalTable: "Discounts",
-                        principalColumn: "DiscountID");
+                        principalColumn: "DiscountID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Orders_Users_UserID",
                         column: x => x.UserID,
@@ -350,7 +348,6 @@ namespace Clothing_Shop_Website.Migrations
                 column: "UserID");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

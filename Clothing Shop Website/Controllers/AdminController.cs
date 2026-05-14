@@ -1,50 +1,232 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
+using Clothing_Shop_Website.Models.ViewModels;
+using Clothing_Shop_Website.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Clothing_Shop_Website.Controllers
 {
     public class AdminController : Controller
     {
         private readonly AppDbContext _db;
-        public AdminController(AppDbContext db) { _db = db; }
+        private readonly ICubeMdxAnalyticsService _cube;
+        private readonly IWebHostEnvironment _env;
+
+        public AdminController(AppDbContext db, ICubeMdxAnalyticsService cube, IWebHostEnvironment env)
+        {
+            _db = db;
+            _cube = cube;
+            _env = env;
+        }
 
         // ── Kiểm tra quyền Admin ──
         private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 1;
 
-    
-        public async Task<IActionResult> Dashboard()
+
+        public async Task<IActionResult> Dashboard(string? season, string? ageGroup)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            ViewBag.TotalProducts = await _db.Products.CountAsync();
-            ViewBag.TotalOrders = await _db.Orders.CountAsync();
-            ViewBag.TotalCustomers = await _db.Users.CountAsync(u => u.Role == 0);
-            ViewBag.TotalRevenue = await _db.Orders
-                .Where(o => o.Status == 2)
-                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0;
+            var vm = await _cube.BuildDashboardAsync(season, ageGroup);
 
-            ViewBag.RecentOrders = await _db.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderDetails)
-                .OrderByDescending(o => o.OrderDate)
-                .Take(5)
+            ViewBag.SeasonFilter = season;
+            ViewBag.AgeGroupFilter = ageGroup;
+            ViewBag.Categories = await _db.Categories.AsNoTracking().OrderBy(c => c.CategoryName).ToListAsync();
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DashboardData(string? season, string? ageGroup)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            var vm = await _cube.BuildDashboardAsync(season, ageGroup);
+            return Json(new
+            {
+                vm.CubeError,
+                kpi = new { vm.TotalRevenue, vm.TotalSalesLines, vm.DistinctCustomers, vm.DistinctProductsSold },
+                revenue6m = vm.RevenueLastMonths,
+                top = vm.TopSellers,
+                catPie = vm.RevenueByCategory,
+                ageRev = vm.RevenueByAgeGroup
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchProducts(string? q)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            q = (q ?? "").Trim();
+            if (q.Length < 1) return Json(Array.Empty<object>());
+            var list = await _db.Products.AsNoTracking()
+                .Where(p => p.ProductName.Contains(q))
+                .OrderBy(p => p.ProductName)
+                .Take(20)
+                .Select(p => new { id = p.ProductID, name = p.ProductName })
                 .ToListAsync();
+            return Json(list);
+        }
 
-            ViewBag.TopProducts = await _db.OrderDetails
-                .Include(d => d.Product)
-                .GroupBy(d => d.ProductID)
-                .Select(g => new {
-                    Product = g.First().Product,
-                    TotalSold = g.Sum(d => d.Quantity)
-                })
-                .OrderByDescending(x => x.TotalSold)
-                .Take(5)
+        [HttpGet]
+        public async Task<IActionResult> SearchSuppliers(string? q)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            q = (q ?? "").Trim();
+            if (q.Length < 1) return Json(Array.Empty<object>());
+            var list = await _db.Suppliers.AsNoTracking()
+                .Where(s => s.SupplierName.Contains(q))
+                .OrderBy(s => s.SupplierName)
+                .Take(20)
+                .Select(s => new { id = s.SupplierID, name = s.SupplierName })
                 .ToListAsync();
+            return Json(list);
+        }
 
-            return View();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportStock(
+            int supplierId,
+            int? productId,
+            string productName,
+            int categoryId,
+            int session,
+            decimal salePrice,
+            decimal? originalPrice,
+            string sizeName,
+            int quantity,
+            IFormFile? imageFile,
+            string? returnPage)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            bool toProducts = string.Equals((returnPage ?? "").Trim(), "Products", StringComparison.OrdinalIgnoreCase);
+            IActionResult GoBack() => toProducts ? RedirectToAction("Products") : RedirectToAction("Dashboard");
+
+            if (quantity < 1 || string.IsNullOrWhiteSpace(sizeName))
+            {
+                TempData["Error"] = "Số lượng và size là bắt buộc.";
+                return GoBack();
+            }
+
+            if (supplierId < 1 || !await _db.Suppliers.AnyAsync(s => s.SupplierID == supplierId))
+            {
+                TempData["Error"] = "Vui lòng chọn nhà cung cấp hợp lệ từ gợi ý.";
+                return GoBack();
+            }
+
+            if (!await _db.Categories.AnyAsync(c => c.CategoryID == categoryId))
+            {
+                TempData["Error"] = "Danh mục không hợp lệ.";
+                return GoBack();
+            }
+
+            productName = (productName ?? "").Trim();
+            sizeName = sizeName.Trim();
+            if (string.IsNullOrEmpty(productName))
+            {
+                TempData["Error"] = "Tên sản phẩm không được để trống.";
+                return GoBack();
+            }
+
+            string? imageUrl = null;
+            if (imageFile is { Length: > 0 })
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                if (ext.Length > 10) ext = "";
+                var safe = $"{Guid.NewGuid():N}{ext}";
+                var dir = Path.Combine(_env.WebRootPath, "uploads", "products");
+                Directory.CreateDirectory(dir);
+                var full = Path.Combine(dir, safe);
+                await using (var fs = System.IO.File.Create(full))
+                    await imageFile.CopyToAsync(fs);
+                imageUrl = "/uploads/products/" + safe;
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                Product product;
+                if (productId is > 0)
+                {
+                    product = await _db.Products.Include(p => p.ProductSizes)
+                        .FirstAsync(p => p.ProductID == productId.Value);
+                    product.ProductName = productName;
+                    product.CategoryID = categoryId;
+                    product.Session = session;
+                    product.Price = salePrice;
+                    product.OriginalPrice = originalPrice;
+                    if (!string.IsNullOrEmpty(imageUrl))
+                        product.ImageUrl = imageUrl;
+                }
+                else
+                {
+                    product = new Product
+                    {
+                        ProductName = productName,
+                        CategoryID = categoryId,
+                        Session = session,
+                        Price = salePrice,
+                        OriginalPrice = originalPrice,
+                        ImageUrl = imageUrl,
+                        Description = ""
+                    };
+                    _db.Products.Add(product);
+                    await _db.SaveChangesAsync();
+                }
+
+                var size = product.ProductSizes.FirstOrDefault(s => s.SizeName == sizeName);
+                if (size == null)
+                {
+                    size = new ProductSize
+                    {
+                        ProductID = product.ProductID,
+                        SizeName = sizeName,
+                        StockQuantity = quantity,
+                        MinimumStock = 0
+                    };
+                    _db.ProductSizes.Add(size);
+                }
+                else
+                    size.StockQuantity += quantity;
+
+                await _db.SaveChangesAsync();
+
+                var receipt = new InventoryReceipt
+                {
+                    SupplierID = supplierId,
+                    ImportDate = DateTime.Now
+                };
+                _db.InventoryReceipts.Add(receipt);
+                await _db.SaveChangesAsync();
+
+                _db.InventoryReceiptDetails.Add(new InventoryReceiptDetail
+                {
+                    ReceiptID = receipt.ReceiptID,
+                    SizeID = size.SizeID,
+                    Quantity = quantity,
+                    ImportPrice = originalPrice ?? salePrice
+                });
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                TempData["Success"] = toProducts
+                    ? "Đã thêm / cập nhật sản phẩm và ghi nhận phiếu nhập."
+                    : "Đã ghi nhận nhập hàng.";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi nhập hàng: " + ex.Message;
+            }
+
+            return GoBack();
         }
 
         // ═══════════════════════════════

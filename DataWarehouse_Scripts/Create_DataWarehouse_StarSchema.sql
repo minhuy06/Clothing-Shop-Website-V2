@@ -18,6 +18,19 @@ CREATE TABLE Dim_Time (
     Year INT NOT NULL              -- Năm
 );
 
+-- Bảng heap dùng bởi SSIS (nhánh Lookup khi TimeKey đã có trong Dim_Time). Không có PK để tránh lỗi khi chạy lại gói.
+IF OBJECT_ID(N'dbo.SSIS_DimTime_Skip', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SSIS_DimTime_Skip (
+        TimeKey INT NOT NULL,
+        FullDate DATE NOT NULL,
+        Day INT NOT NULL,
+        Month INT NOT NULL,
+        Quarter INT NOT NULL,
+        Year INT NOT NULL
+    );
+END;
+
 -- 2. Bảng Chiều Khách Hàng
 CREATE TABLE Dim_Customer (
     CustomerKey INT IDENTITY(1,1) PRIMARY KEY, -- Khóa nhân tạo tự tăng
@@ -82,3 +95,8 @@ CREATE TABLE Fact_Inventory (
     UnitCost DECIMAL(18,2) NOT NULL,       -- Giá nhập kho 1 SP
     TotalCost DECIMAL(18,2) NOT NULL       -- Tổng chi phí = QuantityReceived * UnitCost
 );
+go
+ALTER TABLE Dim_Product DROP COLUMN OriginalPrice;
+go
+
+ALTER TABLE Dim_Product ADD Price DECIMAL(18,2) NULL;

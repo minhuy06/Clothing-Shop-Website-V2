@@ -63,7 +63,7 @@ namespace Clothing_Shop_Website.Services
             var parts = new List<string>();
             if (!string.IsNullOrWhiteSpace(seasonNum) && int.TryParse(seasonNum, out var sn) && sn is >= 1 and <= 4)
             {
-                var vn = sn switch { 1 => "Xuân", 2 => "Hạ", 3 => "Thu", 4 => "Đông", _ => "" };
+                var vn = sn switch { 1 => "Spring", 2 => "Summner", 3 => "Autumn", 4 => "Winter", _ => "" };
                 parts.Add($"{_opt.HierarchySeason}.[{MdxEscapeName(vn)}]");
             }
             if (!string.IsNullOrWhiteSpace(ageGroup))

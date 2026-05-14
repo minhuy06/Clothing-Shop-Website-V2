@@ -238,7 +238,16 @@ namespace Clothing_Shop_Website.Services
             }
         }
 
-        private static Cell Cell(CellSet cs, int columnOrdinal, int rowOrdinal) => cs[columnOrdinal, rowOrdinal];
+        private static object? Cell(CellSet cs, int columnOrdinal, int rowOrdinal)
+        {
+            // Lấy Value (con số) nếu chỉ có 1 trục
+            if (cs.Axes.Count == 1)
+            {
+                return cs[columnOrdinal].Value;
+            }
+            // Lấy Value (con số) nếu có cả Cột và Hàng
+            return cs[columnOrdinal, rowOrdinal].Value;
+        }
 
         private static decimal ToDecimal(object? v)
         {

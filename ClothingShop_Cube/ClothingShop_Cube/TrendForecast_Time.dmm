@@ -1,4 +1,4 @@
-﻿<MiningStructure xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0" dwd:design-time-name="8438fae1-112a-4c3f-9a13-e162eb8123a4" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
+﻿<MiningStructure xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0" dwd:design-time-name="6ded16e4-fdb9-4051-85ac-42f5f888cd7a" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
   <ID>TrendForecast_Time</ID>
   <Name>TrendForecast_Time</Name>
   <CreatedTimestamp>0001-01-01T00:00:00Z</CreatedTimestamp>
@@ -16,7 +16,7 @@
       <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramLayout</Name>
       <Value>
         <dds xmlns="">
-          <diagram fontclsid="{0BE35203-8F91-11CE-9DE3-00AA004BB851}" mouseiconclsid="{0BE35204-8F91-11CE-9DE3-00AA004BB851}" defaultlayout="MSDDS.Rectilinear" defaultlineroute="MSDDS.Rectilinear" version="7" nextobject="2" scale="100" pagebreakanchorx="0" pagebreakanchory="0" pagebreaksizex="0" pagebreaksizey="0" scrollleft="-7738" scrolltop="-4604" gridx="150" gridy="150" marginx="5000" marginy="5000" zoom="100" x="18584" y="11155" backcolor="2434342" defaultpersistence="2" PrintPageNumbersMode="3" PrintMarginTop="0" PrintMarginBottom="635" PrintMarginLeft="0" PrintMarginRight="0" marqueeselectionmode="0" mousepointer="0" snaptogrid="0" autotypeannotation="1" showscrollbars="0" viewpagebreaks="0" donotforceconnectorsbehindshapes="1" backpictureclsid="{00000000-0000-0000-0000-000000000000}">
+          <diagram fontclsid="{0BE35203-8F91-11CE-9DE3-00AA004BB851}" mouseiconclsid="{0BE35204-8F91-11CE-9DE3-00AA004BB851}" defaultlayout="MSDDS.Rectilinear" defaultlineroute="MSDDS.Rectilinear" version="7" nextobject="3" scale="100" pagebreakanchorx="0" pagebreakanchory="0" pagebreaksizex="0" pagebreaksizey="0" scrollleft="-7738" scrolltop="-5000" gridx="150" gridy="150" marginx="5000" marginy="5000" zoom="100" x="20765" y="10118" backcolor="2434342" defaultpersistence="2" PrintPageNumbersMode="3" PrintMarginTop="0" PrintMarginBottom="635" PrintMarginLeft="0" PrintMarginRight="0" marqueeselectionmode="0" mousepointer="0" snaptogrid="0" autotypeannotation="1" showscrollbars="0" viewpagebreaks="0" donotforceconnectorsbehindshapes="1" backpictureclsid="{00000000-0000-0000-0000-000000000000}">
             <font>
               <ddsxmlobjectstreamwrapper binary="010000009001b0300100065461686f6d61" />
             </font>
@@ -27,7 +27,7 @@
           <layoutmanager>
             <ddsxmlobj />
           </layoutmanager>
-          <ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge" tooltip="v_DataMining_TimeSeries" left="20" top="0" logicalid="1" controlid="1" masterid="0" hint1="0" hint2="0" width="3069" height="1947" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0">
+          <ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge" tooltip="v_DataMining_TimeSeries" left="-1631" top="-1820" logicalid="2" controlid="1" masterid="0" hint1="0" hint2="0" width="3069" height="1947" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0">
             <control>
               <ddsxmlobjectstreaminitwrapper binary="000e0000fd0b00009b070000" />
             </control>
@@ -55,15 +55,15 @@
     </Annotation>
     <Annotation>
       <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramViewPortTop</Name>
-      <Value>-4604</Value>
+      <Value>-5000</Value>
     </Annotation>
     <Annotation>
       <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramBoundingLeft</Name>
-      <Value>20</Value>
+      <Value>-1631</Value>
     </Annotation>
     <Annotation>
       <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramBoundingTop</Name>
-      <Value>0</Value>
+      <Value>-1820</Value>
     </Annotation>
     <Annotation>
       <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramZoom</Name>
@@ -72,54 +72,54 @@
   </Annotations>
   <LastProcessed>0001-01-01T00:00:00Z</LastProcessed>
   <State>Unprocessed</State>
-  <Source xsi:type="DataSourceViewBinding" dwd:design-time-name="27f7ae7f-f51b-4c9a-b8f4-98c4f6d3e349">
+  <Source xsi:type="DataSourceViewBinding" dwd:design-time-name="0bd5a449-ba94-414f-bdd8-a05797ba025b">
     <DataSourceViewID>DB Shop Quan Ao Data Warehouse</DataSourceViewID>
   </Source>
   <Columns>
-    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="26726974-7483-4747-b6d8-efd09f80dcd7">
+    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="c02218d8-03f0-479d-8cb6-d35948b50714">
       <ID>Category Name</ID>
       <Name>Category Name</Name>
       <IsKey>true</IsKey>
       <Type>Text</Type>
       <Content>Key</Content>
       <KeyColumns>
-        <KeyColumn dwd:design-time-name="8298c031-ac09-4884-b7fe-5a683eadda5c">
+        <KeyColumn dwd:design-time-name="8647331d-f9c8-439a-9795-8fd46ae50b92">
           <DataType>WChar</DataType>
           <DataSize>255</DataSize>
-          <Source xsi:type="ColumnBinding" dwd:design-time-name="8a34cdfe-9702-4780-87b0-ff03fe46f007">
+          <Source xsi:type="ColumnBinding" dwd:design-time-name="b0cf2fa6-0ecb-495c-bb5a-0863d8094050">
             <TableID>dbo_v_DataMining_TimeSeries</TableID>
             <ColumnID>CategoryName</ColumnID>
           </Source>
         </KeyColumn>
       </KeyColumns>
     </Column>
-    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="fa30f65f-790c-45d3-a2bd-e9ad35bea512">
+    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="90f7f060-0196-4285-8f22-7a02c1163e0a">
       <ID>Time Index</ID>
       <Name>Time Index</Name>
       <IsKey>true</IsKey>
       <Type>Long</Type>
       <Content>Key Time</Content>
       <KeyColumns>
-        <KeyColumn dwd:design-time-name="e9ee105e-394e-4065-957a-e92cb76397da">
+        <KeyColumn dwd:design-time-name="8f17352c-cc64-440f-a2a0-364f26bd7fc0">
           <DataType>Integer</DataType>
           <DataSize>-1</DataSize>
-          <Source xsi:type="ColumnBinding" dwd:design-time-name="95381783-2674-4173-b95d-240058a0e1f1">
+          <Source xsi:type="ColumnBinding" dwd:design-time-name="a7513944-23e5-430f-89d4-7c4dae8e6d19">
             <TableID>dbo_v_DataMining_TimeSeries</TableID>
             <ColumnID>TimeIndex</ColumnID>
           </Source>
         </KeyColumn>
       </KeyColumns>
     </Column>
-    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="83bc4afa-e13f-4f6f-9fa8-8f18807f64de">
+    <Column xsi:type="ScalarMiningStructureColumn" dwd:design-time-name="7cd25aea-6f36-4a10-a4b0-fbb3937bd5bf">
       <ID>Total Qty</ID>
       <Name>Total Qty</Name>
       <Type>Long</Type>
       <Content>Continuous</Content>
       <KeyColumns>
-        <KeyColumn dwd:design-time-name="026cba66-3a3d-4401-bfcc-f9631dbd9c90">
+        <KeyColumn dwd:design-time-name="e03501ab-c55e-47da-ac16-3b5638920f86">
           <DataType>Integer</DataType>
           <DataSize>-1</DataSize>
-          <Source xsi:type="ColumnBinding" dwd:design-time-name="71b11419-c0c9-46cb-828a-1053edf85488">
+          <Source xsi:type="ColumnBinding" dwd:design-time-name="ff005016-1595-46a6-aedf-2d0fe0595998">
             <TableID>dbo_v_DataMining_TimeSeries</TableID>
             <ColumnID>TotalQty</ColumnID>
           </Source>
@@ -128,7 +128,7 @@
     </Column>
   </Columns>
   <MiningModels>
-    <MiningModel dwd:design-time-name="cbfaa270-c4ce-4e7d-a008-55e4bb08d41c">
+    <MiningModel dwd:design-time-name="411a9a6d-8480-4909-b496-15a3b1647eb4">
       <ID>TrendForecast_Time</ID>
       <Name>TrendForecast_Time</Name>
       <CreatedTimestamp>0001-01-01T00:00:00Z</CreatedTimestamp>
@@ -143,19 +143,19 @@
         </AlgorithmParameter>
       </AlgorithmParameters>
       <Columns>
-        <Column dwd:design-time-name="f38687a3-2ab1-4c0a-ad2c-39822c0e2d6a">
+        <Column dwd:design-time-name="a4b7a026-68ab-442d-83d7-4b8bb15f2f1b">
           <ID>Category Name</ID>
           <Name>Category Name</Name>
           <SourceColumnID>Category Name</SourceColumnID>
           <Usage>Key</Usage>
         </Column>
-        <Column dwd:design-time-name="1545aafb-0093-4d9e-8ec4-29610d19ee19">
+        <Column dwd:design-time-name="33da4bca-2284-411b-96e8-944a84102abb">
           <ID>Time Index</ID>
           <Name>Time Index</Name>
           <SourceColumnID>Time Index</SourceColumnID>
           <Usage>Key</Usage>
         </Column>
-        <Column dwd:design-time-name="7e0d7a27-5145-4db6-b625-7131a7d579cc">
+        <Column dwd:design-time-name="62bd6cbe-d7bf-496c-8499-5e730597bc34">
           <ID>Total Qty</ID>
           <Name>Total Qty</Name>
           <SourceColumnID>Total Qty</SourceColumnID>

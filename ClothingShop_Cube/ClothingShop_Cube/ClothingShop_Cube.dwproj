@@ -48,6 +48,12 @@
       <FullPath>DB Shop Quan Ao Data Warehouse.dsv</FullPath>
     </ProjectItem>
   </DataSourceViews>
+  <MiningModels>
+    <ProjectItem>
+      <Name>TrendForecast_Time.dmm</Name>
+      <FullPath>TrendForecast_Time.dmm</FullPath>
+    </ProjectItem>
+  </MiningModels>
   <Configurations>
     <Configuration>
       <Name>Development</Name>

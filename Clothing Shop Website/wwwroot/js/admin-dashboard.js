@@ -108,4 +108,52 @@
         wireFilters();
         if (window.NevaAdminImportModal) window.NevaAdminImportModal.init({ bindTopSellList: true });
     });
+
+    // --- Logic xử lý AI Prediction MỚI ---
+    function fetchAIPrediction() {
+        const btnDetail = document.getElementById('btnShowAiDetail');
+        const resultText = document.getElementById('aiPredictionResult');
+        const status = document.getElementById('aiStatus');
+
+        status.innerText = "AI đang phân tích...";
+
+        // Tự động gọi API không cần chờ bộ lọc
+        fetch(`/Admin/GetAIPrediction`)
+            .then(res => res.json())
+            .then(data => {
+                status.innerText = "Hoàn tất";
+                if (data.success) {
+                    // In ra câu: "Dự đoán 3 tháng tới cần nhập..."
+                    resultText.innerHTML = `<strong style="font-size:16px; color:#fff">${data.message}</strong>`;
+
+                    // Hiện nút Xem chi tiết và gán sự kiện click
+                    btnDetail.style.display = 'block';
+                    btnDetail.onclick = function () {
+                        showAiProductDetail(data.categoryName, data.predictedQty);
+                    };
+                } else {
+                    resultText.innerHTML = `<span style="color:var(--gold)">${data.message}</span>`;
+                }
+            })
+            .catch(err => {
+                status.innerText = "Lỗi kết nối";
+                resultText.innerHTML = `<span style="color:#ff6b6b">Không thể lấy dữ liệu dự báo từ SSAS.</span>`;
+            });
+    }
+
+    // TÌM ĐẾN PHẦN document.addEventListener('DOMContentLoaded', ...) Ở CUỐI FILE
+    // VÀ THÊM DÒNG NÀY VÀO ĐỂ NÓ TỰ CHẠY:
+    document.addEventListener('DOMContentLoaded', function () {
+        const p = readPayload();
+        renderBars6m(p.revenue6m || []);
+        renderPie(p.catPie || []);
+        renderAgeBar(p.ageRev || []);
+        wireFilters();
+
+        // Thêm dòng này để AI tự chạy khi vừa vào web
+        fetchAIPrediction();
+
+        if (window.NevaAdminImportModal) window.NevaAdminImportModal.init({ bindTopSellList: true });
+    });
+
 })();

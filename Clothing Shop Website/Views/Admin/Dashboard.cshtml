@@ -60,6 +60,45 @@
                 <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /></svg></div><div class="stat-lbl">Sản phẩm (Dim_Product)</div><div class="stat-val">@Model.DistinctProductsSold</div></div>
             </div>
 
+            <div class="abox ai-suggestion-wrap" style="margin-bottom: 20px; border: 1px dashed var(--gold); background: rgba(201, 168, 76, 0.05);">
+                <div class="abox-hdr">
+                    <div class="abox-t">
+                        <svg viewBox="0 0 24 24" style="width:20px; fill:var(--gold); margin-right:8px; vertical-align:middle">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                        </svg>
+                        🚀 AI Gợi ý nhập hàng (3 tháng tới)
+                    </div>
+                    <div id="aiStatus" style="font-size: 11px; color: var(--gold); font-style: italic;">Đang phân tích dữ liệu...</div>
+                </div>
+                <div class="ai-content" id="aiBoxContent" style="padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <div id="aiPredictionResult">
+                        <div class="ai-content" id="aiBoxContent" style="padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                            <div id="aiPredictionResult">
+                                <span style="color:rgba(250,248,242,0.5)">Hệ thống đang kết nối với SSAS Data Mining...</span>
+                            </div>
+                            <button type="button" id="btnShowAiDetail" class="act-btn" style="display:none; border-color:var(--gold); color:var(--gold)">
+                                Xem chi tiết nhập hàng
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" id="btnShowAiDetail" class="act-btn" style="display:none; border-color:var(--gold); color:var(--gold)">
+                        Xem chi tiết nhập hàng
+                    </button>
+                </div>
+            </div>
+
+            <div id="aiDetailMo" class="modal-overlay">
+                <div class="modal-box" style="max-width: 600px;">
+                    <div class="modal-hdr">Chi tiết đề xuất từ AI <button type="button" class="modal-x" id="aiDetailClose">×</button></div>
+                    <div style="padding: 15px; color: var(--gold); font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.1);" id="aiDetailSummary"></div>
+                    <div id="aiProductList" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="act-btn" id="aiDetailCancel">Đóng</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid2">
                 <div class="abox">
                     <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" /><rect x="10" y="8" width="4" height="13" /><rect x="17" y="3" width="4" height="18" /></svg>Doanh thu 6 tháng</div></div>

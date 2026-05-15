@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -29,6 +30,71 @@ namespace Clothing_Shop_Website.Controllers
         // ── Kiểm tra quyền Admin ──
         private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 1;
 
+        [HttpGet]
+        public async Task<IActionResult> GetImportSuggestionsForCategory(string categoryName, int aiPredictedQuantity)
+        {
+            // 1. Gọi Cube lấy Top 5 sản phẩm bán chạy nhất của Danh mục này trong 3 tháng qua
+            var topProducts = await _cube.GetTopProductsForCategoryAsync(categoryName, 5);
+
+            if (topProducts.Count == 0) return Json(new { success = false, message = "Không tìm thấy sản phẩm nổi bật." });
+
+            // 2. Tính tổng số lượng đã bán của 5 sản phẩm này để lấy Tỷ trọng
+            int totalSoldHistory = topProducts.Sum(p => p.QuantitySold);
+
+            var importSuggestions = new List<object>();
+
+            // 3. Phân bổ con số aiPredictedQuantity (Hạn mức) cho từng sản phẩm
+            foreach (var prod in topProducts)
+            {
+                // Tính tỷ lệ % đóng góp của sản phẩm này
+                double ratio = (double)prod.QuantitySold / totalSoldHistory;
+
+                // Đề xuất nhập = Hạn mức AI * Tỷ lệ %
+                int suggestImportQty = (int)Math.Round(aiPredictedQuantity * ratio);
+
+                // Đảm bảo mỗi món nhập ít nhất 1 cái nếu tỷ lệ quá nhỏ
+                if (suggestImportQty == 0) suggestImportQty = 1;
+
+                importSuggestions.Add(new
+                {
+                    productId = prod.SourceProductId,
+                    productName = prod.ProductName,
+                    imageUrl = prod.ImageUrl,
+                    historySold = prod.QuantitySold,
+                    suggestImport = suggestImportQty // Con số vàng dành cho form nhập hàng
+                });
+            }
+
+            return Json(new { success = true, data = importSuggestions });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAIPrediction()
+        {
+            try
+            {
+                // Gọi hàm DMX lấy dự báo 3 tháng tới (Hàm GetForecastNext3MonthsAsync bạn đã tạo ở bước trước)
+                var predictions = await _cube.GetForecastNext3MonthsAsync();
+
+                if (predictions == null || predictions.Count == 0)
+                    return Json(new { success = false, message = "Chưa đủ dữ liệu chuỗi thời gian để dự báo." });
+
+                // Tìm danh mục có xu hướng tăng mạnh nhất (số lượng dự báo cao nhất)
+                var topCategory = predictions.OrderByDescending(p => p.QuantitySold).First();
+
+                return Json(new
+                {
+                    success = true,
+                    categoryName = topCategory.CategoryName,
+                    predictedQty = topCategory.QuantitySold,
+                    message = $"Dự đoán 3 tháng tới cần nhập {topCategory.QuantitySold} chiếc {topCategory.CategoryName}."
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Đang chờ huấn luyện mô hình AI..." });
+            }
+        }
 
         public async Task<IActionResult> Dashboard(string? season, string? ageGroup)
         {
@@ -432,5 +498,6 @@ namespace Clothing_Shop_Website.Controllers
             TempData["Success"] = "Đã xóa mã!";
             return RedirectToAction("Products");
         }
+
     }
 }

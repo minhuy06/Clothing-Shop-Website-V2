@@ -27,6 +27,147 @@ namespace Clothing_Shop_Website.Services
             _log = log;
         }
 
+        public async Task<List<TopSellerCubeRow>> GetTopProductsForCategoryAsync(string categoryName, int limit = 5, CancellationToken ct = default)
+        {
+            var productsList = new List<TopSellerCubeRow>();
+
+            // Xử lý chuỗi tên danh mục để tránh lỗi MDX
+            string escapedCategory = MdxEscapeName(categoryName);
+
+            string mdxQuery = $@"
+                SELECT {{ [Measures].[Quantity] }} ON COLUMNS,
+                NON EMPTY TOPCOUNT(
+                    {{ {_opt.HierarchySourceProductId}.Members }}, 
+                    {limit}, 
+                    [Measures].[Quantity]
+                ) ON ROWS
+                FROM (
+                    -- Sub-query: Chỉ lấy dữ liệu của 3 tháng gần nhất
+                    SELECT TAIL([Dim Time].[Month].[Month].Members, 3) ON COLUMNS
+                    FROM [{MdxEscapeName(_opt.CubeName)}]
+                )
+                -- Điều kiện: Chỉ lấy các sản phẩm thuộc Danh mục này
+                WHERE ( [Dim Product].[Category Name].&[{escapedCategory}] )";
+
+            try
+            {
+                using (var conn = new AdomdConnection(_opt.ConnectionString))
+                {
+                    await Task.Run(() => conn.Open(), ct);
+                    using (var cmd = new AdomdCommand(mdxQuery, conn))
+                    {
+                        var cs = cmd.ExecuteCellSet();
+                        if (cs.Axes.Count < 2) return productsList;
+
+                        var rowAxis = cs.Axes[1];
+                        for (var r = 0; r < rowAxis.Positions.Count; r++)
+                        {
+                            var m = rowAxis.Positions[r].Members[0];
+                            if (TryParseIntKey(m.Caption, out var pid) || TryParseIntKey(m.Name, out pid))
+                            {
+                                int qty = ToInt(Cell(cs, 0, r));
+                                if (qty > 0)
+                                {
+                                    productsList.Add(new TopSellerCubeRow { SourceProductId = pid, QuantitySold = qty });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Dùng Entity Framework để móc thêm Tên, Hình ảnh từ DB SQL dựa vào ProductId (Giống hàm FillTopSellersAsync hiện tại của bạn)
+                if (productsList.Count > 0)
+                {
+                    var ids = productsList.Select(p => p.SourceProductId).ToList();
+                    var dbProducts = await _db.Products.AsNoTracking().Where(p => ids.Contains(p.ProductID)).ToListAsync(ct);
+
+                    foreach (var item in productsList)
+                    {
+                        var match = dbProducts.FirstOrDefault(p => p.ProductID == item.SourceProductId);
+                        if (match != null)
+                        {
+                            item.ProductName = match.ProductName;
+                            item.ImageUrl = match.ImageUrl;
+                            item.Price = match.Price;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, $"Lỗi khi lấy Top sản phẩm cho danh mục {categoryName}");
+            }
+
+            return productsList.Where(x => x.ProductName != null).ToList();
+        }
+
+        public async Task<List<TopSellerCubeRow>> GetForecastNext3MonthsAsync(CancellationToken ct = default)
+        {
+            var forecastList = new List<TopSellerCubeRow>();
+
+            // SỬA LỖI 1: Thêm dấu cách vào tên cột cho khớp 100% với SSAS Wizard
+            string dmxQuery = @"
+        SELECT FLATTENED 
+            [Category Name], 
+            PredictTimeSeries([Total Qty], 3) 
+        FROM [TrendForecast_Time]";
+
+            try
+            {
+                using (var conn = new AdomdConnection(_opt.ConnectionString))
+                {
+                    await Task.Run(() => conn.Open(), ct);
+                    using (var cmd = new AdomdCommand(dmxQuery, conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            var dict = new Dictionary<string, int>();
+
+                            while (reader.Read())
+                            {
+                                // Đọc tên danh mục
+                                string catName = reader[0]?.ToString();
+
+                                // SỬA LỖI 2: Xử lý số thập phân do AI sinh ra, sau đó làm tròn thành số nguyên
+                                double predictedValue = 0;
+                                if (reader[2] != DBNull.Value)
+                                {
+                                    predictedValue = Convert.ToDouble(reader[2]);
+                                }
+                                int qty = (int)Math.Round(predictedValue);
+
+                                if (!string.IsNullOrEmpty(catName))
+                                {
+                                    if (dict.ContainsKey(catName))
+                                        dict[catName] += qty;
+                                    else
+                                        dict[catName] = qty;
+                                }
+                            }
+
+                            foreach (var kv in dict)
+                            {
+                                forecastList.Add(new TopSellerCubeRow
+                                {
+                                    CategoryName = kv.Key,
+                                    QuantitySold = kv.Value
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ghi log chi tiết lỗi ra màn hình Output của Visual Studio để dễ debug
+                System.Diagnostics.Debug.WriteLine("=== LỖI DMX AI ===");
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                _log.LogError(ex, "Lỗi khi gọi Data Mining Time Series");
+            }
+
+            return forecastList;
+        }
+
         public async Task<AdminDashboardViewModel> BuildDashboardAsync(string? seasonFilter, string? ageGroupFilter, CancellationToken cancellationToken = default)
         {
             var vm = new AdminDashboardViewModel();

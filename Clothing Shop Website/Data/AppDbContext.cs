@@ -9,6 +9,9 @@ namespace Clothing_Shop_Website.Data
 
         // Khai báo các bảng sẽ được tạo trong Database
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<CustomerDetail> CustomerDetails { get; set; } = null!;
+        public DbSet<StaffDetail> StaffDetails { get; set; } = null!;
+        public DbSet<StaffShift> StaffShifts { get; set; } = null!;
         public DbSet<UserAddress> UserAddresses { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Product> Products { get; set; } = null!;

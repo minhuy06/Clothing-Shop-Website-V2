@@ -37,7 +37,6 @@ namespace Clothing_Shop_Website.Models.ViewModels
         public string? CategoryName { get; set; }
         public int CategoryId { get; set; }
         public decimal Price { get; set; }
-        public decimal? OriginalPrice { get; set; }
         public string? SeasonLabel { get; set; }
         public string? ImageUrl { get; set; }
     }

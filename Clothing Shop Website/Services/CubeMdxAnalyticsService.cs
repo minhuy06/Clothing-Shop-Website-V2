@@ -126,7 +126,7 @@ namespace Clothing_Shop_Website.Services
                             while (reader.Read())
                             {
                                 // Đọc tên danh mục
-                                string catName = reader[0]?.ToString();
+                                string catName = reader[0]?.ToString() ?? "";
 
                                 // SỬA LỖI 2: Xử lý số thập phân do AI sinh ra, sau đó làm tròn thành số nguyên
                                 double predictedValue = 0;
@@ -362,7 +362,6 @@ namespace Clothing_Shop_Website.Services
                 row.CategoryName = p.Category?.CategoryName;
                 row.CategoryId = p.CategoryID;
                 row.Price = p.Price;
-                row.OriginalPrice = p.OriginalPrice;
                 row.SeasonLabel = SeasonLabel(p.Session);
                 row.ImageUrl = p.ImageUrl;
             }

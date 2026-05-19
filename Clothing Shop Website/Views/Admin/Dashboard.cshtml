@@ -1,4 +1,4 @@
-﻿@model Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel
+@model Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel
 @using System.Text.Json
 @{
     ViewData["Title"] = "Dashboard";
@@ -113,7 +113,7 @@
                         {
                             rank++;
                             var img = string.IsNullOrEmpty(t.ImageUrl) ? "/images/placeholder-product.svg" : t.ImageUrl;
-                            <div class="prod-item" data-pid="@t.SourceProductId" data-pname="@t.ProductName" data-catid="@t.CategoryId" data-price="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-orig="@(t.OriginalPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" data-season="@(t.SeasonLabel ?? "")">
+                            <div class="prod-item" data-pid="@t.SourceProductId" data-pname="@t.ProductName" data-catid="@t.CategoryId" data-price="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-orig="" data-season="@(t.SeasonLabel ?? "")">
                                 <div class="prod-rank @(rank <= 3 ? "top" : "")">@rank</div>
                                 <div class="prod-thumb"><img src="@img" alt="" onerror="this.src='/images/placeholder-product.svg'" /></div>
                                 <div style="flex:1;min-width:0">

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -50,11 +50,13 @@ namespace Clothing_Shop_Website.Controllers
                 return View();
             }
             var hashed = HashPassword(password);
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Phone == phone && u.Password == hashed);
+            var user = await _db.Users
+                .Include(u => u.CustomerDetail)
+                .FirstOrDefaultAsync(u => u.Phone == phone && u.Password == hashed);
             if (user == null) { TempData["Error"] = "Số điện thoại hoặc mật khẩu không đúng!"; return View(); }
             if (user.Status == 0) { TempData["Error"] = "Tài khoản của bạn đã bị khóa!"; return View(); }
             SetUserSession(user);
-            return user.Role == 1
+            return (user.Role == 0 || user.Role == 1)
                 ? RedirectToAction("Dashboard", "Admin")
                 : RedirectToAction("Profile");
         }
@@ -81,7 +83,7 @@ namespace Clothing_Shop_Website.Controllers
                 FullName = fullName,
                 Phone = phone,
                 Password = HashPassword(password),
-                Role = 0,
+                Role = 2,
                 Status = 1,
                 RewardPoints = 0,
                 Gender = 0,
@@ -102,6 +104,7 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login");
             var user = await _db.Users
                 .Include(u => u.UserAddresses)
+                .Include(u => u.CustomerDetail)
                 .FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return RedirectToAction("Login");
             return View(user);

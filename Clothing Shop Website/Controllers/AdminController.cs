@@ -28,7 +28,7 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         // ── Kiểm tra quyền Admin ──
-        private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 1;
+        private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 0 || HttpContext.Session.GetInt32("Role") == 1;
 
         [HttpGet]
         public async Task<IActionResult> GetImportSuggestionsForCategory(string categoryName, int aiPredictedQuantity)
@@ -227,7 +227,6 @@ namespace Clothing_Shop_Website.Controllers
                     product.CategoryID = categoryId;
                     product.Session = session;
                     product.Price = salePrice;
-                    product.OriginalPrice = originalPrice;
                     if (!string.IsNullOrEmpty(imageUrl))
                         product.ImageUrl = imageUrl;
                 }
@@ -239,7 +238,6 @@ namespace Clothing_Shop_Website.Controllers
                         CategoryID = categoryId,
                         Session = session,
                         Price = salePrice,
-                        OriginalPrice = originalPrice,
                         ImageUrl = imageUrl,
                         Description = ""
                     };
@@ -427,7 +425,7 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            var query = _db.Users.Where(u => u.Role == 0).AsQueryable();
+            var query = _db.Users.Include(u => u.CustomerDetail).Where(u => u.Role == 2).AsQueryable();
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(u => u.FullName.Contains(search) || u.Phone.Contains(search));
 

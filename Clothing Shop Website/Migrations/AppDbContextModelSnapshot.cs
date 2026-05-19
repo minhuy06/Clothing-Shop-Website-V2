@@ -61,6 +61,23 @@ namespace Clothing_Shop_Website.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Clothing_Shop_Website.Models.CustomerDetail", b =>
+                {
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MembershipTier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("RewardPoints")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("CustomerDetails");
+                });
+
             modelBuilder.Entity("Clothing_Shop_Website.Models.Discount", b =>
                 {
                     b.Property<int>("DiscountID")
@@ -254,9 +271,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal?>("OriginalPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -305,6 +319,46 @@ namespace Clothing_Shop_Website.Migrations
                     b.HasIndex("ProductID");
 
                     b.ToTable("ProductSizes");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.StaffDetail", b =>
+                {
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("StaffDetails");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.StaffShift", b =>
+                {
+                    b.Property<int>("ShiftID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("DayOfWeek")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ShiftType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShiftID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("StaffShifts");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Supplier", b =>
@@ -367,9 +421,6 @@ namespace Clothing_Shop_Website.Migrations
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)");
-
-                    b.Property<int>("RewardPoints")
-                        .HasColumnType("int");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -439,6 +490,17 @@ namespace Clothing_Shop_Website.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.CustomerDetail", b =>
+                {
+                    b.HasOne("Clothing_Shop_Website.Models.User", "User")
+                        .WithOne("CustomerDetail")
+                        .HasForeignKey("Clothing_Shop_Website.Models.CustomerDetail", "UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -531,6 +593,28 @@ namespace Clothing_Shop_Website.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Clothing_Shop_Website.Models.StaffDetail", b =>
+                {
+                    b.HasOne("Clothing_Shop_Website.Models.User", "User")
+                        .WithOne("StaffDetail")
+                        .HasForeignKey("Clothing_Shop_Website.Models.StaffDetail", "UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.StaffShift", b =>
+                {
+                    b.HasOne("Clothing_Shop_Website.Models.StaffDetail", "StaffDetail")
+                        .WithMany("StaffShifts")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StaffDetail");
+                });
+
             modelBuilder.Entity("Clothing_Shop_Website.Models.UserAddress", b =>
                 {
                     b.HasOne("Clothing_Shop_Website.Models.User", "user")
@@ -576,6 +660,11 @@ namespace Clothing_Shop_Website.Migrations
                     b.Navigation("InventoryReceiptDetails");
                 });
 
+            modelBuilder.Entity("Clothing_Shop_Website.Models.StaffDetail", b =>
+                {
+                    b.Navigation("StaffShifts");
+                });
+
             modelBuilder.Entity("Clothing_Shop_Website.Models.Supplier", b =>
                 {
                     b.Navigation("InventoryReceipts");
@@ -585,7 +674,11 @@ namespace Clothing_Shop_Website.Migrations
                 {
                     b.Navigation("CartItems");
 
+                    b.Navigation("CustomerDetail");
+
                     b.Navigation("Orders");
+
+                    b.Navigation("StaffDetail");
 
                     b.Navigation("UserAddresses");
                 });

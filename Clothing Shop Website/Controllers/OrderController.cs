@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +53,9 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            var user = await _db.Users.FindAsync(userId);
+            var user = await _db.Users
+                .Include(u => u.CustomerDetail)
+                .FirstOrDefaultAsync(u => u.UserID == userId.Value);
             if (user == null) return RedirectToAction("Login", "Account");
 
             var cartItems = await _db.CartItems

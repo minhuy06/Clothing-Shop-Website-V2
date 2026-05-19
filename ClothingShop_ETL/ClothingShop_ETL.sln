@@ -3,20 +3,33 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.36631.11
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< HEAD
 Project("{C9674DCB-5085-4A16-B785-4C70DD1589BD}") = "ClothingShop_ETL", "ClothingShop_ETL\ClothingShop_ETL.dtproj", "{58696506-1483-4665-B4DE-3002513EAB1F}"
+=======
+Project("{C9674DCB-5085-4A16-B785-4C70DD1589BD}") = "ClothingShop_ETL", "ClothingShop_ETL\ClothingShop_ETL.dtproj", "{C9245A3B-014C-4F6E-A7CA-11E22F988338}"
+>>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Development|Default = Development|Default
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+<<<<<<< HEAD
 		{58696506-1483-4665-B4DE-3002513EAB1F}.Development|Default.ActiveCfg = Development
 		{58696506-1483-4665-B4DE-3002513EAB1F}.Development|Default.Build.0 = Development
+=======
+		{C9245A3B-014C-4F6E-A7CA-11E22F988338}.Development|Default.ActiveCfg = Development
+		{C9245A3B-014C-4F6E-A7CA-11E22F988338}.Development|Default.Build.0 = Development
+>>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+<<<<<<< HEAD
 		SolutionGuid = {BCD39045-DCEA-4D36-9E4C-0F878C4C4C17}
+=======
+		SolutionGuid = {F0EA6C51-F0E4-43C8-B22C-7933F7842FD7}
+>>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 	EndGlobalSection
 EndGlobal

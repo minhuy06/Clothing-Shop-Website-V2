@@ -6,6 +6,7 @@
     <Name>ClothingShop_Cube.database</Name>
     <FullPath>ClothingShop_Cube.database</FullPath>
   </Database>
+<<<<<<< HEAD
   <Cubes>
     <ProjectItem>
       <Name>DB Shop Quan Ao Data Warehouse.cube</Name>
@@ -73,6 +74,12 @@
           </ConfigurationSetting>
         </ConnectionSecurityMappings>
       </Options>
+=======
+  <Configurations>
+    <Configuration>
+      <Name>Development</Name>
+      <Options />
+>>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
     </Configuration>
   </Configurations>
 </Project>

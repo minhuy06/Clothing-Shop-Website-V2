@@ -1,0 +1,225 @@
+﻿@model Clothing_Shop_Website.Models.User
+@{
+    ViewData["Title"] = "Hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var initials = Model.FullName.Length >= 2 ? Model.FullName.Substring(0, 2).ToUpper() : Model.FullName.ToUpper();
+    string GenderLabel(int g) => g switch { 1 => "Nữ", 2 => "Nam", 3 => "Khác", _ => "Chưa cập nhật" };
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/hoso.css" asp-append-version="true" />
+}
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(90,154,90,.1);border-bottom:1px solid rgba(90,154,90,.25);color:#7aba7a;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Success"]</div>
+}
+@if (TempData["PassError"] != null)
+{
+    <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">@TempData["PassError"]</div>
+}
+
+<div class="page-wrap">
+    <aside>
+        <div class="profile-card">
+            <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">@initials</div></div>
+            <div class="p-name">@Model.FullName</div>
+            <div class="p-email">@Model.Phone</div>
+            <div class="p-pts">✦ @Model.RewardPoints.ToString("N0") điểm tích lũy</div>
+        </div>
+        <div class="side-menu">
+            <div class="smenu-item active" onclick="sw('profile',this)">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                Hồ sơ của tôi
+            </div>
+            <div class="smenu-item" onclick="sw('address',this)">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                Địa chỉ giao hàng
+            </div>
+            <a asp-controller="Order" asp-action="History" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                Lịch sử đơn hàng
+            </a>
+            <div class="smenu-item" onclick="sw('settings',this)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                Cài đặt tài khoản
+            </div>
+            <a asp-controller="Account" asp-action="Logout" class="smenu-item danger">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <main>
+        <!-- HỒ SƠ -->
+        <div class="tab-content active" id="profileTab">
+            <div class="sbox">
+                <div class="sbox-hdr">
+                    <div class="sbox-title">Thông tin cá nhân</div>
+                    <button class="btn-gold" onclick="toggleEdit()" id="editBtn">Chỉnh sửa</button>
+                </div>
+                <div id="infoView">
+                    <div class="info-grid">
+                        <div><div class="info-lbl">Họ và tên</div><div class="info-val">@Model.FullName</div></div>
+                        <div><div class="info-lbl">Số điện thoại</div><div class="info-val">@Model.Phone</div></div>
+                        <div><div class="info-lbl">Ngày sinh</div><div class="info-val">@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd/MM/yyyy") : "—")</div></div>
+                        <div><div class="info-lbl">Giới tính</div><div class="info-val">@GenderLabel(Model.Gender)</div></div>
+                        <div><div class="info-lbl">Điểm thưởng</div><div class="info-val" style="color:var(--gold)">@Model.RewardPoints.ToString("N0") điểm</div></div>
+                        <div><div class="info-lbl">Trạng thái</div><div class="info-val" style="color:#7aba7a">@(Model.Status == 1 ? "Hoạt động" : "Đã khóa")</div></div>
+                    </div>
+                </div>
+                <div id="infoEdit" style="display:none">
+                    <form method="post" asp-controller="Account" asp-action="UpdateProfile">
+                        @Html.AntiForgeryToken()
+                        <div class="frow">
+                            <div class="fgroup">
+                                <label class="flabel">Họ và tên</label>
+                                <input class="finput" type="text" name="fullName" value="@Model.FullName" required>
+                            </div>
+                            <div class="fgroup">
+                                <label class="flabel">Số điện thoại</label>
+                                <input class="finput" type="tel" name="phone" value="@Model.Phone" required>
+                            </div>
+                        </div>
+                        <div class="frow">
+                            <div class="fgroup">
+                                <label class="flabel">Ngày sinh</label>
+                                <input class="finput" type="date" name="dateOfBirth" value="@(Model.DateOfBirth?.ToString("yyyy-MM-dd"))">
+                            </div>
+                            <div class="fgroup">
+                                <label class="flabel">Giới tính</label>
+                                <select class="fselect" name="gender">
+                                    @if (Model.Gender == 0)
+                                    { <option value="0" selected>Chưa cập nhật</option> }
+                                    else
+                                    { <option value="0">Chưa cập nhật</option> }
+                                    @if (Model.Gender == 1)
+                                    { <option value="1" selected>Nữ</option> }
+                                    else
+                                    { <option value="1">Nữ</option> }
+                                    @if (Model.Gender == 2)
+                                    { <option value="2" selected>Nam</option> }
+                                    else
+                                    { <option value="2">Nam</option> }
+                                    @if (Model.Gender == 3)
+                                    { <option value="3" selected>Khác</option> }
+                                    else
+                                    { <option value="3">Khác</option> }
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:8px">
+                            <button type="submit" class="btn-gold">Lưu thay đổi</button>
+                            <button type="button" class="btn-outline" onclick="cancelEdit()">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ĐỊA CHỈ -->
+        <div class="tab-content" id="addressTab">
+            <div class="sbox">
+                <div class="sbox-hdr">
+                    <div class="sbox-title">Địa chỉ giao hàng</div>
+                    <button class="btn-gold" onclick="openAddrMo()">+ Thêm mới</button>
+                </div>
+                @if (!Model.UserAddresses.Any())
+                {
+                    <p style="font-size:11px;color:rgba(250,248,242,.22);padding:12px 0">Chưa có địa chỉ nào.</p>
+                }
+                @foreach (var addr in Model.UserAddresses)
+                {
+                    <div class="addr-card">
+                        <div class="addr-name">@addr.FullName · @addr.Phone</div>
+                        <div class="addr-text">@addr.DetailedAddress, @addr.Province_City</div>
+                        <div class="addr-acts">
+                            <form method="post" asp-controller="Account" asp-action="DeleteAddress" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="addressId" value="@addr.AddressID">
+                                <button type="submit" class="addr-act red" onclick="return confirm('Xóa địa chỉ này?')">Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- CÀI ĐẶT -->
+        <div class="tab-content" id="settingsTab">
+            <div class="sbox">
+                <div class="sbox-hdr"><div class="sbox-title">Đổi mật khẩu</div></div>
+                <form method="post" asp-controller="Account" asp-action="ChangePassword">
+                    @Html.AntiForgeryToken()
+                    <div class="frow full">
+                        <div class="fgroup">
+                            <label class="flabel">Mật khẩu hiện tại</label>
+                            <div class="finput-wrap">
+                                <input class="finput" type="password" name="currentPassword" id="curP" placeholder="••••••••" required>
+                                <button class="eye-btn" type="button" onclick="tp('curP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frow">
+                        <div class="fgroup">
+                            <label class="flabel">Mật khẩu mới</label>
+                            <div class="finput-wrap">
+                                <input class="finput" type="password" name="newPassword" id="newP" placeholder="Tối thiểu 6 ký tự" required>
+                                <button class="eye-btn" type="button" onclick="tp('newP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Xác nhận mật khẩu mới</label>
+                            <div class="finput-wrap">
+                                <input class="finput" type="password" name="confirmPassword" id="cfP" placeholder="Nhập lại mật khẩu mới" required>
+                                <button class="eye-btn" type="button" onclick="tp('cfP')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg></button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-gold">Cập nhật mật khẩu</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL THÊM ĐỊA CHỈ -->
+<div class="mo" id="addrMo" onclick="if(event.target===this)closeAddrMo()">
+    <div class="modal">
+        <div class="mhdr">
+            <div class="mhdr-t">Thêm địa chỉ mới</div>
+            <button class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
+        </div>
+        <form method="post" asp-controller="Account" asp-action="AddAddress">
+            @Html.AntiForgeryToken()
+            <div class="mbody">
+                <div class="frow">
+                    <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" name="fullName" required></div>
+                    <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" name="phone" required></div>
+                </div>
+                <div class="frow">
+                    <div class="fgroup">
+                        <label class="flabel">Tỉnh / Thành phố</label>
+                        <select class="fselect" name="province_City">
+                            <option value="Đà Nẵng">Đà Nẵng</option>
+                            <option value="Hà Nội">Hà Nội</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Cần Thơ">Cần Thơ</option>
+                            <option value="Hải Phòng">Hải Phòng</option>
+                            <option value="Huế">Huế</option>
+                        </select>
+                    </div>
+                    <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" name="detailedAddress" placeholder="Số nhà, tên đường, phường/xã..." required></div>
+                </div>
+            </div>
+            <div class="mfoot">
+                <button type="button" class="btn-outline" onclick="closeAddrMo()">Hủy</button>
+                <button type="submit" class="btn-gold">Lưu địa chỉ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/hoso.js" asp-append-version="true"></script>
+}

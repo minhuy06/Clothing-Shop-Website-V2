@@ -1,0 +1,239 @@
+﻿@model List<Clothing_Shop_Website.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng";
+    Layout = null;
+    string GetStatusLabel(int s) => s switch {
+        0=>"Chờ duyệt",1=>"Đang giao",2=>"Đã giao",3=>"Đã hủy",4=>"Đang hoàn chuyển",_=>"Không rõ"
+    };
+    string GetStatusCss(int s) => s switch {
+        0=>"t-p",1=>"t-s",2=>"t-d",3=>"t-c",4=>"t-r",_=>""
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEVA Admin — Đơn hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/admin-donhang.css" asp-append-version="true"/>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav class="admin-nav">
+    <span class="admin-nav-logo">NEVA</span><span class="admin-nav-sep">|</span><span class="admin-nav-badge">Admin</span>
+</nav>
+<div class="admin-wrap">
+    <aside class="admin-sidebar">
+        <div class="sb-section">
+            <div class="sb-lbl">Quản lý</div>
+            <a asp-controller="Admin" asp-action="Dashboard"  class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+            <a asp-controller="Admin" asp-action="Products"   class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Sản phẩm</a>
+            <a asp-controller="Admin" asp-action="Orders"     class="sitem active"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
+            <a asp-controller="Admin" asp-action="Customers"  class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
+        </div>
+        <div class="sb-section" style="margin-top:12px">
+            <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
+        </div>
+    </aside>
+    <main class="admin-main">
+        @if (TempData["Success"] != null)
+        {
+            <div style="padding:10px 16px;background:rgba(90,154,90,.1);border:1px solid rgba(90,154,90,.3);color:#7aba7a;font-size:11px;margin-bottom:16px">✦ @TempData["Success"]</div>
+        }
+
+        <div class="page-title">Đơn hàng</div>
+        <div class="page-sub">Quản lý toàn bộ đơn hàng</div>
+
+        <!-- Filter tabs -->
+        <div class="filter-tabs" style="display:flex;margin-bottom:16px;flex-wrap:wrap;gap:0">
+            @{
+                var statuses = new[] {
+                    ("", "Tất cả"), ("0","Chờ duyệt"), ("1","Đang giao"),
+                    ("4","Đang hoàn"), ("2","Đã giao"), ("3","Đã hủy")
+                };
+            }
+            @foreach (var (val, label) in statuses)
+            {
+                <a asp-controller="Admin" asp-action="Orders"
+                    asp-route-status="@val"
+                    asp-route-search="@ViewBag.Search"
+                    class="ftab @(ViewBag.Status == val || (val == "" && ViewBag.Status == null) ? "active" : "")">
+                    @label
+                </a>
+            }
+        </div>
+
+        <!-- Search -->
+        <form method="get" asp-controller="Admin" asp-action="Orders" style="display:flex;gap:10px;margin-bottom:16px">
+            <input type="hidden" name="status" value="@ViewBag.Status">
+            <div style="display:flex;align-items:center;border:1px solid var(--border);background:var(--dark2);flex:1;max-width:360px">
+                <svg style="width:13px;height:13px;fill:none;stroke:rgba(250,248,242,.4);stroke-width:1.5;stroke-linecap:round;margin:0 10px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                <input type="text" name="search" value="@ViewBag.Search" placeholder="Tìm mã đơn, tên khách..."
+                    style="background:transparent;border:none;outline:none;padding:9px 0;font-size:12px;font-family:var(--font-b);color:var(--white);width:100%">
+            </div>
+            <button type="submit" style="padding:9px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);cursor:pointer">Tìm</button>
+            <div style="font-size:12px;letter-spacing:1.5px;color:rgba(250,248,242,.55);display:flex;align-items:center">
+                Hiển thị <strong style="color:var(--gold);margin:0 5px">@Model.Count</strong> đơn
+            </div>
+        </form>
+
+        <!-- Table -->
+        <table class="otable" style="width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th>
+                    <th>Sản phẩm</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var o in Model)
+            {
+                <tr>
+                    <td style="color:var(--gold);font-size:11px;letter-spacing:1px">#NV-@o.OrderID.ToString("D8")</td>
+                    <td>
+                        <div style="font-size:12px;color:var(--white)">@o.ReceiverName</div>
+                        <div style="font-size:10px;color:rgba(250,248,242,.45)">@o.ReceiverPhone</div>
+                    </td>
+                    <td style="color:rgba(250,248,242,.55);font-size:11px">@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@o.OrderDetails.Sum(d => d.Quantity) sản phẩm</td>
+                    <td>@o.TotalAmount.ToString("N0")đ</td>
+                    <td><span class="otag @GetStatusCss(o.Status)"><span class="otag-d"></span>@GetStatusLabel(o.Status)</span></td>
+                    <td>
+                        <button class="ia-btn" onclick="openDetail('@o.OrderID')" title="Chi tiết">
+                            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<!-- MODAL CHI TIẾT + CẬP NHẬT -->
+<div id="detailMo" style="position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)">
+    <div style="background:var(--dark2);width:92%;max-width:700px;max-height:88vh;overflow-y:auto;border:1px solid var(--border)">
+        <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--dark2);z-index:5">
+            <div>
+                <div style="font-family:var(--font-d);font-size:22px;font-style:italic;color:var(--white)">Chi tiết đơn hàng</div>
+                <div style="font-size:11px;letter-spacing:1.5px;color:rgba(201,168,76,.7);margin-top:4px" id="detTitle"></div>
+            </div>
+            <button onclick="closeDet()" style="width:30px;height:30px;border:1px solid var(--border);background:none;color:var(--white);cursor:pointer">✕</button>
+        </div>
+        <div id="detBody" style="padding:22px 24px"></div>
+        <div style="padding:14px 24px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--dark2)">
+            <form method="post" asp-controller="Admin" asp-action="UpdateOrderStatus" style="display:flex;gap:8px;align-items:center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" id="detOrderId">
+                <select name="status" id="detStatusSel"
+                    style="flex:1;padding:10px 13px;border:1px solid var(--border);background:var(--dark2);font-size:12px;font-family:var(--font-b);color:var(--white);outline:none">
+                    <option value="0">Chờ duyệt</option>
+                    <option value="1">Đang giao hàng</option>
+                    <option value="4">Đang hoàn chuyển</option>
+                    <option value="2">Đã giao hàng</option>
+                    <option value="3">Đã hủy</option>
+                </select>
+                <button type="submit" style="padding:10px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);cursor:pointer">Cập nhật</button>
+                <button type="button" onclick="closeDet()" style="padding:10px 18px;background:transparent;color:rgba(250,248,242,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);cursor:pointer">Đóng</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/neva-base.js" asp-append-version="true"></script>
+<script src="~/js/admin-donhang.js" asp-append-version="true"></script>
+<script>
+// Nhúng data từ Razor vào JS
+const ORDERS_DATA = {
+    @foreach (var o in Model)
+    {
+        <text>
+        '@o.OrderID': {
+            id: '@o.OrderID',
+            code: 'NV-@o.OrderID.ToString("D8")',
+            date: '@o.OrderDate.ToString("dd/MM/yyyy HH:mm")',
+            status: @o.Status,
+            receiver: '@Html.Raw(o.ReceiverName.Replace("'","\\\'"))',
+            phone: '@o.ReceiverPhone',
+            addr: '@Html.Raw(o.ShippingAddress.Replace("'","\\\'"))',
+            province: '@Html.Raw(o.ShippingProvince.Replace("'","\\\'"))',
+            total: '@o.TotalAmount.ToString("N0")đ',
+            items: [@foreach (var d in o.OrderDetails) {
+                <text>{ name:'@Html.Raw((d.Product?.ProductName??"").Replace("'","\\\'"))', qty:@d.Quantity, price:'@d.UnitPrice.ToString("N0")đ', img:'@(d.Product?.ImageUrl??"")' },</text>
+            }]
+        },
+        </text>
+    }
+};
+
+const STATUS_LABELS = {0:'Chờ duyệt',1:'Đang giao',2:'Đã giao',3:'Đã hủy',4:'Đang hoàn chuyển'};
+const STATUS_CSS    = {0:'t-p',1:'t-s',2:'t-d',3:'t-c',4:'t-r'};
+
+function openDetail(id) {
+    const o = ORDERS_DATA[id];
+    if (!o) return;
+    document.getElementById('detTitle').textContent = '# ' + o.code + ' · ' + o.date;
+    document.getElementById('detOrderId').value = o.id;
+    document.getElementById('detStatusSel').value = o.status;
+
+    document.getElementById('detBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <div style="background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:14px">
+                <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.75);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.08)">Thông tin đơn</div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">Mã đơn</span>
+                    <span style="color:var(--gold)">#${o.code}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">Ngày đặt</span><span>${o.date}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">Trạng thái</span>
+                    <span class="otag ${STATUS_CSS[o.status]}" style="font-size:8px"><span class="otag-d"></span>${STATUS_LABELS[o.status]}</span>
+                </div>
+            </div>
+            <div style="background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:14px">
+                <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.75);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.08)">Khách hàng</div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">Họ tên</span><span>${o.receiver}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">SĐT</span><span>${o.phone}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:200">
+                    <span style="color:rgba(250,248,242,.6)">Địa chỉ</span><span style="text-align:right;max-width:160px;font-size:11px">${o.addr}, ${o.province}</span>
+                </div>
+            </div>
+        </div>
+        <div style="border:1px solid rgba(201,168,76,.1);margin-bottom:14px;overflow:hidden">
+            <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.75);padding:10px 15px;border-bottom:1px solid rgba(201,168,76,.08);background:rgba(201,168,76,.02)">Sản phẩm</div>
+            ${o.items.map(it => `
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid rgba(201,168,76,.06)">
+                    <div style="width:44px;height:55px;flex-shrink:0;overflow:hidden">
+                        <img src="${it.img}" style="width:100%;height:100%;object-fit:cover;filter:brightness(.82)" onerror="this.style.display='none'">
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-size:14px;font-weight:200;color:var(--white);margin-bottom:3px">${it.name}</div>
+                        <div style="font-size:11px;color:rgba(250,248,242,.55)">Đơn giá: ${it.price}</div>
+                    </div>
+                    <div style="color:var(--gold);font-size:13px;font-weight:300">x${it.qty}</div>
+                </div>`).join('')}
+        </div>
+        <div style="background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.1);padding:14px;text-align:right">
+            <div style="font-size:17px;font-weight:400;color:var(--gold)">Tổng: ${o.total}</div>
+        </div>`;
+
+    const mo = document.getElementById('detailMo');
+    mo.style.opacity = '1'; mo.style.pointerEvents = 'all';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDet() {
+    const mo = document.getElementById('detailMo');
+    mo.style.opacity = '0'; mo.style.pointerEvents = 'none';
+    document.body.style.overflow = '';
+}
+</script>
+</body></html>

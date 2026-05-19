@@ -6,10 +6,80 @@
     <Name>ClothingShop_Cube.database</Name>
     <FullPath>ClothingShop_Cube.database</FullPath>
   </Database>
+<<<<<<< HEAD
+  <Cubes>
+    <ProjectItem>
+      <Name>DB Shop Quan Ao Data Warehouse.cube</Name>
+      <FullPath>DB Shop Quan Ao Data Warehouse.cube</FullPath>
+      <Dependencies>
+        <ProjectItem>
+          <Name>DB Shop Quan Ao Data Warehouse.partitions</Name>
+          <FullPath>DB Shop Quan Ao Data Warehouse.partitions</FullPath>
+        </ProjectItem>
+      </Dependencies>
+    </ProjectItem>
+  </Cubes>
+  <Dimensions>
+    <ProjectItem>
+      <Name>Dim Product.dim</Name>
+      <FullPath>Dim Product.dim</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>Dim Customer.dim</Name>
+      <FullPath>Dim Customer.dim</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>Dim Supplier.dim</Name>
+      <FullPath>Dim Supplier.dim</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>Dim Time.dim</Name>
+      <FullPath>Dim Time.dim</FullPath>
+    </ProjectItem>
+  </Dimensions>
+  <DataSources>
+    <ProjectItem>
+      <Name>DB Shop Quan Ao Data Warehouse.ds</Name>
+      <FullPath>DB Shop Quan Ao Data Warehouse.ds</FullPath>
+    </ProjectItem>
+  </DataSources>
+  <DataSourceViews>
+    <ProjectItem>
+      <Name>DB Shop Quan Ao Data Warehouse.dsv</Name>
+      <FullPath>DB Shop Quan Ao Data Warehouse.dsv</FullPath>
+    </ProjectItem>
+  </DataSourceViews>
+  <MiningModels>
+    <ProjectItem>
+      <Name>TrendForecast_Time.dmm</Name>
+      <FullPath>TrendForecast_Time.dmm</FullPath>
+    </ProjectItem>
+  </MiningModels>
+  <Configurations>
+    <Configuration>
+      <Name>Development</Name>
+      <Options>
+        <ConnectionMappings>
+          <ConfigurationSetting>
+            <Id>DB Shop Quan Ao Data Warehouse</Id>
+            <Name>DB Shop Quan Ao Data Warehouse</Name>
+            <Value xsi:type="xsd:string">Provider=SQLNCLI11.1;Data Source=localhost;Persist Security Info=True;Password=;User ID=;Initial Catalog=DB_ShopQuanAo_DataWarehouse</Value>
+          </ConfigurationSetting>
+        </ConnectionMappings>
+        <ConnectionSecurityMappings>
+          <ConfigurationSetting>
+            <Id>DB Shop Quan Ao Data Warehouse</Id>
+            <Name>DB Shop Quan Ao Data Warehouse</Name>
+            <Value xsi:type="xsd:int">1</Value>
+          </ConfigurationSetting>
+        </ConnectionSecurityMappings>
+      </Options>
+=======
   <Configurations>
     <Configuration>
       <Name>Development</Name>
       <Options />
+>>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
     </Configuration>
   </Configurations>
 </Project>

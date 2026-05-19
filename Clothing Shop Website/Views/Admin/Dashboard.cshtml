@@ -1,0 +1,251 @@
+@model Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = null;
+    var cats = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category> ?? new();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NEVA Admin — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+    <nav class="admin-nav">
+        <span class="admin-nav-logo">NEVA</span>
+        <span class="admin-nav-sep">|</span>
+        <span class="admin-nav-badge">Admin</span>
+    </nav>
+    <div class="admin-wrap">
+        <aside class="admin-sidebar">
+            <div class="sb-section">
+                <div class="sb-lbl">Quản lý</div>
+                <a asp-controller="Admin" asp-action="Dashboard" class="sitem active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>Dashboard</a>
+                <a asp-controller="Admin" asp-action="Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>Sản phẩm</a>
+                <a asp-controller="Admin" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>Đơn hàng</a>
+                <a asp-controller="Admin" asp-action="Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>Khách hàng</a>
+            </div>
+            <div class="sb-section" style="margin-top:12px">
+                <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Đăng xuất</a>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Xin chào, @Context.Session.GetString("FullName")! · Thống kê từ cube <strong style="color:var(--gold)">ClothingShop_Cube</strong> (MDX)</div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="dash-banner ok">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="dash-banner err">@TempData["Error"]</div>
+            }
+            @if (!string.IsNullOrEmpty(Model.CubeError))
+            {
+                <div class="dash-banner warn">@Model.CubeError</div>
+            }
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div><div class="stat-lbl">Doanh thu (cube)</div><div class="stat-val g">@Model.TotalRevenue.ToString("N0")đ</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg></div><div class="stat-lbl">Dòng bán (Fact_Sales)</div><div class="stat-val">@Model.TotalSalesLines</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></div><div class="stat-lbl">Khách (Dim_Customer)</div><div class="stat-val">@Model.DistinctCustomers</div></div>
+                <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /></svg></div><div class="stat-lbl">Sản phẩm (Dim_Product)</div><div class="stat-val">@Model.DistinctProductsSold</div></div>
+            </div>
+
+            <div class="abox ai-suggestion-wrap" style="margin-bottom: 20px; border: 1px dashed var(--gold); background: rgba(201, 168, 76, 0.05);">
+                <div class="abox-hdr">
+                    <div class="abox-t">
+                        <svg viewBox="0 0 24 24" style="width:20px; fill:var(--gold); margin-right:8px; vertical-align:middle">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                        </svg>
+                        🚀 AI Gợi ý nhập hàng (3 tháng tới)
+                    </div>
+                    <div id="aiStatus" style="font-size: 11px; color: var(--gold); font-style: italic;">Đang phân tích dữ liệu...</div>
+                </div>
+                <div class="ai-content" id="aiBoxContent" style="padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <div id="aiPredictionResult">
+                        <span style="color:rgba(250,248,242,0.5)">Hệ thống đang kết nối với SSAS Data Mining...</span>
+                    </div>
+                    <button type="button" id="btnShowAiDetail" class="act-btn" style="display:none; border-color:var(--gold); color:var(--gold)">
+                        Xem chi tiết nhập hàng
+                    </button>
+                </div>
+            </div>
+
+            
+
+            <div class="grid2">
+                <div class="abox">
+                    <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" /><rect x="10" y="8" width="4" height="13" /><rect x="17" y="3" width="4" height="18" /></svg>Doanh thu 6 tháng</div></div>
+                    <div class="chart-wrap" id="chart6m"></div>
+                </div>
+                <div class="abox">
+                    <div class="abox-hdr">
+                        <div class="abox-t"><svg viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9" /></svg>Bán chạy nhất</div>
+                        <div class="abox-filters">
+                            <select id="fltSeason" name="season" class="dash-select">
+                                <option value="">Mùa: tất cả</option>
+                                <option value="1">Xuân</option>
+                                <option value="2">Hạ</option>
+                                <option value="3">Thu</option>
+                                <option value="4">Đông</option>
+                            </select>
+                            <select id="fltAge" name="ageGroup" class="dash-select">
+                                <option value="">Tuổi: tất cả</option>
+                                <option value="Dưới 18">Dưới 18</option>
+                                <option value="18-24">18-24</option>
+                                <option value="Trên 25">Trên 25</option>
+                            </select>
+                            <a asp-controller="Admin" asp-action="Products" class="abox-lnk">Xem tất cả</a>
+                        </div>
+                    </div>
+                    <div id="topSellList">
+                        @{ var rank = 0; }
+                        @foreach (var t in Model.TopSellers)
+                        {
+                            rank++;
+                            var img = string.IsNullOrEmpty(t.ImageUrl) ? "/images/placeholder-product.svg" : t.ImageUrl;
+                            <div class="prod-item" data-pid="@t.SourceProductId" data-pname="@t.ProductName" data-catid="@t.CategoryId" data-price="@t.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-orig="" data-season="@(t.SeasonLabel ?? "")">
+                                <div class="prod-rank @(rank <= 3 ? "top" : "")">@rank</div>
+                                <div class="prod-thumb"><img src="@img" alt="" onerror="this.src='/images/placeholder-product.svg'" /></div>
+                                <div style="flex:1;min-width:0">
+                                    <div class="prod-name">@t.ProductName</div>
+                                    <div class="prod-cat">@(t.CategoryName ?? "") @(string.IsNullOrEmpty(t.SeasonLabel) ? "" : "· " + t.SeasonLabel)</div>
+                                </div>
+                                <div style="text-align:right">
+                                    <div class="prod-num">@t.QuantitySold</div>
+                                    <div class="prod-lbl">đã bán</div>
+                                </div>
+                                <button type="button" class="act-btn btn-import">Nhập hàng</button>
+                            </div>
+                        }
+                        @if (Model.TopSellers.Count == 0)
+                        {
+                            <div class="prod-item" style="justify-content:center;color:rgba(250,248,242,.35);font-size:11px">Không có dữ liệu bán chạy (cube hoặc bộ lọc).</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid2" style="margin-top:12px">
+                <div class="abox">
+                    <div class="abox-hdr"><div class="abox-t">Tỉ trọng doanh thu theo danh mục</div></div>
+                    <div class="chart-canvas-wrap"><canvas id="catPie"></canvas></div>
+                </div>
+                <div class="abox">
+                    <div class="abox-hdr"><div class="abox-t">Doanh thu theo nhóm tuổi</div></div>
+                    <div class="chart-canvas-wrap"><canvas id="ageBar"></canvas></div>
+                </div>
+            </div>
+
+            <div class="abox" style="margin-top:12px">
+                <div class="abox-hdr"><div class="abox-t"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /></svg>Ngày bán gần đây (cube / MDX)</div><a asp-controller="Admin" asp-action="Orders" class="abox-lnk">Đơn hàng hệ thống</a></div>
+                <table class="atable">
+                    <thead><tr><th>Ngày (Dim_Time)</th><th>Doanh thu (Fact_Sales)</th><th>Dòng bán</th></tr></thead>
+                    <tbody>
+                        @foreach (var d in Model.RecentCubeDays)
+                        {
+                            <tr>
+                                <td style="color:var(--gold)">@d.Date.ToString("dd/MM/yyyy")</td>
+                                <td>@d.Revenue.ToString("N0")đ</td>
+                                <td>@d.SalesLines</td>
+                            </tr>
+                        }
+                        @if (Model.RecentCubeDays.Count == 0)
+                        {
+                            <tr><td colspan="3" style="text-align:center;color:rgba(250,248,242,.35);font-size:11px">Không có dữ liệu theo ngày từ cube (hoặc cube chưa kết nối).</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="aiDetailMo" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px;">
+            <div class="modal-hdr">Chi tiết đề xuất từ AI <button type="button" class="modal-x" id="aiDetailClose">×</button></div>
+            <div style="padding: 15px; color: var(--gold); font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.1);" id="aiDetailSummary"></div>
+            <div id="aiProductList" style="max-height: 400px; overflow-y: auto; padding: 10px;"></div>
+            <div class="modal-actions">
+                <button type="button" class="act-btn" id="aiDetailCancel">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="importMo" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-hdr">Nhập hàng <button type="button" class="modal-x" id="importClose">×</button></div>
+            <form asp-controller="Admin" asp-action="ImportStock" method="post" enctype="multipart/form-data" id="importForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" id="impProductId" value="" />
+                <input type="hidden" name="supplierId" id="impSupplierId" value="" />
+                <div class="modal-grid">
+                    <label>Tên sản phẩm</label>
+                    <div>
+                        <input type="text" name="productName" id="impProductName" class="modal-inp" list="prodSuggest" autocomplete="off" required />
+                        <datalist id="prodSuggest"></datalist>
+                        <div class="ac-hint" id="prodPickHint"></div>
+                    </div>
+                    <label>Danh mục</label>
+                    <select name="categoryId" id="impCategoryId" class="modal-inp" required>
+                        @foreach (var c in cats)
+                        {
+                            <option value="@c.CategoryID">@c.CategoryName</option>
+                        }
+                    </select>
+                    <label>Mùa</label>
+                    <select name="session" id="impSession" class="modal-inp" required>
+                        <option value="1">Xuân</option>
+                        <option value="2">Hạ</option>
+                        <option value="3">Thu</option>
+                        <option value="4">Đông</option>
+                    </select>
+                    <label>Giá bán</label>
+                    <input type="number" step="0.01" name="salePrice" id="impSalePrice" class="modal-inp" required />
+                    <label>Giá gốc / vốn</label>
+                    <input type="number" step="0.01" name="originalPrice" id="impOriginalPrice" class="modal-inp" />
+                    <label>Số lượng</label>
+                    <input type="number" name="quantity" id="impQty" class="modal-inp" min="1" value="1" required />
+                    <label>Size</label>
+                    <input type="text" name="sizeName" id="impSize" class="modal-inp" maxlength="5" required />
+                    <label>Ảnh sản phẩm</label>
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" name="imageFile" id="impFile" accept="image/*" hidden />
+                        <span>Kéo thả hoặc bấm để chọn</span>
+                    </div>
+                    <label>Nhà cung cấp</label>
+                    <div>
+                        <input type="text" id="impSupplierName" class="modal-inp" list="supSuggest" autocomplete="off" placeholder="Gõ để tìm..." required />
+                        <datalist id="supSuggest"></datalist>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="act-btn" id="importCancel">Hủy</button>
+                    <button type="submit" class="act-btn" style="border-color:var(--gold);color:var(--gold)">Lưu phiếu nhập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script id="dashPayload" type="application/json">
+@Html.Raw(JsonSerializer.Serialize(new {
+    revenue6m = Model.RevenueLastMonths,
+    catPie = Model.RevenueByCategory,
+    ageRev = Model.RevenueByAgeGroup,
+    season = ViewBag.SeasonFilter as string,
+    age = ViewBag.AgeGroupFilter as string
+}, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))
+    </script>
+    <script src="~/js/neva-base.js" asp-append-version="true"></script>
+    <script src="~/js/admin-import-modal.js" asp-append-version="true"></script>
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

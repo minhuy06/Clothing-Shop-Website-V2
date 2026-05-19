@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<?xml version="1.0"?>
 <DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
   DTS:refId="Package"
@@ -7,22 +6,11 @@
   DTS:CreatorComputerName="DESKTOP-1UGPPMS"
   DTS:CreatorName="DESKTOP-1UGPPMS\1410h"
   DTS:DTSID="{DF5B0B78-620D-4AF2-9EA9-368ADBC0B857}"
-=======
-<?xml version="1.0"?>
-<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
-  DTS:refId="Package"
-  DTS:CreationDate="5/14/2026 10:52:45 PM"
-  DTS:CreationName="Microsoft.Package"
-  DTS:CreatorComputerName="DESKTOP-1UGPPMS"
-  DTS:CreatorName="DESKTOP-1UGPPMS\1410h"
-  DTS:DTSID="{33604A66-7A3B-44F8-9A85-2058EB7E9D86}"
->>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
   DTS:ExecutableType="Microsoft.Package"
   DTS:LastModifiedProductVersion="16.0.5467.0"
   DTS:LocaleID="1033"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-<<<<<<< HEAD
   DTS:VersionBuild="8"
   DTS:VersionGUID="{C39B00A0-3499-4CDC-8C29-6321547D48CA}">
   <DTS:Property
@@ -10458,11 +10446,4 @@ where [refTable].[SourceProductID] = ?</property>
     </Properties>
   </PipelineComponentMetadata>
 </Objects>]]></DTS:DesignTimeProperties>
-=======
-  DTS:VersionGUID="{35C43A95-4A27-407A-BA61-370FEA45EBCF}">
-  <DTS:Property
-    DTS:Name="PackageFormatVersion">8</DTS:Property>
-  <DTS:Variables />
-  <DTS:Executables />
->>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 </DTS:Executable>

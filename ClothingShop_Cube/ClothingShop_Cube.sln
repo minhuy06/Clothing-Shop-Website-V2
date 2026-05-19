@@ -1,37 +1,22 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.36631.11
 MinimumVisualStudioVersion = 10.0.40219.1
-<<<<<<< HEAD
 Project("{D2ABAB84-BF74-430A-B69E-9DC6D40DDA17}") = "ClothingShop_Cube", "ClothingShop_Cube\ClothingShop_Cube.dwproj", "{F4F35D2A-0ACA-4912-91D1-93004707D6CF}"
-=======
-Project("{D2ABAB84-BF74-430A-B69E-9DC6D40DDA17}") = "ClothingShop_Cube", "ClothingShop_Cube\ClothingShop_Cube.dwproj", "{A564A050-18A9-49CC-9C3B-1587E6A96711}"
->>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Development|Default = Development|Default
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-<<<<<<< HEAD
 		{F4F35D2A-0ACA-4912-91D1-93004707D6CF}.Development|Default.ActiveCfg = Development
 		{F4F35D2A-0ACA-4912-91D1-93004707D6CF}.Development|Default.Build.0 = Development
 		{F4F35D2A-0ACA-4912-91D1-93004707D6CF}.Development|Default.Deploy.0 = Development
-=======
-		{A564A050-18A9-49CC-9C3B-1587E6A96711}.Development|Default.ActiveCfg = Development
-		{A564A050-18A9-49CC-9C3B-1587E6A96711}.Development|Default.Build.0 = Development
-		{A564A050-18A9-49CC-9C3B-1587E6A96711}.Development|Default.Deploy.0 = Development
->>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-<<<<<<< HEAD
 		SolutionGuid = {10145AFE-4600-4247-9B49-BFC7853A997C}
-=======
-		SolutionGuid = {3EF4842D-9B5F-432D-8155-49EB3E90212C}
->>>>>>> 567d2782d8a2e1f37bf90c92adc1d6bf2524237d
 	EndGlobalSection
 EndGlobal

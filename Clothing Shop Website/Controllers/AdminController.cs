@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
-using Clothing_Shop_Website.Models.ViewModels;
+using Clothing_Shop_Website.ViewModels;
 using Clothing_Shop_Website.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

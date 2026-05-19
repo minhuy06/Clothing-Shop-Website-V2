@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Clothing_Shop_Website.Models.ViewModels
+namespace Clothing_Shop_Website.ViewModels
 {
     public class AdminDashboardViewModel
     {

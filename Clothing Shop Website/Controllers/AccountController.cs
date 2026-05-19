@@ -8,6 +8,7 @@ using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
 using System.Security.Cryptography;
 using System.Text;
+using Clothing_Shop_Website.ViewModels;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -98,36 +99,71 @@ namespace Clothing_Shop_Website.Controllers
 
         // ── PROFILE ──
         [HttpGet]
-        public async Task<IActionResult> Profile()
+        public IActionResult Profile()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var user = await _db.Users
-                .Include(u => u.UserAddresses)
-                .Include(u => u.CustomerDetail)
-                .FirstOrDefaultAsync(u => u.UserID == userId);
-            if (user == null) return RedirectToAction("Login");
-            return View(user);
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var user = _db.Users.Include(u => u.CustomerDetail).FirstOrDefault(u => u.UserID == userId);
+            if (user == null)
+                return NotFound();
+
+            var model = new ProfileViewModel
+            {
+                FullName = user.FullName,
+                Phone = user.Phone,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender,
+                RewardPoints = user.RewardPoints,
+                Status = user.Status
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult EditProfile() {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login");
+
+                var user = _db.Users.FirstOrDefault(u => u.UserID == userId);
+                if (user == null)
+                    return NotFound();
+
+                var model = new EditProfileViewModel
+                {
+                    FullName = user.FullName,
+                    Phone = user.Phone,
+                    DateOfBirth = user.DateOfBirth,
+                    Gender = user.Gender
+                };
+
+                return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateProfile(string fullName, string phone, string? dateOfBirth, int gender)
+        public IActionResult EditProfile(EditProfileViewModel model)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var user = await _db.Users.FindAsync(userId);
-            if (user == null) return RedirectToAction("Login");
-            user.FullName = fullName;
-            user.Phone = phone;
-            user.Gender = gender;
-            if (string.IsNullOrWhiteSpace(dateOfBirth))
-                user.DateOfBirth = null;
-            else if (DateTime.TryParse(dateOfBirth, out var dob))
-                user.DateOfBirth = dob.Date;
-            await _db.SaveChangesAsync();
-            HttpContext.Session.SetString("FullName", fullName);
-            HttpContext.Session.SetString("Phone", phone);
-            TempData["Success"] = "Cập nhật thông tin thành công!";
+            var userId = HttpContext.Session.GetInt32("UserID");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = _db.Users.FirstOrDefault(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            user.FullName = model.FullName;
+            user.Phone = model.Phone;
+            user.DateOfBirth = model.DateOfBirth;
+            user.Gender = model.Gender;
+
+            _db.Update(user);
+            _db.SaveChanges();
+
+            TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("Profile");
         }
 

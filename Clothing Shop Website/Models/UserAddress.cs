@@ -35,6 +35,8 @@ namespace Clothing_Shop_Website.Models
         [Column(TypeName = "varchar(15)")]
         public string Phone { get; set; } = null!;
 
+        public bool IsDefault { get; set; }
+
         [ForeignKey("UserID")]
         public virtual User user { get; set; } = null!;
     }

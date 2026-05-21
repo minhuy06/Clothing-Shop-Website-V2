@@ -107,6 +107,10 @@ namespace Clothing_Shop_Website.Controllers
                 .Include(u => u.CustomerDetail)
                 .FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return RedirectToAction("Login");
+            user.UserAddresses = user.UserAddresses
+                .OrderByDescending(a => a.IsDefault)
+                .ThenByDescending(a => a.AddressID)
+                .ToList();
             return View(user);
         }
 
@@ -163,17 +167,57 @@ namespace Clothing_Shop_Website.Controllers
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login");
+            var isFirst = !await _db.UserAddresses.AnyAsync(a => a.UserID == userId);
             var address = new UserAddress
             {
                 UserID = userId.Value,
                 FullName = fullName,
                 Phone = phone,
                 Province_City = province_City,
-                DetailedAddress = detailedAddress
+                DetailedAddress = detailedAddress,
+                Country = "Việt Nam",
+                IsDefault = isFirst
             };
             _db.UserAddresses.Add(address);
             await _db.SaveChangesAsync();
             TempData["Success"] = "Đã thêm địa chỉ!";
+            TempData["Tab"] = "address";
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAddress(int addressId, string fullName, string phone, string province_City, string detailedAddress)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+            var address = await _db.UserAddresses
+                .FirstOrDefaultAsync(a => a.AddressID == addressId && a.UserID == userId);
+            if (address == null) return RedirectToAction("Profile");
+            address.FullName = fullName;
+            address.Phone = phone;
+            address.Province_City = province_City;
+            address.DetailedAddress = detailedAddress;
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật địa chỉ!";
+            TempData["Tab"] = "address";
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetDefaultAddress(int addressId)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+            var addresses = await _db.UserAddresses
+                .Where(a => a.UserID == userId)
+                .ToListAsync();
+            var target = addresses.FirstOrDefault(a => a.AddressID == addressId);
+            if (target == null) return RedirectToAction("Profile");
+            foreach (var a in addresses)
+                a.IsDefault = a.AddressID == addressId;
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã đặt địa chỉ mặc định!";
+            TempData["Tab"] = "address";
             return RedirectToAction("Profile");
         }
 
@@ -184,7 +228,25 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login");
             var address = await _db.UserAddresses
                 .FirstOrDefaultAsync(a => a.AddressID == addressId && a.UserID == userId);
-            if (address != null) { _db.UserAddresses.Remove(address); await _db.SaveChangesAsync(); }
+            if (address != null)
+            {
+                var wasDefault = address.IsDefault;
+                _db.UserAddresses.Remove(address);
+                await _db.SaveChangesAsync();
+                if (wasDefault)
+                {
+                    var next = await _db.UserAddresses
+                        .Where(a => a.UserID == userId)
+                        .OrderByDescending(a => a.AddressID)
+                        .FirstOrDefaultAsync();
+                    if (next != null)
+                    {
+                        next.IsDefault = true;
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
+            TempData["Tab"] = "address";
             return RedirectToAction("Profile");
         }
     }

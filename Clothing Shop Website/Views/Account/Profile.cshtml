@@ -13,9 +13,10 @@
 {
     <div style="background:rgba(90,154,90,.1);border-bottom:1px solid rgba(90,154,90,.25);color:#7aba7a;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Success"]</div>
 }
-@if (TempData["PassError"] != null)
+
+@if (TempData["Error"] != null)
 {
-    <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">@TempData["PassError"]</div>
+    <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Error"]</div>
 }
 
 <div class="page-wrap">
@@ -90,21 +91,37 @@
                                 <label class="flabel">Giới tính</label>
                                 <select class="fselect" name="gender">
                                     @if (Model.Gender == 0)
-                                    { <option value="0" selected>Chưa cập nhật</option> }
+                                    {
+                                        <option value="0" selected>Chưa cập nhật</option>
+ }
                                     else
-                                    { <option value="0">Chưa cập nhật</option> }
+                                    {
+                                        <option value="0">Chưa cập nhật</option>
+}
                                     @if (Model.Gender == 1)
-                                    { <option value="1" selected>Nữ</option> }
+                                    {
+                                        <option value="1" selected>Nữ</option>
+ }
                                     else
-                                    { <option value="1">Nữ</option> }
+                                    {
+                                        <option value="1">Nữ</option>
+}
                                     @if (Model.Gender == 2)
-                                    { <option value="2" selected>Nam</option> }
+                                    {
+                                        <option value="2" selected>Nam</option>
+ }
                                     else
-                                    { <option value="2">Nam</option> }
+                                    {
+                                        <option value="2">Nam</option>
+}
                                     @if (Model.Gender == 3)
-                                    { <option value="3" selected>Khác</option> }
+                                    {
+                                        <option value="3" selected>Khác</option>
+ }
                                     else
-                                    { <option value="3">Khác</option> }
+                                    {
+                                        <option value="3">Khác</option>
+}
                                 </select>
                             </div>
                         </div>
@@ -124,15 +141,18 @@
                     <div class="sbox-title">Địa chỉ giao hàng</div>
                     <button class="btn-gold" onclick="openAddrMo()">+ Thêm mới</button>
                 </div>
+
                 @if (!Model.UserAddresses.Any())
                 {
-                    <p style="font-size:11px;color:rgba(250,248,242,.22);padding:12px 0">Chưa có địa chỉ nào.</p>
-                }
+                    <p style="font-size:11px;color:rgba(250,248,242,.22);padding:12px 0">Chưa có địa chỉ nào.</p>}
+
                 @foreach (var addr in Model.UserAddresses)
                 {
                     <div class="addr-card">
                         <div class="addr-name">@addr.FullName · @addr.Phone</div>
+
                         <div class="addr-text">@addr.DetailedAddress, @addr.Province_City</div>
+
                         <div class="addr-acts">
                             <form method="post" asp-controller="Account" asp-action="DeleteAddress" style="display:inline">
                                 @Html.AntiForgeryToken()
@@ -140,8 +160,7 @@
                                 <button type="submit" class="addr-act red" onclick="return confirm('Xóa địa chỉ này?')">Xóa</button>
                             </form>
                         </div>
-                    </div>
-                }
+                    </div>}
             </div>
         </div>
 

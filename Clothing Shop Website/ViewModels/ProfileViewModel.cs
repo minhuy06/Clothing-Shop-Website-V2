@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Clothing_Shop_Website.Models;
 
 namespace Clothing_Shop_Website.ViewModels
 {
@@ -11,13 +13,8 @@ namespace Clothing_Shop_Website.ViewModels
         public int RewardPoints { get; set; }
         public int Status { get; set; }
 
-        // Hàm tạo Avatar 2 chữ cái đầu
-        public string GetAvatarInitials()
-        {
-            if (string.IsNullOrWhiteSpace(FullName)) return "NV";
-            var word = FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (word.Length == 1) return word[0].Substring(0, 1).ToUpper();
-            return (word[0].Substring(0, 1) + word[^1].Substring(0, 1)).ToUpper();
-        }
+        // Tạo List chứa danh sách địa chỉ
+        public List<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+
     }
 }

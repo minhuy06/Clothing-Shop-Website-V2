@@ -105,7 +105,7 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var user = _db.Users.Include(u => u.CustomerDetail).FirstOrDefault(u => u.UserID == userId);
+            var user = _db.Users.Include(u => u.CustomerDetail).Include(u => u.UserAddresses).FirstOrDefault(u => u.UserID == userId);
             if (user == null)
                 return NotFound();
 
@@ -116,7 +116,8 @@ namespace Clothing_Shop_Website.Controllers
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 RewardPoints = user.RewardPoints,
-                Status = user.Status
+                Status = user.Status,
+                UserAddresses = user.UserAddresses.ToList()
             };
 
             return View(model);
@@ -146,7 +147,7 @@ namespace Clothing_Shop_Website.Controllers
         [HttpPost]
         public IActionResult EditProfile(EditProfileViewModel model)
         {
-            var userId = HttpContext.Session.GetInt32("UserID");
+            var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
@@ -168,6 +169,7 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -195,25 +197,39 @@ namespace Clothing_Shop_Website.Controllers
 
         // ── ADDRESS ──
         [HttpPost]
-        public async Task<IActionResult> AddAddress(string fullName, string phone, string province_City, string detailedAddress)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAddress([Bind("FullName,Phone,Province_City,DetailedAddress")] UserAddress address)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var address = new UserAddress
+            if (userId == null)
+                return RedirectToAction("Login");
+
+            if (!ModelState.IsValid)
             {
-                UserID = userId.Value,
-                FullName = fullName,
-                Phone = phone,
-                Province_City = province_City,
-                DetailedAddress = detailedAddress
-            };
-            _db.UserAddresses.Add(address);
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm địa chỉ!";
+                // Lưu thông báo lỗi đầu tiên để hiển thị
+                var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                TempData["Error"] = firstError ?? "Dữ liệu địa chỉ không hợp lệ!";
+                return RedirectToAction("Profile");
+            }
+
+            address.UserID = userId.Value;
+
+            try
+            {
+                _db.UserAddresses.Add(address);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Đã thêm địa chỉ mới thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Có lỗi xảy ra trong quá trình lưu địa chỉ: " + ex.Message;
+            }
+
             return RedirectToAction("Profile");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAddress(int addressId)
         {
             var userId = HttpContext.Session.GetInt32("UserId");

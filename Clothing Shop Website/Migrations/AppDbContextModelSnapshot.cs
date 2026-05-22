@@ -117,13 +117,21 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ImportDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int>("SupplierID")
                         .HasColumnType("int");
 
                     b.HasKey("ReceiptID");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("SupplierID");
 
@@ -440,11 +448,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("DetailedAddress")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -507,11 +510,19 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.InventoryReceipt", b =>
                 {
+                    b.HasOne("Clothing_Shop_Website.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Clothing_Shop_Website.Models.Supplier", "Supplier")
                         .WithMany("InventoryReceipts")
                         .HasForeignKey("SupplierID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Creator");
 
                     b.Navigation("Supplier");
                 });

@@ -227,21 +227,19 @@ INSERT INTO [ProductSizes] ([SizeID], [ProductID], [SizeName], [StockQuantity], 
 SET IDENTITY_INSERT [ProductSizes] OFF;
 GO
 
--- ==================================================================================
 -- CHÈN DỮ LIỆU BẢNG 7: [InventoryReceipts] (Phiếu nhập kho - 10 phiếu phân bổ)
--- ==================================================================================
 SET IDENTITY_INSERT [InventoryReceipts] ON;
-INSERT INTO [InventoryReceipts] ([ReceiptID], [SupplierID], [ImportDate]) VALUES
-(1, 1, '2025-11-15 09:30:00'),
-(2, 2, '2025-12-05 14:15:00'),
-(3, 3, '2025-12-20 10:00:00'),
-(4, 4, '2026-01-10 11:45:00'),
-(5, 1, '2026-02-05 08:30:00'),
-(6, 2, '2026-02-25 15:00:00'),
-(7, 3, '2026-03-12 13:20:00'),
-(8, 4, '2026-04-01 10:15:00'),
-(9, 1, '2026-04-20 09:00:00'),
-(10, 2, '2026-05-10 14:30:00');
+INSERT INTO [InventoryReceipts] ([ReceiptID], [SupplierID], [ImportDate], [Status], [CreatedBy]) VALUES
+(1, 1, '2025-11-15 09:30:00', 1, 2),    -- Tạo bởi Trần Thị Thu
+(2, 2, '2025-12-05 14:15:00', 1, 33),   -- Tạo bởi Nguyễn Minh Triết
+(3, 3, '2025-12-20 10:00:00', 1, 34),   -- Tạo bởi Phạm Thảo Vy
+(4, 4, '2026-01-10 11:45:00', 1, 35),   -- Tạo bởi Lê Anh Tuấn
+(5, 1, '2026-02-05 08:30:00', 1, 2),
+(6, 2, '2026-02-25 15:00:00', 1, 33),
+(7, 3, '2026-03-12 13:20:00', 1, 34),
+(8, 4, '2026-04-01 10:15:00', 1, 35),
+(9, 1, '2026-04-20 09:00:00', 1, 2),
+(10, 2, '2026-05-10 14:30:00', 0, 33);  -- Phiếu mới nhất đang ở trạng thái Chờ duyệt
 SET IDENTITY_INSERT [InventoryReceipts] OFF;
 GO
 
@@ -304,42 +302,42 @@ GO
 -- Dữ liệu thực tế: Một số khách hàng có nhiều địa chỉ nhận hàng
 -- ==================================================================================
 SET IDENTITY_INSERT [UserAddresses] ON;
-INSERT INTO [UserAddresses] ([AddressID], [UserID], [Province_City], [Country], [DetailedAddress], [FullName], [Phone]) VALUES
-(1, 3, N'Hà Nội', N'Việt Nam', N'Số 12 ngõ 45 Cầu Giấy', N'Nguyễn Văn Nam', '0912345678'),
-(2, 3, N'Hải Phòng', N'Việt Nam', N'Kiốt số 3 chợ Đổ, Hồng Bàng', N'Nguyễn Văn Nam', '0912345678'), 
-(3, 4, N'TP Hồ Chí Minh', N'Việt Nam', N'180/45 Nguyễn Thị Minh Khai, Q.3', N'Trần Thị Hương', '0987654321'),
-(4, 5, N'Hà Nội', N'Việt Nam', N'P.402 Chung cư HH2 Linh Đàm, Hoàng Mai', N'Lê Hoàng Long', '0905123456'),
-(5, 5, N'Đà Nẵng', N'Việt Nam', N'88 Lê Duẩn, Hải Châu', N'Lê Hoàng Long', '0905123456'), 
-(6, 6, N'Cần Thơ', N'Việt Nam', N'45 Đường 3/2, Ninh Kiều', N'Phạm Minh Tuấn', '0945678901'),
-(7, 7, N'Hà Nội', N'Việt Nam', N'Số 5 ngách 82 Yên Hòa, Cầu Giấy', N'Vũ Thị Mai', '0934567890'),
-(8, 8, N'Đồng Nai', N'Việt Nam', N'12/3 Biên Hòa', N'Hoàng Anh Đức', '0978123456'),
-(9, 9, N'Hải Dương', N'Việt Nam', N'88 Trần Hưng Đạo', N'Đỗ Huy Khánh', '0919876543'),
-(10, 10, N'Hà Nội', N'Việt Nam', N'Số 10 ngõ 102 Chùa Láng, Đống Đa', N'Phan Thanh Hà', '0963112233'),
-(11, 11, N'TP Hồ Chí Minh', N'Việt Nam', N'90 Lê Lợi, Bến Nghé, Quận 1', N'Ngô Quốc Anh', '0909112233'),
-(12, 12, N'Hà Nội', N'Việt Nam', N'Số 8 Trấn Vũ, Ba Đình', N'Bùi Thị Lan', '0988223344'),
-(13, 13, N'Bắc Ninh', N'Việt Nam', N'22 Ngô Gia Tự', N'Nguyễn Đình Huy', '0977334455'),
-(14, 14, N'Quảng Ninh', N'Việt Nam', N'102 Kênh Liêm, Hạ Long', N'Đặng Minh Triết', '0911445566'),
-(15, 14, N'Hà Nội', N'Việt Nam', N'55 Phố Huế, Hai Bà Trưng', N'Đặng Minh Triết', '0911445566'), 
-(16, 15, N'Thừa Thiên Huế', N'Việt Nam', N'15 Hùng Vương', N'Dương Thúy Hằng', '0944556677'),
-(17, 16, N'Khánh Hòa', N'Việt Nam', N'40 Trần Phú, Nha Trang', N'Võ Duy Mạnh', '0933667788'),
-(18, 17, N'Hà Nội', N'Việt Nam', N'Số 6 ngõ 8 Chùa Bộc, Đống Đa', N'Đinh Văn Hùng', '0966778899'),
-(19, 18, N'Đà Nẵng', N'Việt Nam', N'120 Nguyễn Văn Linh, Thanh Khê', N'Lâm Mỹ Tâm', '0988778899'),
-(20, 19, N'Thanh Hóa', N'Việt Nam', N'88 Lê Lai', N'Lý Hải Nam', '0977889900'),
-(21, 20, N'Hà Nội', N'Việt Nam', N'Số 12 ngõ 20 Cát Linh, Đống Đa', N'Tạ Minh Quân', '0911889900'),
-(22, 20, N'Vĩnh Phúc', N'Việt Nam', N'22 Mê Linh, Vĩnh Yên', N'Tạ Minh Quân', '0911889900'), 
-(23, 21, N'Nghệ An', N'Việt Nam', N'45 Quang Trung, Vinh', N'Trịnh Phương Nam', '0944889900'),
-(24, 22, N'Hà Nội', N'Việt Nam', N'P.1205 Tòa nhà CT3 Nam Cường, Bắc Từ Liêm', N'Phùng Kiến Quốc', '0933990011'),
-(25, 23, N'Bình Dương', N'Việt Nam', N'80 Đại lộ Bình Dương, Thủ Dầu Một', N'Cao Thanh Thảo', '0966990011'),
-(26, 24, N'Hà Nội', N'Việt Nam', N'Số 17 ngõ 233 Xuân Thủy, Cầu Giấy', N'Mai Ngọc Anh', '0988990011'),
-(27, 25, N'TP Hồ Chí Minh', N'Việt Nam', N'450 Cách Mạng Tháng 8, Quận 3', N'Đào Quốc Bảo', '0977001122'),
-(28, 26, N'Thái Nguyên', N'Việt Nam', N'12 Lương Ngọc Quyến', N'Hà Thị Cúc', '0911001122'),
-(29, 27, N'Hà Nội', N'Việt Nam', N'Số 88 Trần Duy Hưng, Cầu Giấy', N'Lương Thế Thành', '0944001122'),
-(30, 28, N'Lâm Đồng', N'Việt Nam', N'15 Bùi Thị Xuân, Đà Lạt', N'Nghiêm Xuân Trường', '0933112244'),
-(31, 28, N'Hà Nội', N'Việt Nam', N'Số 10 Hàng Gai, Hoàn Kiếm', N'Nghiêm Xuân Trường', '0933112244'), 
-(32, 29, N'Hà Nội', N'Việt Nam', N'Số 5 ngõ 18 Nguyễn Khánh Toàn, Cầu Giấy', N'Quách Hoàng Diệu', '0966112244'),
-(33, 30, N'Hà Nội', N'Việt Nam', N'P.809 Chung cư Times City, Hai Bà Trưng', N'Giang Hồng Ngọc', '0988112244'),
-(34, 31, N'Nam Định', N'Việt Nam', N'88 Trần Hưng Đạo', N'Chu Văn Biên', '0977223355'),
-(35, 32, N'Hà Nội', N'Việt Nam', N'Số 2 ngõ 45 Tây Sơn, Đống Đa', N'Đỗ Thùy Trang', '0911223355');
+INSERT INTO [UserAddresses] ([AddressID], [UserID], [Province_City], [DetailedAddress], [FullName], [Phone]) VALUES
+(1, 3, N'Hà Nội', N'Số 12 ngõ 45 Cầu Giấy', N'Nguyễn Văn Nam', '0912345678'),
+(2, 3, N'Hải Phòng', N'Kiốt số 3 chợ Đổ, Hồng Bàng', N'Nguyễn Văn Nam', '0912345678'), 
+(3, 4, N'TP Hồ Chí Minh', N'180/45 Nguyễn Thị Minh Khai, Q.3', N'Trần Thị Hương', '0987654321'),
+(4, 5, N'Hà Nội', N'P.402 Chung cư HH2 Linh Đàm, Hoàng Mai', N'Lê Hoàng Long', '0905123456'),
+(5, 5, N'Đà Nẵng', N'88 Lê Duẩn, Hải Châu', N'Lê Hoàng Long', '0905123456'), 
+(6, 6, N'Cần Thơ', N'45 Đường 3/2, Ninh Kiều', N'Phạm Minh Tuấn', '0945678901'),
+(7, 7, N'Hà Nội', N'Số 5 ngách 82 Yên Hòa, Cầu Giấy', N'Vũ Thị Mai', '0934567890'),
+(8, 8, N'Đồng Nai', N'12/3 Biên Hòa', N'Hoàng Anh Đức', '0978123456'),
+(9, 9, N'Hải Dương', N'88 Trần Hưng Đạo', N'Đỗ Huy Khánh', '0919876543'),
+(10, 10, N'Hà Nội', N'Số 10 ngõ 102 Chùa Láng, Đống Đa', N'Phan Thanh Hà', '0963112233'),
+(11, 11, N'TP Hồ Chí Minh', N'90 Lê Lợi, Bến Nghé, Quận 1', N'Ngô Quốc Anh', '0909112233'),
+(12, 12, N'Hà Nội', N'Số 8 Trấn Vũ, Ba Đình', N'Bùi Thị Lan', '0988223344'),
+(13, 13, N'Bắc Ninh', N'22 Ngô Gia Tự', N'Nguyễn Đình Huy', '0977334455'),
+(14, 14, N'Quảng Ninh', N'102 Kênh Liêm, Hạ Long', N'Đặng Minh Triết', '0911445566'),
+(15, 14, N'Hà Nội', N'55 Phố Huế, Hai Bà Trưng', N'Đặng Minh Triết', '0911445566'), 
+(16, 15, N'Thừa Thiên Huế', N'15 Hùng Vương', N'Dương Thúy Hằng', '0944556677'),
+(17, 16, N'Khánh Hòa', N'40 Trần Phú, Nha Trang', N'Võ Duy Mạnh', '0933667788'),
+(18, 17, N'Hà Nội', N'Số 6 ngõ 8 Chùa Bộc, Đống Đa', N'Đinh Văn Hùng', '0966778899'),
+(19, 18, N'Đà Nẵng', N'120 Nguyễn Văn Linh, Thanh Khê', N'Lâm Mỹ Tâm', '0988778899'),
+(20, 19, N'Thanh Hóa', N'88 Lê Lai', N'Lý Hải Nam', '0977889900'),
+(21, 20, N'Hà Nội', N'Số 12 ngõ 20 Cát Linh, Đống Đa', N'Tạ Minh Quân', '0911889900'),
+(22, 20, N'Vĩnh Phúc', N'22 Mê Linh, Vĩnh Yên', N'Tạ Minh Quân', '0911889900'), 
+(23, 21, N'Nghệ An', N'45 Quang Trung, Vinh', N'Trịnh Phương Nam', '0944889900'),
+(24, 22, N'Hà Nội', N'P.1205 Tòa nhà CT3 Nam Cường, Bắc Từ Liêm', N'Phùng Kiến Quốc', '0933990011'),
+(25, 23, N'Bình Dương', N'80 Đại lộ Bình Dương, Thủ Dầu Một', N'Cao Thanh Thảo', '0966990011'),
+(26, 24, N'Hà Nội', N'Số 17 ngõ 233 Xuân Thủy, Cầu Giấy', N'Mai Ngọc Anh', '0988990011'),
+(27, 25, N'TP Hồ Chí Minh', N'450 Cách Mạng Tháng 8, Quận 3', N'Đào Quốc Bảo', '0977001122'),
+(28, 26, N'Thái Nguyên', N'12 Lương Ngọc Quyến', N'Hà Thị Cúc', '0911001122'),
+(29, 27, N'Hà Nội', N'Số 88 Trần Duy Hưng, Cầu Giấy', N'Lương Thế Thành', '0944001122'),
+(30, 28, N'Lâm Đồng', N'15 Bùi Thị Xuân, Đà Lạt', N'Nghiêm Xuân Trường', '0933112244'),
+(31, 28, N'Hà Nội', N'Số 10 Hàng Gai, Hoàn Kiếm', N'Nghiêm Xuân Trường', '0933112244'), 
+(32, 29, N'Hà Nội', N'Số 5 ngõ 18 Nguyễn Khánh Toàn, Cầu Giấy', N'Quách Hoàng Diệu', '0966112244'),
+(33, 30, N'Hà Nội', N'P.809 Chung cư Times City, Hai Bà Trưng', N'Giang Hồng Ngọc', '0988112244'),
+(34, 31, N'Nam Định', N'88 Trần Hưng Đạo', N'Chu Văn Biên', '0977223355'),
+(35, 32, N'Hà Nội', N'Số 2 ngõ 45 Tây Sơn, Đống Đa', N'Đỗ Thùy Trang', '0911223355');
 SET IDENTITY_INSERT [UserAddresses] OFF;
 GO
 

@@ -6,12 +6,20 @@
     var categories = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category>;
     var totalInDb = (int)(ViewBag.TotalInDb ?? Model.Count);
     string GetSeason(int s) => s switch { 1=>"Xuân",2=>"Hạ",3=>"Thu",4=>"Đông",_=>"" };
-    int TotalStock(Clothing_Shop_Website.Models.Product p) =>
-        p.ProductSizes?.Sum(x => x.StockQuantity) ?? 0;
-    string SizeSummary(Clothing_Shop_Website.Models.Product p) =>
-        p.ProductSizes == null || !p.ProductSizes.Any()
-            ? "—"
-            : string.Join(", ", p.ProductSizes.OrderBy(x => x.SizeName).Select(x => $"{x.SizeName}:{x.StockQuantity}"));
+    int SizeQty(Clothing_Shop_Website.Models.Product p, string sizeName)
+    {
+        var row = p.ProductSizes?.FirstOrDefault(x =>
+            string.Equals(x.SizeName, sizeName, StringComparison.OrdinalIgnoreCase));
+        return row?.StockQuantity ?? 0;
+    }
+    bool HasSize(Clothing_Shop_Website.Models.Product p, string sizeName) =>
+        p.ProductSizes?.Any(x => string.Equals(x.SizeName, sizeName, StringComparison.OrdinalIgnoreCase)) == true;
+    bool SizeIsLow(Clothing_Shop_Website.Models.Product p, string sizeName)
+    {
+        var row = p.ProductSizes?.FirstOrDefault(x =>
+            string.Equals(x.SizeName, sizeName, StringComparison.OrdinalIgnoreCase));
+        return row != null && row.StockQuantity <= row.MinimumStock;
+    }
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -22,6 +30,13 @@
 <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true"/>
 <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true"/>
 <link rel="stylesheet" href="~/css/admin-sanpham.css" asp-append-version="true"/>
+<style>
+.ptable th.size-col, .ptable td.size-col { text-align: center; width: 44px; padding-left: 8px; padding-right: 8px; }
+.ptable th.size-col { font-size: 11px; letter-spacing: 2px; color: var(--gold); }
+.size-qty { font-size: 13px; font-weight: 300; color: #7aba7a; }
+.size-qty.low { color: #d47a76; }
+.size-qty.empty { color: rgba(250,248,242,.2); font-size: 11px; }
+</style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -110,14 +125,15 @@
 
             <table class="ptable" style="width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)">
                 <thead><tr>
-                    <th style="width:50px"></th>
-                    <th>Mã</th><th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th>
+                    <th>Mã</th><th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th>
+                    <th class="size-col">S</th><th class="size-col">M</th><th class="size-col">L</th>
+                    <th>Giá</th><th>Thao tác</th>
                 </tr></thead>
                 <tbody>
                 @if (Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="8" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px;letter-spacing:1px">
+                        <td colspan="9" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px;letter-spacing:1px">
                             @if (totalInDb == 0)
                             {
                                 <span>Chưa có dữ liệu. Chạy file <strong style="color:var(--gold)">DataWarehouse_Scripts/Seed_Realistic_Data.sql</strong> trong SSMS hoặc sqlcmd (-f 65001).</span>
@@ -131,8 +147,6 @@
                 }
                 @foreach (var p in Model)
                 {
-                    var stock = TotalStock(p);
-                    var lowStock = p.ProductSizes != null && p.ProductSizes.Any(s => s.StockQuantity <= s.MinimumStock);
                     <tr>
                         <td style="font-size:11px;color:rgba(201,168,76,.7);white-space:nowrap">#@p.ProductID.ToString("D3")</td>
                         <td>
@@ -149,11 +163,23 @@
                         </td>
                         <td>@p.Category?.CategoryName</td>
                         <td>@GetSeason(p.Session)</td>
+                        @foreach (var sz in new[] { "S", "M", "L" })
+                        {
+                            var qty = SizeQty(p, sz);
+                            var has = HasSize(p, sz);
+                            var low = SizeIsLow(p, sz);
+                            <td class="size-col">
+                                @if (has)
+                                {
+                                    <span class="size-qty @(low ? "low" : "")">@qty</span>
+                                }
+                                else
+                                {
+                                    <span class="size-qty empty">—</span>
+                                }
+                            </td>
+                        }
                         <td style="white-space:nowrap">@p.Price.ToString("N0")đ</td>
-                        <td style="white-space:nowrap">
-                            <span style="font-size:13px;color:@(lowStock ? "#d47a76" : "#7aba7a")">@stock</span>
-                            <div style="font-size:9px;color:rgba(250,248,242,.35);margin-top:2px">@SizeSummary(p)</div>
-                        </td>
                         <td>
                             <div style="display:flex;gap:6px">
                                 <button type="button" class="btn-edit-product" data-id="@p.ProductID" title="Sửa thông tin"

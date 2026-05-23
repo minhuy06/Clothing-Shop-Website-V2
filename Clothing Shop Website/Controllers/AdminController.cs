@@ -400,26 +400,112 @@ namespace Clothing_Shop_Website.Controllers
             return RedirectToAction("Products");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetProduct(int id)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var p = await _db.Products.AsNoTracking()
+                .Include(x => x.Category)
+                .Include(x => x.ProductSizes)
+                .FirstOrDefaultAsync(x => x.ProductID == id);
+
+            if (p == null)
+                return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+            return Json(new
+            {
+                success = true,
+                product = new
+                {
+                    id = p.ProductID,
+                    name = p.ProductName,
+                    categoryId = p.CategoryID,
+                    categoryName = p.Category?.CategoryName,
+                    season = p.Session,
+                    price = p.Price,
+                    imageUrl = p.ImageUrl ?? "",
+                    description = p.Description ?? "",
+                    color = p.Color ?? "",
+                    style = p.Style ?? "",
+                    material = p.Material ?? "",
+                    stock = p.ProductSizes.Sum(s => s.StockQuantity),
+                    sizes = p.ProductSizes
+                        .OrderBy(s => s.SizeName)
+                        .Select(s => new { s.SizeName, s.StockQuantity })
+                        .ToList()
+                }
+            });
+        }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProduct(
-            int productID, string productName, int categoryID, int session,
+            int productID,
+            string productName,
+            int categoryID,
+            int session,
             decimal price,
-            string? imageUrl, string? description)
+            string? imageUrl,
+            string? description,
+            string? color,
+            string? style,
+            string? material,
+            IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            var p = await _db.Products.FindAsync(productID);
-            if (p != null)
+            productName = (productName ?? "").Trim();
+            if (string.IsNullOrEmpty(productName))
             {
-                p.ProductName = productName;
-                p.CategoryID = categoryID;
-                p.Session = session;
-                p.Price = price;
-                p.ImageUrl = imageUrl;
-                p.Description = description;
-                await _db.SaveChangesAsync();
-                TempData["Success"] = "Đã cập nhật sản phẩm!";
+                TempData["Error"] = "Tên sản phẩm không được để trống.";
+                return RedirectToAction("Products");
             }
+
+            if (price < 0)
+            {
+                TempData["Error"] = "Giá bán phải >= 0.";
+                return RedirectToAction("Products");
+            }
+
+            if (!await _db.Categories.AnyAsync(c => c.CategoryID == categoryID))
+            {
+                TempData["Error"] = "Danh mục không hợp lệ.";
+                return RedirectToAction("Products");
+            }
+
+            var p = await _db.Products.FindAsync(productID);
+            if (p == null)
+            {
+                TempData["Error"] = "Không tìm thấy sản phẩm.";
+                return RedirectToAction("Products");
+            }
+
+            if (imageFile is { Length: > 0 })
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                if (ext.Length > 10) ext = "";
+                var safe = $"{Guid.NewGuid():N}{ext}";
+                var dir = Path.Combine(_env.WebRootPath, "uploads", "products");
+                Directory.CreateDirectory(dir);
+                var full = Path.Combine(dir, safe);
+                await using (var fs = System.IO.File.Create(full))
+                    await imageFile.CopyToAsync(fs);
+                imageUrl = "/uploads/products/" + safe;
+            }
+
+            p.ProductName = productName;
+            p.CategoryID = categoryID;
+            p.Session = session;
+            p.Price = price;
+            p.ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? p.ImageUrl : imageUrl.Trim();
+            p.Description = description?.Trim();
+            p.Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
+            p.Style = string.IsNullOrWhiteSpace(style) ? null : style.Trim();
+            p.Material = string.IsNullOrWhiteSpace(material) ? null : material.Trim();
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật sản phẩm #" + productID.ToString("D3") + "!";
             return RedirectToAction("Products");
         }
 

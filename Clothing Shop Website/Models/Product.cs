@@ -31,7 +31,7 @@ namespace Clothing_Shop_Website.Models
 
         public int Session { get; set; }
 
-        [MaxLength(10)]
+        [MaxLength(50)]
         public string? Color { get; set; }
 
         [MaxLength(50)]

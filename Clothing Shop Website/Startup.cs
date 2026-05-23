@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,8 +58,11 @@ namespace Clothing_Shop_Website
         {
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var sp = scope.ServiceProvider;
+                var db = sp.GetRequiredService<AppDbContext>();
+                var log = sp.GetRequiredService<ILogger<Startup>>();
                 db.Database.Migrate();
+                DbSeedRunner.EnsureSeedAsync(db, Configuration, env, log).GetAwaiter().GetResult();
             }
 
             if (env.IsDevelopment())

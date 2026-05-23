@@ -4,7 +4,14 @@
     ViewData["Title"] = "Sản phẩm";
     Layout = null;
     var categories = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category>;
+    var totalInDb = (int)(ViewBag.TotalInDb ?? Model.Count);
     string GetSeason(int s) => s switch { 1=>"Xuân",2=>"Hạ",3=>"Thu",4=>"Đông",_=>"" };
+    int TotalStock(Clothing_Shop_Website.Models.Product p) =>
+        p.ProductSizes?.Sum(x => x.StockQuantity) ?? 0;
+    string SizeSummary(Clothing_Shop_Website.Models.Product p) =>
+        p.ProductSizes == null || !p.ProductSizes.Any()
+            ? "—"
+            : string.Join(", ", p.ProductSizes.OrderBy(x => x.SizeName).Select(x => $"{x.SizeName}:{x.StockQuantity}"));
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -51,7 +58,13 @@
         <!-- TAB SẢN PHẨM -->
         <div id="productsTab">
             <div class="top-bar" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">
-                <div><div class="page-title">Sản phẩm</div><div class="page-sub">Hiển thị <strong style="color:var(--gold)">@Model.Count</strong> sản phẩm</div></div>
+                <div>
+                    <div class="page-title">Sản phẩm</div>
+                    <div class="page-sub">
+                        Hiển thị <strong style="color:var(--gold)">@Model.Count</strong> / <strong style="color:var(--gold)">@totalInDb</strong> sản phẩm trong database
+                        @if (totalInDb == 0) { <span style="color:rgba(250,248,242,.4)"> · Khởi động lại app để tự nạp <code style="font-size:10px">Seed_Realistic_Data.sql</code></span> }
+                    </div>
+                </div>
                 <div style="display:flex;gap:8px;align-items:center">
                     <button type="button" id="btnPublishAll"
                         style="display:flex;align-items:center;gap:7px;padding:9px 16px;background:transparent;border:1px solid rgba(122,184,232,.4);color:#7ab8e8;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-b);cursor:pointer;transition:all .2s"
@@ -98,29 +111,48 @@
             <table class="ptable" style="width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)">
                 <thead><tr>
                     <th style="width:50px"></th>
-                    <th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th><th>Giá</th><th>Thao tác</th>
+                    <th>Mã</th><th>Sản phẩm</th><th>Danh mục</th><th>Mùa</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th>
                 </tr></thead>
                 <tbody>
                 @if (Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="6" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px;letter-spacing:1px">
-                            Chưa có sản phẩm. Bấm <strong style="color:var(--gold)">Thêm sản phẩm</strong> để nhập hàng mới.
+                        <td colspan="8" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px;letter-spacing:1px">
+                            @if (totalInDb == 0)
+                            {
+                                <span>Chưa có dữ liệu. Khởi động lại ứng dụng để tự chạy <strong style="color:var(--gold)">Seed_Realistic_Data.sql</strong>, hoặc chạy file SQL trong SSMS.</span>
+                            }
+                            else
+                            {
+                                <span>Không có sản phẩm khớp bộ lọc. <a asp-controller="Admin" asp-action="Products" style="color:var(--gold)">Xóa lọc</a></span>
+                            }
                         </td>
                     </tr>
                 }
                 @foreach (var p in Model)
                 {
+                    var stock = TotalStock(p);
+                    var lowStock = p.ProductSizes != null && p.ProductSizes.Any(s => s.StockQuantity <= s.MinimumStock);
                     <tr>
-                        <td><div style="width:44px;height:55px;overflow:hidden"><img src="@p.ImageUrl" style="width:100%;height:100%;object-fit:cover;filter:brightness(.82)" onerror="this.style.display='none'"></div></td>
+                        <td style="font-size:11px;color:rgba(201,168,76,.7);white-space:nowrap">#@p.ProductID.ToString("D3")</td>
                         <td>
-                            <div style="font-family:'EB Garamond',serif;font-size:14px;font-style:italic;color:var(--white);margin-bottom:2px">@p.ProductName</div>
+                            <div style="display:flex;gap:10px;align-items:center">
+                                <div style="width:44px;height:55px;overflow:hidden;flex-shrink:0"><img src="@p.ImageUrl" style="width:100%;height:100%;object-fit:cover;filter:brightness(.82)" onerror="this.style.display='none'"></div>
+                                <div>
+                                    <div style="font-family:'EB Garamond',serif;font-size:14px;font-style:italic;color:var(--white);margin-bottom:2px">@p.ProductName</div>
+                                    @if (!string.IsNullOrEmpty(p.Description))
+                                    {
+                                        <div style="font-size:10px;color:rgba(250,248,242,.35);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@p.Description</div>
+                                    }
+                                </div>
+                            </div>
                         </td>
                         <td>@p.Category?.CategoryName</td>
                         <td>@GetSeason(p.Session)</td>
+                        <td style="white-space:nowrap">@p.Price.ToString("N0")đ</td>
                         <td style="white-space:nowrap">
-                            @p.Price.ToString("N0")đ
-
+                            <span style="font-size:13px;color:@(lowStock ? "#d47a76" : "#7aba7a")">@stock</span>
+                            <div style="font-size:9px;color:rgba(250,248,242,.35);margin-top:2px">@SizeSummary(p)</div>
                         </td>
                         <td>
                             <div style="display:flex;gap:6px">
@@ -362,18 +394,24 @@ function publishToFrontend() {
     if (!btn) return;
     btn.disabled = true;
     btn.style.opacity = '0.6';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;animation:spin 1s linear infinite"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg> Đang cập nhật...';
-    setTimeout(function() {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Cập nhật lên giao diện';
-        const toast = document.getElementById('toast');
-        if (toast) {
-            toast.textContent = '✓ Đã cập nhật ' + @Model.Count + ' sản phẩm lên giao diện khách hàng!';
-            toast.className = 'toast ok active';
-            setTimeout(() => toast.classList.remove('active'), 4000);
-        }
-    }, 1200);
+    fetch('/Admin/GetAllProducts', { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            const toast = document.getElementById('toast');
+            if (data.success && toast) {
+                toast.textContent = '✓ Đã đồng bộ ' + data.count + ' sản phẩm từ database — giao diện khách hàng dùng cùng nguồn DB.';
+                toast.className = 'toast ok active';
+                setTimeout(() => toast.classList.remove('active'), 4000);
+            }
+            window.location.href = '/Admin/Products';
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            window.location.reload();
+        });
 }
 </script>
 <script>

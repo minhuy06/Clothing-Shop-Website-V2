@@ -325,7 +325,12 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            var query = _db.Products.Include(p => p.Category).AsQueryable();
+            var query = _db.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.ProductSizes)
+                .AsQueryable();
+
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(p => p.ProductName.Contains(search));
             if (categoryId.HasValue)
@@ -333,12 +338,44 @@ namespace Clothing_Shop_Website.Controllers
             if (!string.IsNullOrEmpty(season) && int.TryParse(season, out int s))
                 query = query.Where(p => p.Session == s);
 
-            ViewBag.Categories = await _db.Categories.ToListAsync();
+            var products = await query.OrderByDescending(p => p.ProductID).ToListAsync();
+
+            ViewBag.Categories = await _db.Categories.AsNoTracking().OrderBy(c => c.CategoryName).ToListAsync();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
             ViewBag.Season = season;
+            ViewBag.TotalInDb = await _db.Products.AsNoTracking().CountAsync();
 
-            return View(await query.OrderByDescending(p => p.ProductID).ToListAsync());
+            return View(products);
+        }
+
+        /// <summary>API: danh sách toàn bộ sản phẩm (admin).</summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var list = await _db.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.ProductSizes)
+                .OrderByDescending(p => p.ProductID)
+                .Select(p => new
+                {
+                    id = p.ProductID,
+                    name = p.ProductName,
+                    category = p.Category.CategoryName,
+                    categoryId = p.CategoryID,
+                    season = p.Session,
+                    price = p.Price,
+                    imageUrl = p.ImageUrl,
+                    description = p.Description,
+                    stock = p.ProductSizes.Sum(s => s.StockQuantity),
+                    sizes = p.ProductSizes.Select(s => new { s.SizeName, s.StockQuantity }).ToList()
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, count = list.Count, data = list });
         }
 
         [HttpPost]

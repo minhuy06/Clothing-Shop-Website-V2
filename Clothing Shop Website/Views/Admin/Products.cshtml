@@ -4,7 +4,25 @@
     ViewData["Title"] = "Sản phẩm";
     Layout = null;
     var categories = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category>;
-    var totalInDb = (int)(ViewBag.TotalInDb ?? Model.Count);
+    var totalInDb = (int)(ViewBag.TotalInDb ?? 0);
+    var currentPage = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
+    var totalFiltered = (int)(ViewBag.TotalFiltered ?? Model.Count);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var rowFrom = totalFiltered == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    var rowTo = totalFiltered == 0 ? 0 : Math.Min(currentPage * pageSize, totalFiltered);
+
+    string ProductsPageUrl(int p)
+    {
+        var parts = new List<string> { "page=" + p };
+        if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            parts.Add("search=" + Uri.EscapeDataString((string)ViewBag.Search));
+        if (ViewBag.CategoryId != null && !string.IsNullOrEmpty(ViewBag.CategoryId.ToString()))
+            parts.Add("categoryId=" + ViewBag.CategoryId);
+        if (!string.IsNullOrEmpty(ViewBag.Season as string))
+            parts.Add("season=" + ViewBag.Season);
+        return "/Admin/Products?" + string.Join("&", parts);
+    }
     string GetSeason(int s) => s switch { 1=>"Xuân",2=>"Hạ",3=>"Thu",4=>"Đông",_=>"" };
     int SizeQty(Clothing_Shop_Website.Models.Product p, string sizeName)
     {
@@ -36,6 +54,7 @@
 .size-qty { font-size: 13px; font-weight: 300; color: #7aba7a; }
 .size-qty.low { color: #d47a76; }
 .size-qty.empty { color: rgba(250,248,242,.2); font-size: 11px; }
+.pagination a.pp { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -76,8 +95,16 @@
                 <div>
                     <div class="page-title">Sản phẩm</div>
                     <div class="page-sub">
-                        Hiển thị <strong style="color:var(--gold)">@Model.Count</strong> / <strong style="color:var(--gold)">@totalInDb</strong> sản phẩm trong database
-                        @if (totalInDb == 0) { <span style="color:rgba(250,248,242,.4)"> · Chạy <code style="font-size:10px">Seed_Realistic_Data.sql</code> trong SSMS (UTF-8, sqlcmd -f 65001)</span> }
+                        @if (totalFiltered > 0)
+                        {
+                            <span>Trang <strong style="color:var(--gold)">@currentPage</strong>/@totalPages · hiển thị <strong style="color:var(--gold)">@rowFrom–@rowTo</strong> / @totalFiltered sản phẩm</span>
+                        }
+                        else
+                        {
+                            <span>Không có sản phẩm khớp bộ lọc</span>
+                        }
+                        <span style="color:rgba(250,248,242,.35)"> · Tổng DB: @totalInDb</span>
+                        @if (totalInDb == 0) { <span style="color:rgba(250,248,242,.4)"> · Chạy <code style="font-size:10px">Seed_Realistic_Data.sql</code> (sqlcmd -f 65001)</span> }
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
@@ -202,6 +229,24 @@
                 }
                 </tbody>
             </table>
+
+            @if (totalPages > 1)
+            {
+                <div class="pagination">
+                    @if (currentPage > 1)
+                    {
+                        <a class="pp" href="@ProductsPageUrl(currentPage - 1)" title="Trang trước">‹</a>
+                    }
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        <a class="pp @(i == currentPage ? "on" : "")" href="@ProductsPageUrl(i)">@i</a>
+                    }
+                    @if (currentPage < totalPages)
+                    {
+                        <a class="pp" href="@ProductsPageUrl(currentPage + 1)" title="Trang sau">›</a>
+                    }
+                </div>
+            }
         </div>
 
         <!-- TAB MÃ GIẢM GIÁ -->

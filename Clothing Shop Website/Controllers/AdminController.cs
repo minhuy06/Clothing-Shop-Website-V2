@@ -321,9 +321,12 @@ namespace Clothing_Shop_Website.Controllers
         // ═══════════════════════════════
         //   SẢN PHẨM
         // ═══════════════════════════════
-        public async Task<IActionResult> Products(string? search, int? categoryId, string? season)
+        public async Task<IActionResult> Products(string? search, int? categoryId, string? season, int page = 1)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            const int pageSize = 10;
+            if (page < 1) page = 1;
 
             var query = _db.Products
                 .AsNoTracking()
@@ -338,13 +341,25 @@ namespace Clothing_Shop_Website.Controllers
             if (!string.IsNullOrEmpty(season) && int.TryParse(season, out int s))
                 query = query.Where(p => p.Session == s);
 
-            var products = await query.OrderByDescending(p => p.ProductID).ToListAsync();
+            var totalFiltered = await query.CountAsync();
+            var totalPages = totalFiltered == 0 ? 1 : (int)Math.Ceiling(totalFiltered / (double)pageSize);
+            if (page > totalPages) page = totalPages;
+
+            var products = await query
+                .OrderByDescending(p => p.ProductID)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             ViewBag.Categories = await _db.Categories.AsNoTracking().OrderBy(c => c.CategoryName).ToListAsync();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
             ViewBag.Season = season;
             ViewBag.TotalInDb = await _db.Products.AsNoTracking().CountAsync();
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalFiltered = totalFiltered;
+            ViewBag.TotalPages = totalPages;
 
             return View(products);
         }

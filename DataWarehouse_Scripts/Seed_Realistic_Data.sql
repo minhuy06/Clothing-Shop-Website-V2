@@ -1,3 +1,7 @@
+-- QUAN TRỌNG — Encoding tiếng Việt (chạy tay trên SSMS / sqlcmd):
+--   • Lưu file dạng UTF-8.
+--   • sqlcmd:  sqlcmd -S localhost -d ClothingShopWebsiteDB -E -f 65001 -i Seed_Realistic_Data.sql
+--     (-f 65001 = UTF-8; KHÔNG bỏ trên Windows, nếu không tên tiếng Việt sẽ lỗi trong DB và web)
 Use ClothingShopWebsiteDB
 go
 

@@ -1,0 +1,5 @@
+﻿CategoryName Hex
+------------ ---
+Áo Nam 0xC1006F0020004E0061006D00
+
+(1 rows affected)

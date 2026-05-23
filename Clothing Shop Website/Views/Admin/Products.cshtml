@@ -62,7 +62,7 @@
                     <div class="page-title">Sản phẩm</div>
                     <div class="page-sub">
                         Hiển thị <strong style="color:var(--gold)">@Model.Count</strong> / <strong style="color:var(--gold)">@totalInDb</strong> sản phẩm trong database
-                        @if (totalInDb == 0) { <span style="color:rgba(250,248,242,.4)"> · Khởi động lại app để tự nạp <code style="font-size:10px">Seed_Realistic_Data.sql</code></span> }
+                        @if (totalInDb == 0) { <span style="color:rgba(250,248,242,.4)"> · Chạy <code style="font-size:10px">Seed_Realistic_Data.sql</code> trong SSMS (UTF-8, sqlcmd -f 65001)</span> }
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
@@ -120,7 +120,7 @@
                         <td colspan="8" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px;letter-spacing:1px">
                             @if (totalInDb == 0)
                             {
-                                <span>Chưa có dữ liệu. Khởi động lại ứng dụng để tự chạy <strong style="color:var(--gold)">Seed_Realistic_Data.sql</strong>, hoặc chạy file SQL trong SSMS.</span>
+                                <span>Chưa có dữ liệu. Chạy file <strong style="color:var(--gold)">DataWarehouse_Scripts/Seed_Realistic_Data.sql</strong> trong SSMS hoặc sqlcmd (-f 65001).</span>
                             }
                             else
                             {

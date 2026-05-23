@@ -179,6 +179,30 @@ namespace Clothing_Shop_Website.Controllers
             return Json(list);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetSupplier(int id)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            if (id < 1) return Json(new { success = false });
+
+            var s = await _db.Suppliers.AsNoTracking().FirstOrDefaultAsync(x => x.SupplierID == id);
+            if (s == null) return Json(new { success = false, message = "Không tìm thấy nhà cung cấp." });
+
+            return Json(new
+            {
+                success = true,
+                supplier = new
+                {
+                    id = s.SupplierID,
+                    name = s.SupplierName,
+                    phone = s.Phone ?? "",
+                    city = s.City ?? "",
+                    country = s.Country ?? "",
+                    contactInfo = s.ContactInfo ?? ""
+                }
+            });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportStock(
@@ -253,6 +277,8 @@ namespace Clothing_Shop_Website.Controllers
                     product.Price = salePrice;
                     if (!string.IsNullOrEmpty(imageUrl))
                         product.ImageUrl = imageUrl;
+                    if (product.SupplierID != supplierId)
+                        product.SupplierID = supplierId;
                 }
                 else
                 {
@@ -263,7 +289,8 @@ namespace Clothing_Shop_Website.Controllers
                         Session = session,
                         Price = salePrice,
                         ImageUrl = imageUrl,
-                        Description = ""
+                        Description = "",
+                        SupplierID = supplierId
                     };
                     _db.Products.Add(product);
                     await _db.SaveChangesAsync();
@@ -422,11 +449,14 @@ namespace Clothing_Shop_Website.Controllers
 
             var p = await _db.Products.AsNoTracking()
                 .Include(x => x.Category)
+                .Include(x => x.Supplier)
                 .Include(x => x.ProductSizes)
                 .FirstOrDefaultAsync(x => x.ProductID == id);
 
             if (p == null)
                 return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+            var supplier = p.Supplier ?? await GetLatestReceiptSupplierAsync(p.ProductID, p.ProductSizes.Select(s => s.SizeID).ToList());
 
             return Json(new
             {
@@ -448,9 +478,109 @@ namespace Clothing_Shop_Website.Controllers
                     sizes = p.ProductSizes
                         .OrderBy(s => s.SizeName)
                         .Select(s => new { id = s.SizeID, sizeName = s.SizeName, stockQuantity = s.StockQuantity })
-                        .ToList()
+                        .ToList(),
+                    supplier = supplier == null ? null : new
+                    {
+                        id = supplier.SupplierID,
+                        name = supplier.SupplierName,
+                        phone = supplier.Phone ?? "",
+                        city = supplier.City ?? "",
+                        country = supplier.Country ?? "",
+                        contactInfo = supplier.ContactInfo ?? ""
+                    }
                 }
             });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProduct(
+            string productName,
+            int categoryID,
+            int session,
+            decimal price,
+            string? imageUrl,
+            string? description,
+            string? color,
+            string? style,
+            string? material,
+            int stockS,
+            int stockM,
+            int stockL,
+            int supplierId,
+            string? supplierName,
+            string? supplierPhone,
+            string? supplierCity,
+            string? supplierCountry,
+            string? supplierContactInfo,
+            IFormFile? imageFile)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            productName = (productName ?? "").Trim();
+            if (string.IsNullOrEmpty(productName))
+            {
+                TempData["Error"] = "Tên sản phẩm không được để trống.";
+                return RedirectToAction("Products");
+            }
+
+            if (price < 0)
+            {
+                TempData["Error"] = "Giá bán phải >= 0.";
+                return RedirectToAction("Products");
+            }
+
+            if (stockS < 0 || stockM < 0 || stockL < 0)
+            {
+                TempData["Error"] = "Tồn kho từng size không được âm.";
+                return RedirectToAction("Products");
+            }
+
+            if (!await _db.Categories.AnyAsync(c => c.CategoryID == categoryID))
+            {
+                TempData["Error"] = "Danh mục không hợp lệ.";
+                return RedirectToAction("Products");
+            }
+
+            if (imageFile is { Length: > 0 })
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                if (ext.Length > 10) ext = "";
+                var safe = $"{Guid.NewGuid():N}{ext}";
+                var dir = Path.Combine(_env.WebRootPath, "uploads", "products");
+                Directory.CreateDirectory(dir);
+                var full = Path.Combine(dir, safe);
+                await using (var fs = System.IO.File.Create(full))
+                    await imageFile.CopyToAsync(fs);
+                imageUrl = "/uploads/products/" + safe;
+            }
+
+            var resolvedSupplierId = await ResolveSupplierForSaveAsync(
+                supplierId, supplierName, supplierPhone, supplierCity, supplierCountry, supplierContactInfo, allowCreate: true);
+
+            var product = new Product
+            {
+                ProductName = productName,
+                CategoryID = categoryID,
+                Session = session,
+                Price = price,
+                ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim(),
+                Description = description?.Trim(),
+                Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim(),
+                Style = string.IsNullOrWhiteSpace(style) ? null : style.Trim(),
+                Material = string.IsNullOrWhiteSpace(material) ? null : material.Trim(),
+                SupplierID = resolvedSupplierId
+            };
+            _db.Products.Add(product);
+            await _db.SaveChangesAsync();
+
+            SetProductSizeStock(product, "S", stockS);
+            SetProductSizeStock(product, "M", stockM);
+            SetProductSizeStock(product, "L", stockL);
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Đã thêm sản phẩm #" + product.ProductID.ToString("D3") + "!";
+            return RedirectToAction("Products");
         }
 
         [HttpPost]
@@ -469,6 +599,12 @@ namespace Clothing_Shop_Website.Controllers
             int stockS,
             int stockM,
             int stockL,
+            int supplierId,
+            string? supplierName,
+            string? supplierPhone,
+            string? supplierCity,
+            string? supplierCountry,
+            string? supplierContactInfo,
             IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -534,9 +670,72 @@ namespace Clothing_Shop_Website.Controllers
             SetProductSizeStock(p, "M", stockM);
             SetProductSizeStock(p, "L", stockL);
 
+            p.SupplierID = await ResolveSupplierForSaveAsync(
+                supplierId, supplierName, supplierPhone, supplierCity, supplierCountry, supplierContactInfo, allowCreate: false);
+
             await _db.SaveChangesAsync();
             TempData["Success"] = "Đã cập nhật sản phẩm #" + productID.ToString("D3") + " (tồn S/M/L: " + stockS + "/" + stockM + "/" + stockL + ")!";
             return RedirectToAction("Products");
+        }
+
+        async Task<Supplier?> GetLatestReceiptSupplierAsync(int productId, List<int> sizeIds)
+        {
+            if (sizeIds.Count == 0) return null;
+            return await (
+                from d in _db.InventoryReceiptDetails.AsNoTracking()
+                join r in _db.InventoryReceipts on d.ReceiptID equals r.ReceiptID
+                join s in _db.Suppliers on r.SupplierID equals s.SupplierID
+                where sizeIds.Contains(d.SizeID)
+                orderby r.ImportDate descending
+                select s
+            ).FirstOrDefaultAsync();
+        }
+
+        async Task<int?> ResolveSupplierForSaveAsync(
+            int supplierId,
+            string? supplierName,
+            string? phone,
+            string? city,
+            string? country,
+            string? contactInfo,
+            bool allowCreate)
+        {
+            Supplier? sup = null;
+            if (supplierId > 0)
+                sup = await _db.Suppliers.FindAsync(supplierId);
+
+            if (sup == null && !string.IsNullOrWhiteSpace(supplierName))
+            {
+                var name = supplierName.Trim();
+                sup = await _db.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == name);
+                if (sup == null && allowCreate)
+                {
+                    sup = new Supplier
+                    {
+                        SupplierName = name,
+                        Phone = phone?.Trim(),
+                        City = city?.Trim(),
+                        Country = country?.Trim(),
+                        ContactInfo = contactInfo?.Trim()
+                    };
+                    _db.Suppliers.Add(sup);
+                    await _db.SaveChangesAsync();
+                    return sup.SupplierID;
+                }
+            }
+
+            if (sup == null) return null;
+
+            UpdateSupplierFields(sup, phone, city, country, contactInfo);
+            return sup.SupplierID;
+        }
+
+        static void UpdateSupplierFields(Supplier sup, string? phone, string? city, string? country, string? contactInfo)
+        {
+            if (!string.IsNullOrWhiteSpace(phone)) sup.Phone = phone.Trim();
+            if (!string.IsNullOrWhiteSpace(city)) sup.City = city.Trim();
+            if (!string.IsNullOrWhiteSpace(country)) sup.Country = country.Trim();
+            if (!string.IsNullOrWhiteSpace(contactInfo)) sup.ContactInfo = contactInfo.Trim();
         }
 
         static void SetProductSizeStock(Product product, string sizeName, int quantity)

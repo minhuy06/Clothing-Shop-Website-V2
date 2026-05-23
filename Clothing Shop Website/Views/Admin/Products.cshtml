@@ -120,6 +120,11 @@
                         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Thêm sản phẩm
                     </button>
+                    <button type="button" id="btnOpenImport"
+                        style="padding:9px 16px;background:transparent;border:1px solid var(--border);color:rgba(250,248,242,.55);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-b);cursor:pointer"
+                        title="Ghi phiếu nhập hàng (tăng tồn theo size)">
+                        Nhập hàng
+                    </button>
                 </div>
             </div>
             <!-- Filter -->
@@ -359,6 +364,91 @@
     </div>
 </div>
 
+<!-- MODAL THÊM SẢN PHẨM MỚI 
+<div id="addMo" class="modal-overlay">
+    <div class="modal-box" style="max-width:640px">
+        <div class="modal-hdr">
+            <span>Thêm sản phẩm mới</span>
+            <button type="button" class="modal-x" id="addClose">×</button>
+        </div>
+        <form method="post" asp-controller="Admin" asp-action="AddProduct" enctype="multipart/form-data" id="addForm">
+            @Html.AntiForgeryToken()
+            <div class="modal-grid">
+                <label>Tên sản phẩm</label>
+                <input type="text" name="productName" id="addName" class="modal-inp" required maxlength="100" />
+                <label>Danh mục</label>
+                <select name="categoryID" id="addCat" class="modal-inp" required>
+                    @if (categories == null || categories.Count == 0)
+                    {
+                        <option value="" disabled>Chưa có danh mục</option>
+                    }
+                    else
+                    {
+                        @foreach (var cat in categories)
+                        {
+                            <option value="@cat.CategoryID">@cat.CategoryName</option>
+                        }
+                    }
+                </select>
+                <label>Mùa</label>
+                <select name="session" id="addSeason" class="modal-inp" required>
+                    <option value="1">Xuân</option>
+                    <option value="2">Hạ</option>
+                    <option value="3">Thu</option>
+                    <option value="4">Đông</option>
+                </select>
+                <label>Giá bán (đ)</label>
+                <input type="number" name="price" id="addPrice" class="modal-inp" step="0.01" min="0" value="0" required />
+                <label>Màu</label>
+                <input type="text" name="color" id="addColor" class="modal-inp" maxlength="50" />
+                <label>Kiểu dáng</label>
+                <input type="text" name="style" id="addStyle" class="modal-inp" maxlength="50" />
+                <label>Chất liệu</label>
+                <input type="text" name="material" id="addMaterial" class="modal-inp" maxlength="50" />
+                <label>URL ảnh</label>
+                <input type="text" name="imageUrl" id="addImg" class="modal-inp" placeholder="/uploads/products/..." />
+                <label>Ảnh (tùy chọn)</label>
+                <input type="file" name="imageFile" id="addFile" accept="image/*" class="modal-inp" style="padding:8px" />
+                <label>Mô tả</label>
+                <textarea name="description" id="addDesc" class="modal-inp" rows="2" maxlength="100" style="resize:vertical;min-height:60px"></textarea>
+                <label>Tồn kho (S / M / L)</label>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size S</span>
+                        <input type="number" name="stockS" id="addStockS" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size M</span>
+                        <input type="number" name="stockM" id="addStockM" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size L</span>
+                        <input type="number" name="stockL" id="addStockL" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                </div>
+                <label style="grid-column:1/-1;margin-top:4px;color:var(--gold)">Nhà cung cấp (tùy chọn)</label>
+                <input type="hidden" name="supplierId" id="addSupplierId" value="0" />
+                <div style="grid-column:2">
+                    <input type="text" name="supplierName" id="addSupplierName" class="modal-inp" list="supSuggestAdd" autocomplete="off" placeholder="Gõ tên NCC..." />
+                    <datalist id="supSuggestAdd"></datalist>
+                </div>
+                <label>Điện thoại NCC</label>
+                <input type="text" name="supplierPhone" id="addSupplierPhone" class="modal-inp" maxlength="15" />
+                <label>Thành phố</label>
+                <input type="text" name="supplierCity" id="addSupplierCity" class="modal-inp" maxlength="50" />
+                <label>Quốc gia</label>
+                <input type="text" name="supplierCountry" id="addSupplierCountry" class="modal-inp" maxlength="50" />
+                <label>Liên hệ</label>
+                <input type="text" name="supplierContactInfo" id="addSupplierContact" class="modal-inp" maxlength="50" />
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="act-btn" id="addCancel">Hủy</button>
+                <button type="submit" class="act-btn" style="border-color:var(--gold);color:var(--gold)">Tạo sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL SỬA SẢN PHẨM -->
 <div id="editMo" class="modal-overlay">
     <div class="modal-box" style="max-width:640px">
@@ -427,6 +517,20 @@
                         <input type="number" name="stockL" id="editStockL" class="modal-inp" min="0" step="1" value="0" required />
                     </div>
                 </div>
+                <label style="grid-column:1/-1;margin-top:4px;color:var(--gold)">Nhà cung cấp</label>
+                <input type="hidden" name="supplierId" id="editSupplierId" value="0" />
+                <div style="grid-column:2">
+                    <input type="text" name="supplierName" id="editSupplierName" class="modal-inp" list="supSuggestEdit" autocomplete="off" placeholder="Gõ tên NCC từ gợi ý..." />
+                    <datalist id="supSuggestEdit"></datalist>
+                </div>
+                <label>Điện thoại NCC</label>
+                <input type="text" name="supplierPhone" id="editSupplierPhone" class="modal-inp" maxlength="15" />
+                <label>Thành phố</label>
+                <input type="text" name="supplierCity" id="editSupplierCity" class="modal-inp" maxlength="50" />
+                <label>Quốc gia</label>
+                <input type="text" name="supplierCountry" id="editSupplierCountry" class="modal-inp" maxlength="50" />
+                <label>Liên hệ</label>
+                <input type="text" name="supplierContactInfo" id="editSupplierContact" class="modal-inp" maxlength="50" />
             </div>
             <div class="modal-actions">
                 <button type="button" class="act-btn" id="editCancel">Hủy</button>
@@ -509,10 +613,101 @@ function publishToFrontend() {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     if (window.NevaAdminImportModal) {
-        window.NevaAdminImportModal.init({ bindTopSellList: false, openEmptyButtonId: 'btnOpenAddProduct' });
+        window.NevaAdminImportModal.init({ bindTopSellList: false });
+        document.getElementById('btnOpenImport')?.addEventListener('click', () => {
+            window.NevaAdminImportModal.openImport({ pid: '', pname: '', catId: '', seasonNum: '1', price: '', orig: '' });
+        });
     }
+    initAddProductModal();
     initEditProductModal();
+    bindSupplierAutocomplete('add', 'supSuggestAdd');
+    bindSupplierAutocomplete('edit', 'supSuggestEdit');
 });
+
+function initAddProductModal() {
+    const mo = document.getElementById('addMo');
+    if (!mo) return;
+    function closeAdd() { mo.classList.remove('open'); }
+    document.getElementById('btnOpenAddProduct')?.addEventListener('click', () => {
+        document.getElementById('addForm')?.reset();
+        document.getElementById('addStockS').value = 0;
+        document.getElementById('addStockM').value = 0;
+        document.getElementById('addStockL').value = 0;
+        document.getElementById('addSupplierId').value = '0';
+        mo.classList.add('open');
+    });
+    document.getElementById('addClose')?.addEventListener('click', closeAdd);
+    document.getElementById('addCancel')?.addEventListener('click', closeAdd);
+    mo.addEventListener('click', e => { if (e.target === mo) closeAdd(); });
+}
+
+const supplierSuggestCache = { add: [], edit: [] };
+
+function bindSupplierAutocomplete(prefix, datalistId) {
+    const nameEl = document.getElementById(prefix + 'SupplierName');
+    const idEl = document.getElementById(prefix + 'SupplierId');
+    const dl = document.getElementById(datalistId);
+    if (!nameEl || !idEl || !dl) return;
+
+    let tmr;
+    nameEl.addEventListener('input', e => {
+        clearTimeout(tmr);
+        const v = e.target.value.trim();
+        idEl.value = '0';
+        tmr = setTimeout(async () => {
+            if (v.length < 1) { dl.innerHTML = ''; return; }
+            const r = await fetch('/Admin/SearchSuppliers?q=' + encodeURIComponent(v), { credentials: 'same-origin' });
+            const list = await r.json();
+            supplierSuggestCache[prefix] = list;
+            dl.innerHTML = list.map(s => '<option value="' + escapeHtmlAttr(s.name) + '">').join('');
+        }, 220);
+    });
+
+    nameEl.addEventListener('change', () => {
+        const sn = nameEl.value.trim();
+        const hit = (supplierSuggestCache[prefix] || []).find(s => s.name === sn);
+        idEl.value = hit ? String(hit.id) : '0';
+        if (hit) loadSupplierDetails(prefix, hit.id);
+    });
+}
+
+function escapeHtmlAttr(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function loadSupplierDetails(prefix, supplierId) {
+    if (!supplierId) return;
+    try {
+        const r = await fetch('/Admin/GetSupplier?id=' + encodeURIComponent(supplierId), { credentials: 'same-origin' });
+        const data = await r.json();
+        if (!data.success || !data.supplier) return;
+        const s = data.supplier;
+        const set = (id, val) => { const el = document.getElementById(prefix + id); if (el) el.value = val || ''; };
+        set('SupplierPhone', s.phone);
+        set('SupplierCity', s.city);
+        set('SupplierCountry', s.country);
+        set('SupplierContact', s.contactInfo);
+    } catch { /* ignore */ }
+}
+
+function fillSupplierFields(prefix, supplier) {
+    const set = (id, val) => { const el = document.getElementById(prefix + id); if (el) el.value = val ?? ''; };
+    if (!supplier) {
+        set('SupplierId', '0');
+        set('SupplierName', '');
+        set('SupplierPhone', '');
+        set('SupplierCity', '');
+        set('SupplierCountry', '');
+        set('SupplierContact', '');
+        return;
+    }
+    set('SupplierId', String(supplier.id || 0));
+    set('SupplierName', supplier.name);
+    set('SupplierPhone', supplier.phone);
+    set('SupplierCity', supplier.city);
+    set('SupplierCountry', supplier.country);
+    set('SupplierContact', supplier.contactInfo);
+}
 
 function initEditProductModal() {
     const mo = document.getElementById('editMo');
@@ -583,6 +778,7 @@ function initEditProductModal() {
                 document.getElementById('editStockS').value = qtyFor('S');
                 document.getElementById('editStockM').value = qtyFor('M');
                 document.getElementById('editStockL').value = qtyFor('L');
+                fillSupplierFields('edit', p.supplier);
                 const wrap = document.getElementById('editPreviewWrap');
                 const img = document.getElementById('editPreview');
                 if (p.imageUrl && wrap && img) {

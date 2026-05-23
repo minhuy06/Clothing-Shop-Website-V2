@@ -412,8 +412,21 @@
                 </div>
                 <label>Mô tả</label>
                 <textarea name="description" id="editDesc" class="modal-inp" rows="3" maxlength="100" style="resize:vertical;min-height:72px"></textarea>
-                <label>Tồn kho (chỉ xem)</label>
-                <div id="editSizesInfo" style="font-size:11px;color:rgba(250,248,242,.55);padding:8px 0;line-height:1.6">—</div>
+                <label>Tồn kho (S / M / L)</label>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size S</span>
+                        <input type="number" name="stockS" id="editStockS" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size M</span>
+                        <input type="number" name="stockM" id="editStockM" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                    <div>
+                        <span style="display:block;font-size:10px;letter-spacing:1px;color:rgba(201,168,76,.75);margin-bottom:6px">Size L</span>
+                        <input type="number" name="stockL" id="editStockL" class="modal-inp" min="0" step="1" value="0" required />
+                    </div>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="act-btn" id="editCancel">Hủy</button>
@@ -562,14 +575,14 @@ function initEditProductModal() {
                 document.getElementById('editImg').value = p.imageUrl || '';
                 document.getElementById('editDesc').value = p.description || '';
                 document.getElementById('editFile').value = '';
-                const sizesEl = document.getElementById('editSizesInfo');
-                if (sizesEl) {
-                    if (p.sizes && p.sizes.length) {
-                        sizesEl.textContent = 'Tổng ' + p.stock + ' · ' + p.sizes.map(s => s.sizeName + ': ' + s.stockQuantity).join(', ');
-                    } else {
-                        sizesEl.textContent = 'Chưa có size / tồn kho';
-                    }
-                }
+                const qtyFor = (name) => {
+                    const row = (p.sizes || []).find(s =>
+                        String(s.sizeName).toUpperCase() === name);
+                    return row ? row.stockQuantity : 0;
+                };
+                document.getElementById('editStockS').value = qtyFor('S');
+                document.getElementById('editStockM').value = qtyFor('M');
+                document.getElementById('editStockL').value = qtyFor('L');
                 const wrap = document.getElementById('editPreviewWrap');
                 const img = document.getElementById('editPreview');
                 if (p.imageUrl && wrap && img) {

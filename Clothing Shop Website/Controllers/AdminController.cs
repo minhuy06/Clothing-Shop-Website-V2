@@ -447,7 +447,7 @@ namespace Clothing_Shop_Website.Controllers
                     stock = p.ProductSizes.Sum(s => s.StockQuantity),
                     sizes = p.ProductSizes
                         .OrderBy(s => s.SizeName)
-                        .Select(s => new { s.SizeName, s.StockQuantity })
+                        .Select(s => new { id = s.SizeID, sizeName = s.SizeName, stockQuantity = s.StockQuantity })
                         .ToList()
                 }
             });
@@ -466,6 +466,9 @@ namespace Clothing_Shop_Website.Controllers
             string? color,
             string? style,
             string? material,
+            int stockS,
+            int stockM,
+            int stockL,
             IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -489,10 +492,18 @@ namespace Clothing_Shop_Website.Controllers
                 return RedirectToAction("Products");
             }
 
-            var p = await _db.Products.FindAsync(productID);
+            var p = await _db.Products
+                .Include(x => x.ProductSizes)
+                .FirstOrDefaultAsync(x => x.ProductID == productID);
             if (p == null)
             {
                 TempData["Error"] = "Không tìm thấy sản phẩm.";
+                return RedirectToAction("Products");
+            }
+
+            if (stockS < 0 || stockM < 0 || stockL < 0)
+            {
+                TempData["Error"] = "Tồn kho từng size không được âm.";
                 return RedirectToAction("Products");
             }
 
@@ -519,9 +530,31 @@ namespace Clothing_Shop_Website.Controllers
             p.Style = string.IsNullOrWhiteSpace(style) ? null : style.Trim();
             p.Material = string.IsNullOrWhiteSpace(material) ? null : material.Trim();
 
+            SetProductSizeStock(p, "S", stockS);
+            SetProductSizeStock(p, "M", stockM);
+            SetProductSizeStock(p, "L", stockL);
+
             await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã cập nhật sản phẩm #" + productID.ToString("D3") + "!";
+            TempData["Success"] = "Đã cập nhật sản phẩm #" + productID.ToString("D3") + " (tồn S/M/L: " + stockS + "/" + stockM + "/" + stockL + ")!";
             return RedirectToAction("Products");
+        }
+
+        static void SetProductSizeStock(Product product, string sizeName, int quantity)
+        {
+            var size = product.ProductSizes.FirstOrDefault(s =>
+                string.Equals(s.SizeName, sizeName, StringComparison.OrdinalIgnoreCase));
+            if (size == null)
+            {
+                product.ProductSizes.Add(new ProductSize
+                {
+                    ProductID = product.ProductID,
+                    SizeName = sizeName,
+                    StockQuantity = quantity,
+                    MinimumStock = 5
+                });
+            }
+            else
+                size.StockQuantity = quantity;
         }
 
         [HttpPost]

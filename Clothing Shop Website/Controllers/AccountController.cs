@@ -37,7 +37,12 @@ namespace Clothing_Shop_Website.Controllers
         public IActionResult Login()
         {
             if (HttpContext.Session.GetInt32("UserId") != null)
+            {
+                var role = HttpContext.Session.GetInt32("Role");
+                if (role == 0) return RedirectToAction("Dashboard", "Admin");
+                if (role == 1) return RedirectToAction("Inventory", "Staff");
                 return RedirectToAction("Profile");
+            }
             return View();
         }
 
@@ -56,9 +61,11 @@ namespace Clothing_Shop_Website.Controllers
             if (user == null) { TempData["Error"] = "Số điện thoại hoặc mật khẩu không đúng!"; return View(); }
             if (user.Status == 0) { TempData["Error"] = "Tài khoản của bạn đã bị khóa!"; return View(); }
             SetUserSession(user);
-            return (user.Role == 0 || user.Role == 1)
-                ? RedirectToAction("Dashboard", "Admin")
-                : RedirectToAction("Profile");
+            if (user.Role == 0)
+                return RedirectToAction("Dashboard", "Admin");
+            if (user.Role == 1)
+                return RedirectToAction("Inventory", "Staff");
+            return RedirectToAction("Profile");
         }
 
         // ── REGISTER ──

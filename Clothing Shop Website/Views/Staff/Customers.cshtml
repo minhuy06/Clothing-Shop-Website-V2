@@ -1,0 +1,110 @@
+@model List<Clothing_Shop_Website.Models.User>
+@{
+    ViewData["Title"] = "Khách hàng";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEVA — Khách hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/staff.css" asp-append-version="true"/>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav class="admin-nav">
+    <span class="admin-nav-logo">NEVA</span><span class="admin-nav-sep">|</span><span class="staff-nav-badge">Nhân viên</span>
+</nav>
+<div class="admin-wrap">
+    <aside class="admin-sidebar">
+        <div class="sb-section">
+            <div class="sb-lbl">Nhân viên</div>
+            <a asp-controller="Staff" asp-action="Inventory" class="sitem"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Kho hàng</a>
+            <a asp-controller="Staff" asp-action="Customers" class="sitem active"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
+            <a asp-controller="Staff" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
+            <a asp-controller="Staff" asp-action="Statistics" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="3" width="4" height="18"/></svg>Thống kê</a>
+        </div>
+        <div class="sb-section" style="margin-top:12px">
+            <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
+        </div>
+    </aside>
+    <main class="admin-main">
+
+        @if (TempData["Success"] != null)
+        {
+            <div style="padding:10px 16px;background:rgba(90,154,90,.1);border:1px solid rgba(90,154,90,.3);color:#7aba7a;font-size:11px;margin-bottom:16px">✦ @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div style="padding:10px 16px;background:rgba(180,80,80,.12);border:1px solid rgba(212,122,116,.35);color:#d4a8a4;font-size:11px;margin-bottom:16px">@TempData["Error"]</div>
+        }
+
+        <div class="page-title">Khách hàng</div>
+        <div class="page-sub">Khóa / mở tài khoản khách hàng · Tổng <strong style="color:var(--gold)">@Model.Count</strong> khách</div>
+
+        <form method="get" asp-controller="Staff" asp-action="Customers" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                <input type="text" name="search" value="@ViewBag.Search" placeholder="Tìm tên, số điện thoại...">
+            </div>
+            <button type="submit" style="padding:9px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);cursor:pointer">Tìm</button>
+            <div class="result-info">Hiển thị <strong>@Model.Count</strong> khách hàng</div>
+        </form>
+
+        <table class="cust-table">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Số điện thoại</th>
+                    <th>Điểm thưởng</th>
+                    <th>Số đơn hàng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    var orderCount = u.Orders?.Count ?? 0;
+                    <tr>
+                        <td style="font-family:'EB Garamond',serif;font-style:italic;font-size:14px;color:var(--white)">@u.FullName</td>
+                        <td>@u.Phone</td>
+                        <td><span class="pts-badge">✦ @u.RewardPoints.ToString("N0")</span></td>
+                        <td>@orderCount đơn</td>
+                        <td><span class="cust-status @(u.Status == 1 ? "cs-active" : "cs-locked")">@(u.Status == 1 ? "Hoạt động" : "Đã khóa")</span></td>
+                        <td>
+                            <form method="post" asp-controller="Staff" asp-action="ToggleLockUser">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@u.UserID">
+                                <button type="submit"
+                                    class="lock-btn @(u.Status == 0 ? "locked" : "")"
+                                    title="@(u.Status == 1 ? "Khóa tài khoản" : "Mở khóa tài khoản")">
+                                    <svg viewBox="0 0 24 24">
+                                        @if (u.Status == 0)
+                                        {
+                                            <text><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></text>
+                                        }
+                                        else
+                                        {
+                                            <text><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></text>
+                                        }
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="6" style="text-align:center;padding:32px;color:rgba(250,248,242,.25);font-size:12px">Không tìm thấy khách hàng.</td></tr>
+                }
+            </tbody>
+        </table>
+    </main>
+</div>
+<script src="~/js/neva-base.js" asp-append-version="true"></script>
+</body>
+</html>

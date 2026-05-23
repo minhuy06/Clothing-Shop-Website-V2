@@ -11,9 +11,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Clothing_Shop_Website.Controllers
 {
+    // Helper for SetShifts action
+    public class ShiftInput
+    {
+        public int ShiftType { get; set; }
+        public string DayOfWeek { get; set; } = "";
+    }
+
     public class AdminController : Controller
     {
         private readonly AppDbContext _db;
@@ -69,25 +77,30 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAIPrediction()
+        public async Task<IActionResult> GetAIPrediction(int months = 3)
         {
+            if (months < 1) months = 1;
+            if (months > 24) months = 24;
             try
             {
-                // Gọi hàm DMX lấy dự báo 3 tháng tới (Hàm GetForecastNext3MonthsAsync bạn đã tạo ở bước trước)
                 var predictions = await _cube.GetForecastNext3MonthsAsync();
 
                 if (predictions == null || predictions.Count == 0)
                     return Json(new { success = false, message = "Chưa đủ dữ liệu chuỗi thời gian để dự báo." });
 
-                // Tìm danh mục có xu hướng tăng mạnh nhất (số lượng dự báo cao nhất)
                 var topCategory = predictions.OrderByDescending(p => p.QuantitySold).First();
+
+                // Scale quantity by chosen months (base model is 3 months)
+                int scaledQty = (int)Math.Round(topCategory.QuantitySold * (months / 3.0));
+                if (scaledQty < 1) scaledQty = 1;
 
                 return Json(new
                 {
                     success = true,
                     categoryName = topCategory.CategoryName,
-                    predictedQty = topCategory.QuantitySold,
-                    message = $"Dự đoán 3 tháng tới cần nhập {topCategory.QuantitySold} chiếc {topCategory.CategoryName}."
+                    predictedQty = scaledQty,
+                    months = months,
+                    message = $"Dự đoán {months} tháng tới cần nhập {scaledQty} chiếc {topCategory.CategoryName}."
                 });
             }
             catch (Exception)
@@ -100,7 +113,18 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            var vm = await _cube.BuildDashboardAsync(season, ageGroup);
+            Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel vm;
+            try
+            {
+                vm = await _cube.BuildDashboardAsync(season, ageGroup);
+            }
+            catch (Exception ex)
+            {
+                vm = new Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel
+                {
+                    CubeError = "Không kết nối được SSAS cube. Các tính năng AI và thống kê sẽ tạm thời không khả dụng. (" + ex.Message + ")"
+                };
+            }
 
             ViewBag.SeasonFilter = season;
             ViewBag.AgeGroupFilter = ageGroup;
@@ -280,6 +304,7 @@ namespace Clothing_Shop_Website.Controllers
 
                 await _db.SaveChangesAsync();
                 await tx.CommitAsync();
+                TempData["LastReceiptId"] = receipt.ReceiptID;
                 TempData["Success"] = toProducts
                     ? "Đã thêm / cập nhật sản phẩm và ghi nhận phiếu nhập."
                     : "Đã ghi nhận nhập hàng.";
@@ -497,5 +522,261 @@ namespace Clothing_Shop_Website.Controllers
             return RedirectToAction("Products");
         }
 
+        // ═══════════════════════════════
+        //   NHÂN VIÊN (STAFF MANAGEMENT)
+        // ═══════════════════════════════
+        public async Task<IActionResult> Staff()
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+            var staff = await _db.Users
+                .Include(u => u.StaffDetail)
+                    .ThenInclude(sd => sd!.StaffShifts)
+                .Where(u => u.Role == 1)
+                .OrderByDescending(u => u.UserID)
+                .ToListAsync();
+            return View(staff);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddStaff(string fullName, string phone, string password,
+            DateTime hireDate, decimal salary)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            if (await _db.Users.AnyAsync(u => u.Phone == phone))
+            {
+                TempData["Error"] = "Số điện thoại đã tồn tại!";
+                return RedirectToAction("Staff");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var user = new User
+                {
+                    FullName = fullName.Trim(),
+                    Phone = phone.Trim(),
+                    Password = password,
+                    Role = 1,
+                    Status = 1,
+                    Gender = 0
+                };
+                _db.Users.Add(user);
+                await _db.SaveChangesAsync();
+
+                _db.StaffDetails.Add(new StaffDetail
+                {
+                    UserID = user.UserID,
+                    HireDate = hireDate,
+                    Salary = salary
+                });
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                TempData["Success"] = "Đã thêm nhân viên!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi: " + ex.Message;
+            }
+            return RedirectToAction("Staff");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStaff(int userId, string fullName, string phone,
+            string? password, DateTime hireDate, decimal salary)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            var user = await _db.Users.Include(u => u.StaffDetail)
+                .FirstOrDefaultAsync(u => u.UserID == userId && u.Role == 1);
+            if (user == null) { TempData["Error"] = "Không tìm thấy nhân viên!"; return RedirectToAction("Staff"); }
+
+            user.FullName = fullName.Trim();
+            user.Phone = phone.Trim();
+            if (!string.IsNullOrWhiteSpace(password)) user.Password = password;
+
+            if (user.StaffDetail == null)
+            {
+                _db.StaffDetails.Add(new StaffDetail { UserID = userId, HireDate = hireDate, Salary = salary });
+            }
+            else
+            {
+                user.StaffDetail.HireDate = hireDate;
+                user.StaffDetail.Salary = salary;
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật nhân viên!";
+            return RedirectToAction("Staff");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteStaff(int userId)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.UserID == userId && u.Role == 1);
+            if (user != null)
+            {
+                _db.Users.Remove(user);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa nhân viên!";
+            }
+            return RedirectToAction("Staff");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStaffShifts(int userId)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            var shifts = await _db.StaffShifts.Where(s => s.UserID == userId)
+                .Select(s => new { s.ShiftID, s.UserID, s.ShiftType, s.DayOfWeek })
+                .ToListAsync();
+            return Json(shifts);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetShifts([FromBody] SetShiftsRequest req)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var existing = _db.StaffShifts.Where(s => s.UserID == req.UserId);
+            _db.StaffShifts.RemoveRange(existing);
+
+            foreach (var s in req.Shifts ?? new List<ShiftInput>())
+            {
+                _db.StaffShifts.Add(new StaffShift
+                {
+                    UserID = req.UserId,
+                    ShiftType = s.ShiftType,
+                    DayOfWeek = s.DayOfWeek
+                });
+            }
+            await _db.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        // ═══════════════════════════════
+        //   QUẢNG CÁO
+        // ═══════════════════════════════
+        public async Task<IActionResult> Advertisements()
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+            var ads = await _db.Advertisements.OrderByDescending(a => a.CreatedDate).ToListAsync();
+            return View(ads);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAdvertisement(string title, string? linkUrl,
+            string position, IFormFile? imageFile)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            string? imageUrl = null;
+            if (imageFile is { Length: > 0 })
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                if (ext.Length > 10) ext = "";
+                var safe = $"{Guid.NewGuid():N}{ext}";
+                var dir = Path.Combine(_env.WebRootPath, "uploads", "ads");
+                Directory.CreateDirectory(dir);
+                var full = Path.Combine(dir, safe);
+                await using (var fs = System.IO.File.Create(full)) await imageFile.CopyToAsync(fs);
+                imageUrl = "/uploads/ads/" + safe;
+            }
+
+            _db.Advertisements.Add(new Advertisement
+            {
+                Title = (title ?? "").Trim(),
+                ImageUrl = imageUrl,
+                LinkUrl = linkUrl?.Trim(),
+                Position = position ?? "banner",
+                IsActive = true,
+                CreatedDate = DateTime.Now
+            });
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã thêm quảng cáo!";
+            return RedirectToAction("Advertisements");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAdvertisement(int adId)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+            var ad = await _db.Advertisements.FindAsync(adId);
+            if (ad != null) { _db.Advertisements.Remove(ad); await _db.SaveChangesAsync(); }
+            TempData["Success"] = "Đã xóa quảng cáo!";
+            return RedirectToAction("Advertisements");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleAdActive(int adId)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+            var ad = await _db.Advertisements.FindAsync(adId);
+            if (ad != null) { ad.IsActive = !ad.IsActive; await _db.SaveChangesAsync(); }
+            return RedirectToAction("Advertisements");
+        }
+
+        // ═══════════════════════════════
+        //   XUẤT HÓA ĐƠN NHẬP HÀNG
+        // ═══════════════════════════════
+        [HttpGet]
+        public async Task<IActionResult> ExportReceipt(int receiptId)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            var receipt = await _db.InventoryReceipts
+                .Include(r => r.Supplier)
+                .Include(r => r.InventoryReceiptDetails)
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
+                .FirstOrDefaultAsync(r => r.ReceiptID == receiptId);
+
+            if (receipt == null)
+            {
+                TempData["Error"] = "Không tìm thấy phiếu nhập!";
+                return RedirectToAction("Dashboard");
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine("HÓA ĐƠN NHẬP HÀNG - NEVA");
+            sb.AppendLine($"Số phiếu,#{receiptId:D6}");
+            sb.AppendLine($"Nhà cung cấp,{receipt.Supplier?.SupplierName}");
+            sb.AppendLine($"Ngày nhập,{receipt.ImportDate:dd/MM/yyyy HH:mm}");
+            sb.AppendLine();
+            sb.AppendLine("STT,Sản phẩm,Size,Số lượng,Giá nhập (đ),Thành tiền (đ)");
+            int i = 1;
+            decimal total = 0;
+            foreach (var d in receipt.InventoryReceiptDetails)
+            {
+                decimal sub = d.Quantity * d.ImportPrice;
+                total += sub;
+                var pname = d.ProductSize?.Product?.ProductName ?? "";
+                var sname = d.ProductSize?.SizeName ?? "";
+                sb.AppendLine($"{i++},\"{pname}\",{sname},{d.Quantity},{d.ImportPrice:N0},{sub:N0}");
+            }
+            sb.AppendLine($",,,, Tổng cộng,{total:N0}");
+
+            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/csv; charset=utf-8",
+                $"HoaDonNhap_{receiptId:D6}_{receipt.ImportDate:yyyyMMdd}.csv");
+        }
+
+    }
+
+    // ViewModel cho SetShifts
+    public class SetShiftsRequest
+    {
+        public int UserId { get; set; }
+        public List<ShiftInput>? Shifts { get; set; }
     }
 }

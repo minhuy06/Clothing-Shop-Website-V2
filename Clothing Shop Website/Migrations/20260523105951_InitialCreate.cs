@@ -1,12 +1,30 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Clothing_Shop_Website.Migrations
 {
-    public partial class Net5Initial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Advertisements",
+                columns: table => new
+                {
+                    AdID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    LinkUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Position = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Advertisements", x => x.AdID);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
@@ -65,7 +83,6 @@ namespace Clothing_Shop_Website.Migrations
                     Phone = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     Password = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    RewardPoints = table.Column<int>(type: "int", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
@@ -123,6 +140,25 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomerDetails",
+                columns: table => new
+                {
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    RewardPoints = table.Column<int>(type: "int", nullable: false),
+                    MembershipTier = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerDetails", x => x.UserID);
+                    table.ForeignKey(
+                        name: "FK_CustomerDetails_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -158,6 +194,25 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StaffDetails",
+                columns: table => new
+                {
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    HireDate = table.Column<DateTime>(type: "date", nullable: false),
+                    Salary = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffDetails", x => x.UserID);
+                    table.ForeignKey(
+                        name: "FK_StaffDetails_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserAddresses",
                 columns: table => new
                 {
@@ -168,7 +223,8 @@ namespace Clothing_Shop_Website.Migrations
                     Country = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DetailedAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Phone = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false)
+                    Phone = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -259,6 +315,27 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StaffShifts",
+                columns: table => new
+                {
+                    ShiftID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    ShiftType = table.Column<int>(type: "int", nullable: false),
+                    DayOfWeek = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffShifts", x => x.ShiftID);
+                    table.ForeignKey(
+                        name: "FK_StaffShifts_StaffDetails_UserID",
+                        column: x => x.UserID,
+                        principalTable: "StaffDetails",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InventoryReceiptDetails",
                 columns: table => new
                 {
@@ -342,6 +419,11 @@ namespace Clothing_Shop_Website.Migrations
                 column: "ProductID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StaffShifts_UserID",
+                table: "StaffShifts",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserAddresses_UserID",
                 table: "UserAddresses",
                 column: "UserID");
@@ -350,13 +432,22 @@ namespace Clothing_Shop_Website.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Advertisements");
+
+            migrationBuilder.DropTable(
                 name: "CartItems");
+
+            migrationBuilder.DropTable(
+                name: "CustomerDetails");
 
             migrationBuilder.DropTable(
                 name: "InventoryReceiptDetails");
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "StaffShifts");
 
             migrationBuilder.DropTable(
                 name: "UserAddresses");
@@ -369,6 +460,9 @@ namespace Clothing_Shop_Website.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "StaffDetails");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");

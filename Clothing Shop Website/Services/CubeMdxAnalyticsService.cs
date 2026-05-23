@@ -179,21 +179,19 @@ namespace Clothing_Shop_Website.Services
 
             try
             {
-                using (var conn = new AdomdConnection(_opt.ConnectionString))
-                {
-                    await Task.Run(() => conn.Open(), cancellationToken);
+                using var conn = new AdomdConnection(_opt.ConnectionString);
+                conn.Open();   // gọi đồng bộ — exception nằm gọn trong try này, VS không break giữa chừng
 
-                    await FillKpisAsync(conn, vm, cancellationToken);
-                    await FillRevenueByMonthAsync(conn, vm, cancellationToken);
-                    await FillRevenueByCategoryAsync(conn, vm, cancellationToken);
-                    await FillRevenueByAgeGroupAsync(conn, vm, cancellationToken);
-                    await FillTopSellersAsync(conn, vm, seasonFilter, ageGroupFilter, cancellationToken);
-                }
+                await FillKpisAsync(conn, vm, cancellationToken);
+                await FillRevenueByMonthAsync(conn, vm, cancellationToken);
+                await FillRevenueByCategoryAsync(conn, vm, cancellationToken);
+                await FillRevenueByAgeGroupAsync(conn, vm, cancellationToken);
+                await FillTopSellersAsync(conn, vm, seasonFilter, ageGroupFilter, cancellationToken);
             }
             catch (Exception ex)
             {
                 _log.LogWarning(ex, "MDX / Analysis Services không khả dụng.");
-                vm.CubeError = "Không truy vấn được cube (kiểm tra SSAS đã deploy ClothingShop_Cube và chuỗi kết nối). Chi tiết: " + ex.Message;
+                vm.CubeError = "Không kết nối được SSAS cube. Các tính năng AI và thống kê sẽ tạm thời không khả dụng.";
             }
 
             return vm;

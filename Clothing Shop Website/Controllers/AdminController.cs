@@ -395,6 +395,9 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.Suppliers = await _db.Suppliers.AsNoTracking()
                 .OrderBy(s => s.SupplierName)
                 .ToListAsync();
+            ViewBag.Discounts = await _db.Discounts.AsNoTracking()
+                .OrderByDescending(d => d.DiscountID)
+                .ToListAsync();
 
             return View(products);
         }
@@ -1078,43 +1081,80 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDiscount(
             string code, decimal discountValue, string discountType,
             int quantity, DateTime expirationDate)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            if (await _db.Discounts.AnyAsync(d => d.Code == code.ToUpper()))
+            code = (code ?? "").Trim().ToUpper();
+            if (string.IsNullOrEmpty(code))
             {
-                TempData["Error"] = "Mã này đã tồn tại!";
-                return RedirectToAction("Products");
+                TempData["Error"] = "Mã giảm giá không được để trống.";
+                return Redirect("/Admin/Products#discounts");
+            }
+            if (discountValue <= 0)
+            {
+                TempData["Error"] = "Giá trị giảm phải lớn hơn 0.";
+                return Redirect("/Admin/Products#discounts");
+            }
+            if (quantity < 1)
+            {
+                TempData["Error"] = "Số lượng mã phải ít nhất 1.";
+                return Redirect("/Admin/Products#discounts");
+            }
+
+            if (await _db.Discounts.AnyAsync(d => d.Code == code))
+            {
+                TempData["Error"] = "Mã \"" + code + "\" đã tồn tại.";
+                return Redirect("/Admin/Products#discounts");
             }
 
             int typeInt = string.Equals(discountType, "percent", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            if (typeInt == 1 && discountValue > 100)
+            {
+                TempData["Error"] = "Giảm theo % không được vượt quá 100.";
+                return Redirect("/Admin/Products#discounts");
+            }
 
             _db.Discounts.Add(new Discount
             {
-                Code = code.ToUpper(),
+                Code = code,
                 DiscountValue = discountValue,
                 DiscountType = typeInt,
                 Quantity = quantity,
                 UsedCount = 0,
-                ExpirationDate = expirationDate
+                ExpirationDate = expirationDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
             });
             await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm mã giảm giá!";
-            return RedirectToAction("Products");
+            TempData["Success"] = "Đã thêm mã giảm giá \"" + code + "\".";
+            return Redirect("/Admin/Products#discounts");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDiscount(int discountId)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             var d = await _db.Discounts.FindAsync(discountId);
-            if (d != null) { _db.Discounts.Remove(d); await _db.SaveChangesAsync(); }
-            TempData["Success"] = "Đã xóa mã!";
-            return RedirectToAction("Products");
+            if (d == null)
+            {
+                TempData["Error"] = "Không tìm thấy mã giảm giá.";
+                return Redirect("/Admin/Products#discounts");
+            }
+
+            if (await _db.Orders.AnyAsync(o => o.DiscountID == discountId))
+            {
+                TempData["Error"] = "Không thể xóa mã \"" + d.Code + "\" — đã được dùng trong đơn hàng.";
+                return Redirect("/Admin/Products#discounts");
+            }
+
+            _db.Discounts.Remove(d);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa mã \"" + d.Code + "\".";
+            return Redirect("/Admin/Products#discounts");
         }
 
         // ═══════════════════════════════

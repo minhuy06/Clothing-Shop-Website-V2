@@ -192,7 +192,13 @@
     }
 
     async function deleteReceipt(id) {
-        if (!confirm('Xóa phiếu nhập #' + String(id).padStart(6, '0') + '? Tồn kho sẽ được trừ tương ứng.')) return;
+        const ok = await window.nevaConfirm({
+            title: 'Xóa phiếu nhập',
+            message: 'Xóa phiếu nhập #' + String(id).padStart(6, '0') + '? Tồn kho sẽ được trừ tương ứng.',
+            okText: 'Xóa',
+            danger: true
+        });
+        if (!ok) return;
         const fd = new FormData();
         fd.append('__RequestVerificationToken', token());
         fd.append('receiptId', String(id));
@@ -244,7 +250,13 @@
     }
 
     async function deleteSupplier(id, name) {
-        if (!confirm('Xóa nhà cung cấp "' + name + '"?')) return;
+        const ok = await window.nevaConfirm({
+            title: 'Xóa nhà cung cấp',
+            message: 'Xóa nhà cung cấp "' + name + '"?',
+            okText: 'Xóa',
+            danger: true
+        });
+        if (!ok) return;
         const fd = new FormData();
         fd.append('__RequestVerificationToken', token());
         fd.append('supplierId', String(id));

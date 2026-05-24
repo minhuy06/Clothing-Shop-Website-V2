@@ -794,6 +794,15 @@
     padding: 0 18px 18px;
 }
 
+.confirm-modal-text {
+    padding: 8px 18px 20px;
+    margin: 0;
+    color: rgba(250, 248, 242, .75);
+    font-size: 13px;
+    line-height: 1.65;
+    font-weight: 200;
+}
+
 .dropzone {
     border: 1px dashed rgba(201,168,76,.35);
     padding: 22px;

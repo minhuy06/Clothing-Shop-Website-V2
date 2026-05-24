@@ -1,11 +1,11 @@
 @model List<Clothing_Shop_Website.Models.Product>
-@inject Clothing_Shop_Website.Data.AppDbContext Db
 @{
     ViewData["Title"] = "Sản phẩm";
     Layout = null;
     var categories = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category>;
     var receipts = ViewBag.Receipts as List<Clothing_Shop_Website.Models.InventoryReceipt> ?? new();
     var suppliers = ViewBag.Suppliers as List<Clothing_Shop_Website.Models.Supplier> ?? new();
+    var discounts = ViewBag.Discounts as List<Clothing_Shop_Website.Models.Discount> ?? new();
     var totalInDb = (int)(ViewBag.TotalInDb ?? 0);
     var currentPage = (int)(ViewBag.Page ?? 1);
     var pageSize = (int)(ViewBag.PageSize ?? 10);
@@ -95,6 +95,7 @@
 .rv-meta span { display: block; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(201,168,76,.65); margin-bottom: 4px; }
 .sup-table { width: 100%; margin-top: 24px; border-collapse: collapse; background: var(--dark2); border: 1px solid var(--border); }
 .sup-table th, .sup-table td { padding: 10px 14px; border-bottom: 1px solid rgba(201,168,76,.06); font-size: 12px; }
+.disc-code-badge { font-size: 11px; letter-spacing: 2px; color: var(--gold); background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.2); padding: 4px 10px; white-space: nowrap; }
 .sup-table th { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,168,76,.6); font-weight: 300; background: rgba(0,0,0,.15); text-align: left; }
 </style>
 </head>
@@ -246,10 +247,12 @@
                                 </button>
                                 @if (p.Status != 1)
                                 {
-                                <form method="post" asp-controller="Admin" asp-action="DeleteProduct" class="btn-del-product-form" style="display:inline">
+                                <form method="post" asp-controller="Admin" asp-action="DeleteProduct" class="btn-del-product-form" style="display:inline"
+                                      data-neva-confirm="Xóa sản phẩm này? Hành động không thể hoàn tác."
+                                      data-neva-confirm-title="Xóa sản phẩm" data-neva-confirm-danger>
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="productID" value="@p.ProductID">
-                                    <button type="submit" class="ia-btn del" title="Xóa" onclick="return confirm('Xóa sản phẩm này?')">
+                                    <button type="submit" class="ia-btn del" title="Xóa">
                                         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                                     </button>
                                 </form>
@@ -389,41 +392,46 @@
 
         <!-- TAB MÃ GIẢM GIÁ -->
         <div id="discountsTab" style="display:none">
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">
-                <div><div class="page-title">Mã giảm giá</div></div>
-                <button type="button" class="btn-add" onclick="document.getElementById('discMo').classList.add('open')">
-                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm mã
+            <div class="top-bar" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">
+                <div class="page-title">Mã giảm giá</div>
+                <button type="button" class="btn-add" id="btnOpenAddDiscount">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Thêm mã
                 </button>
             </div>
-            <table style="width:100%;border-collapse:collapse;background:var(--dark2);border:1px solid var(--border)">
+            <table class="ptable">
                 <thead><tr>
-                    <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Mã code</th>
-                    <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Giảm giá</th>
-                    <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Số lượng</th>
-                    <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Hết hạn</th>
-                    <th style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.6);padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;font-weight:300;background:rgba(0,0,0,.15)">Thao tác</th>
+                    <th>Mã code</th><th>Giảm giá</th><th>Số lượng</th><th>Hết hạn</th><th>Trạng thái</th><th>Thao tác</th>
                 </tr></thead>
-                <tbody id="discBody">
-                @foreach (var d in Db.Discounts.OrderByDescending(x => x.DiscountID))
+                <tbody>
+                @if (discounts.Count == 0)
+                {
+                    <tr><td colspan="6" style="text-align:center;padding:28px;color:rgba(250,248,242,.35);font-size:11px">Chưa có mã giảm giá. Bấm «Thêm mã» để tạo mới.</td></tr>
+                }
+                @foreach (var d in discounts)
                 {
                     var isExp = d.ExpirationDate < DateTime.Now || d.UsedCount >= d.Quantity;
                     <tr>
-                        <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;color:rgba(250,248,242,.8)">
-                            <span style="font-size:11px;letter-spacing:2px;color:var(--gold);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);padding:3px 10px">@d.Code</span>
+                        <td>
+                            <span class="disc-code-badge">@d.Code</span>
                         </td>
-                        <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;color:var(--gold)">
-                            @(d.DiscountType == 1 ? $"{d.DiscountValue}%" : d.DiscountValue.ToString("N0") + "đ")
+                        <td style="color:var(--gold);white-space:nowrap">
+                            @(d.DiscountType == 1 ? d.DiscountValue.ToString("0.##") + "%" : d.DiscountValue.ToString("N0") + " ₫")
                         </td>
-                        <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200;color:rgba(250,248,242,.8)">@d.UsedCount/@d.Quantity</td>
-                        <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;font-weight:200">
-                            <span style="color:@(isExp?"#d47a76":"rgba(250,248,242,.6)")">@d.ExpirationDate.ToString("dd/MM/yyyy")</span>
+                        <td>@d.UsedCount / @d.Quantity</td>
+                        <td style="color:@(isExp ? "#d47a76" : "rgba(250,248,242,.75)")">@d.ExpirationDate.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="status-badge @(isExp ? "off" : "on")">@(isExp ? "Hết hạn / hết lượt" : "Đang dùng")</span>
                         </td>
-                        <td style="padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05)">
-                            <form method="post" asp-controller="Admin" asp-action="DeleteDiscount">
+                        <td>
+                            <form method="post" asp-controller="Admin" asp-action="DeleteDiscount" style="display:inline"
+                                  data-neva-confirm="Xóa mã giảm giá này? Mã sẽ bị gỡ khỏi hệ thống."
+                                  data-neva-confirm-title="Xóa mã giảm giá" data-neva-confirm-danger>
                                 @Html.AntiForgeryToken()
-                                <input type="hidden" name="discountId" value="@d.DiscountID">
-                                <button type="submit" onclick="return confirm('Xóa mã này?')"
-                                    style="font-size:9px;letter-spacing:1.5px;color:#d47a76;border:1px solid rgba(212,122,116,.3);background:transparent;padding:4px 10px;cursor:pointer;font-family:var(--font-b)">Xóa</button>
+                                <input type="hidden" name="discountId" value="@d.DiscountID" />
+                                <button type="submit" class="ia-btn del" title="Xóa mã">
+                                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -701,48 +709,36 @@
 </div>
 
 <!-- MODAL THÊM MÃ GIẢM GIÁ -->
-<div class="mo" id="discMo" onclick="if(event.target===this)this.classList.remove('open')" style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)">
-    <div style="background:var(--dark2);width:90%;max-width:520px;border:1px solid var(--border)">
-        <div style="padding:17px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-            <div style="font-family:var(--font-d);font-size:20px;font-style:italic;color:var(--white)">Thêm mã giảm giá</div>
-            <button onclick="document.getElementById('discMo').classList.remove('open')" style="width:28px;height:28px;border:1px solid var(--border);background:none;color:var(--white);cursor:pointer">✕</button>
-        </div>
-        <form method="post" asp-controller="Admin" asp-action="AddDiscount" style="padding:22px">
+<div id="discMo" class="modal-overlay">
+    <div class="modal-box" style="max-width:520px">
+        <div class="modal-hdr">Thêm mã giảm giá <button type="button" class="modal-x" id="discClose">×</button></div>
+        <form method="post" asp-controller="Admin" asp-action="AddDiscount" id="discForm">
             @Html.AntiForgeryToken()
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px">
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Mã code</label>
-                    <input name="code" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%;text-transform:uppercase" placeholder="VD: NEVA20">
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Loại giảm</label>
-                    <select name="discountType" style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
-                        <option value="percent">Phần trăm (%)</option>
-                        <option value="fixed">Số tiền cố định (đ)</option>
-                    </select>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Giá trị giảm</label>
-                    <input name="discountValue" type="number" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%" placeholder="VD: 20">
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Số lượng</label>
-                    <input name="quantity" type="number" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%" placeholder="100">
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px;grid-column:1/-1">
-                    <label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,.8)">Ngày hết hạn</label>
-                    <input name="expirationDate" type="date" required style="padding:10px 12px;border:1px solid var(--border);background:var(--dark);font-size:13px;font-family:var(--font-b);color:var(--white);outline:none;width:100%">
-                </div>
+            <div class="modal-grid">
+                <label>Mã code</label>
+                <input type="text" name="code" id="discCode" class="modal-inp" required maxlength="20" placeholder="VD: NEVA20" style="text-transform:uppercase" />
+                <label>Loại giảm</label>
+                <select name="discountType" id="discType" class="modal-inp" required>
+                    <option value="percent">Phần trăm (%)</option>
+                    <option value="fixed">Số tiền cố định (đ)</option>
+                </select>
+                <label>Giá trị giảm</label>
+                <input type="number" name="discountValue" id="discValue" class="modal-inp" step="0.01" min="0.01" required placeholder="VD: 20" />
+                <label>Số lượng</label>
+                <input type="number" name="quantity" id="discQty" class="modal-inp" min="1" step="1" value="100" required />
+                <label>Ngày hết hạn</label>
+                <input type="date" name="expirationDate" id="discExp" class="modal-inp" required />
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-                <button type="button" onclick="document.getElementById('discMo').classList.remove('open')" style="padding:10px 18px;background:transparent;color:rgba(250,248,242,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);font-family:var(--font-b);cursor:pointer">Hủy</button>
-                <button type="submit" style="padding:10px 22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);cursor:pointer">Lưu mã</button>
+            <div class="modal-actions">
+                <button type="button" class="act-btn" id="discCancel">Hủy</button>
+                <button type="submit" class="act-btn" style="border-color:var(--gold);color:var(--gold)">Lưu mã</button>
             </div>
         </form>
     </div>
 </div>
 
 <script src="~/js/neva-base.js" asp-append-version="true"></script>
+<script src="~/js/admin-confirm.js" asp-append-version="true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="~/js/admin-import-receipt.js" asp-append-version="true"></script>
 <script src="~/js/admin-product-image.js" asp-append-version="true"></script>
@@ -820,11 +816,15 @@ async function confirmPublish() {
             wrap.action = '/Admin/DeleteProduct';
             wrap.className = 'btn-del-product-form';
             wrap.style.display = 'inline';
+            wrap.setAttribute('data-neva-confirm', 'Xóa sản phẩm này? Hành động không thể hoàn tác.');
+            wrap.setAttribute('data-neva-confirm-title', 'Xóa sản phẩm');
+            wrap.setAttribute('data-neva-confirm-danger', '');
             wrap.innerHTML = '<input type="hidden" name="__RequestVerificationToken" value="' + token + '" />' +
                 '<input type="hidden" name="productID" value="' + id + '" />' +
-                '<button type="submit" class="ia-btn del" title="Xóa" onclick="return confirm(\'Xóa sản phẩm này?\')">' +
+                '<button type="submit" class="ia-btn del" title="Xóa">' +
                 '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>';
             actRow.appendChild(wrap);
+            window.initNevaConfirmForms?.(wrap);
         }
     } catch {
         showToast('Lỗi kết nối khi cập nhật.', 'err');
@@ -835,6 +835,8 @@ async function confirmPublish() {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    window.initNevaConfirmForms?.();
+
     if (window.NevaImportReceipt) {
         window.NevaImportReceipt.init();
     }
@@ -846,6 +848,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initPublishConfirmModal();
     initAddProductModal();
     initEditProductModal();
+    initDiscountModal();
 });
 
 function initPublishConfirmModal() {
@@ -948,19 +951,39 @@ function switchTab(tab,btn){
     document.getElementById('importsTab').style.display=tab==='imports'?'block':'none';
     document.getElementById('discountsTab').style.display=tab==='discounts'?'block':'none';
 }
+function initDiscountModal() {
+    const mo = document.getElementById('discMo');
+    if (!mo) return;
+    function closeDisc() { mo.classList.remove('open'); }
+    function openDisc() {
+        const form = document.getElementById('discForm');
+        form?.reset();
+        const exp = document.getElementById('discExp');
+        if (exp) {
+            const d = new Date();
+            d.setMonth(d.getMonth() + 3);
+            exp.value = d.toISOString().slice(0, 10);
+        }
+        const qty = document.getElementById('discQty');
+        if (qty && !qty.value) qty.value = '100';
+        mo.classList.add('open');
+    }
+    document.getElementById('btnOpenAddDiscount')?.addEventListener('click', openDisc);
+    document.getElementById('discClose')?.addEventListener('click', closeDisc);
+    document.getElementById('discCancel')?.addEventListener('click', closeDisc);
+    mo.addEventListener('click', e => { if (e.target === mo) closeDisc(); });
+}
+
 (function () {
     const params = new URLSearchParams(window.location.search);
     if (window.location.hash === '#imports' || params.get('receiptPage')) {
         const tabBtn = document.querySelector('.atab[onclick*="imports"]');
         if (tabBtn) switchTab('imports', tabBtn);
     }
+    if (window.location.hash === '#discounts') {
+        const tabBtn = document.querySelector('.atab[onclick*="discounts"]');
+        if (tabBtn) switchTab('discounts', tabBtn);
+    }
 })();
-document.querySelectorAll('.mo').forEach(mo => {
-    const observer = new MutationObserver(() => {
-        if (mo.classList.contains('open')) { mo.style.opacity = '1'; mo.style.pointerEvents = 'all'; }
-        else { mo.style.opacity = '0'; mo.style.pointerEvents = 'none'; }
-    });
-    observer.observe(mo, { attributes: true, attributeFilter: ['class'] });
-});
 </script>
 </body></html>

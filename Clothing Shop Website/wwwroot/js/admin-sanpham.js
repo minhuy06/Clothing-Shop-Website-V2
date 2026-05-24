@@ -14,8 +14,9 @@ function switchTab(tab, btn) {
     document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('productsTab').style.display = tab === 'products' ? 'block' : 'none';
+    const importsTab = document.getElementById('importsTab');
+    if (importsTab) importsTab.style.display = tab === 'imports' ? 'block' : 'none';
     document.getElementById('discountsTab').style.display = tab === 'discounts' ? 'block' : 'none';
-    if (tab === 'discounts') renderDiscounts();
 }
 
 // PRODUCTS — dữ liệu lấy từ server (không dùng mảng mẫu client-side)
@@ -122,23 +123,5 @@ function saveProd() {
 function delProd() {
     toast('Xóa sản phẩm qua trang Admin Sản phẩm (server).', 'info');
 }
-
-// DISCOUNTS — không dùng mảng mẫu; tab mã giảm giá trên Products.cshtml dùng DB
-let discounts = [];
-let editDiscId = -1;
-
-function renderDiscounts() {
-    const body = document.getElementById('discBody');
-    if (!body) return;
-    if (!discounts.length) {
-        body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(250,248,242,.35);font-size:11px">Chưa có mã giảm giá.</td></tr>';
-        return;
-    }
-}
-
-function openDiscMo() { document.getElementById('discMo')?.classList.add('open'); }
-function closeDiscMo() { document.getElementById('discMo')?.classList.remove('open'); }
-function saveDisc() { toast('Lưu mã giảm giá qua form trên trang Admin Sản phẩm.', 'info'); closeDiscMo(); }
-function delDisc() { toast('Xóa mã qua form trên trang Admin Sản phẩm.', 'info'); }
 
 if (document.getElementById('tbody')) renderTable();

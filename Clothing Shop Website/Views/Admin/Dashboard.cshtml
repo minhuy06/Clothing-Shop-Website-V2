@@ -157,7 +157,12 @@
             <div class="grid2" style="margin-top:12px">
                 <div class="abox chart-cat-pie-box">
                     <div class="abox-hdr"><div class="abox-t">Tỉ trọng doanh thu theo danh mục</div></div>
-                    <div class="chart-canvas-wrap chart-cat-pie-wrap"><canvas id="catPie"></canvas></div>
+                    <div class="chart-cat-pie-split">
+                        <div class="chart-cat-pie-left">
+                            <canvas id="catPie"></canvas>
+                        </div>
+                        <div id="catPieLegend" class="chart-cat-pie-legend"></div>
+                    </div>
                 </div>
                 <div class="abox">
                     <div class="abox-hdr"><div class="abox-t">Doanh thu theo nhóm tuổi</div></div>

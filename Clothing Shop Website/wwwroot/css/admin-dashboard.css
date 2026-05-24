@@ -620,16 +620,99 @@
     max-height: 280px;
 }
 
-.chart-cat-pie-wrap {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 8px 20px 20px 12px;
-    min-height: 240px;
+.chart-cat-pie-split {
+    display: grid;
+    grid-template-columns: minmax(200px, 42%) 1fr;
+    gap: 20px;
+    align-items: start;
+    padding: 12px 20px 20px;
 }
 
-.chart-cat-pie-wrap canvas {
-    max-width: min(100%, 420px);
+.chart-cat-pie-left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+}
+
+.chart-cat-pie-left canvas {
+    max-width: 100%;
+    max-height: 240px;
+}
+
+.chart-cat-pie-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 10px 14px;
+    max-height: none;
+    overflow: visible;
+    align-content: start;
+}
+
+.cat-pie-legend-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 10px;
+    color: rgba(250,248,242,.78);
+    min-width: 0;
+}
+
+.cat-pie-legend-swatch {
+    width: 12px;
+    height: 12px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,.35);
+}
+
+.cat-pie-legend-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cat-pie-legend-label {
+    line-height: 1.35;
+    word-break: break-word;
+    font-size: 10px;
+}
+
+.cat-pie-legend-amt {
+    margin-top: 3px;
+    color: var(--gold);
+    font-size: 9px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.cat-pie-legend-empty {
+    font-size: 11px;
+    color: rgba(250,248,242,.35);
+    text-align: center;
+    padding: 24px 8px;
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 1100px) {
+    .chart-cat-pie-legend {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .chart-cat-pie-split {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-cat-pie-legend {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .chart-cat-pie-legend {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 /* MODAL */

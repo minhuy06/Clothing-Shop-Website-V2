@@ -25,12 +25,38 @@
         });
     }
 
+    const pieColors = ['#c9a84c', '#8b7355', '#5c4d3a', '#3d3428', '#7a6a4a', '#a08b5a', '#c4b896', '#6b5c48', '#9a8468', '#4a3f32'];
+
+    function renderPieLegend(rows, colors) {
+        const el = document.getElementById('catPieLegend');
+        if (!el) return;
+        const total = (rows || []).reduce((s, r) => s + (Number(r.amount) || 0), 0);
+        if (!rows || !rows.length || total <= 0) {
+            el.innerHTML = '<div class="cat-pie-legend-empty">Chưa có dữ liệu danh mục.</div>';
+            return;
+        }
+        el.innerHTML = rows.map((r, i) => {
+            const amt = Number(r.amount) || 0;
+            const pct = total > 0 ? (amt / total * 100).toFixed(1) : '0';
+            const color = colors[i % colors.length];
+            const label = String(r.label || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return '<div class="cat-pie-legend-item">' +
+                '<span class="cat-pie-legend-swatch" style="background:' + color + '"></span>' +
+                '<div class="cat-pie-legend-body">' +
+                '<div class="cat-pie-legend-label">' + label + '</div>' +
+                '<div class="cat-pie-legend-amt">' + amt.toLocaleString('vi-VN') + 'đ · ' + pct + '%</div>' +
+                '</div></div>';
+        }).join('');
+    }
+
     let chartPie, chartBar;
     function renderPie(rows) {
         const ctx = document.getElementById('catPie');
         if (!ctx) return;
         const labels = (rows || []).map(r => r.label);
         const data = (rows || []).map(r => Number(r.amount) || 0);
+        const colors = data.map((_, i) => pieColors[i % pieColors.length]);
+        renderPieLegend(rows, colors);
         if (chartPie) chartPie.destroy();
         chartPie = new Chart(ctx, {
             type: 'doughnut',
@@ -38,7 +64,7 @@
                 labels,
                 datasets: [{
                     data,
-                    backgroundColor: ['#c9a84c', '#8b7355', '#5c4d3a', '#3d3428', '#7a6a4a', '#a08b5a'],
+                    backgroundColor: colors,
                     borderColor: '#0a0908',
                     borderWidth: 2
                 }]
@@ -46,14 +72,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                layout: { padding: { left: 8, right: 12 } },
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        align: 'center',
-                        labels: { color: text, font: { size: 10 }, boxWidth: 12, padding: 10 }
-                    }
-                },
+                plugins: { legend: { display: false } },
                 cutout: '58%'
             }
         });

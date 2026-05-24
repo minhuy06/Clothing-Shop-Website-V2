@@ -523,8 +523,11 @@
                 <input type="text" name="style" id="addStyle" class="modal-inp" maxlength="50" />
                 <label>Chất liệu</label>
                 <input type="text" name="material" id="addMaterial" class="modal-inp" maxlength="50" />
-                <label>Ảnh (tùy chọn)</label>
-                <input type="file" name="imageFile" id="addFile" accept="image/*" class="modal-inp" style="padding:8px" />
+                <label>Ảnh sản phẩm</label>
+                <div style="grid-column:2">
+                    <input type="file" name="imageFile" id="addFile" accept="image/*" hidden />
+                    <div id="addImgZone" class="img-upload-area"></div>
+                </div>
                 <label>Mô tả</label>
                 <textarea name="description" id="addDesc" class="modal-inp" rows="2" maxlength="100" style="resize:vertical;min-height:60px"></textarea>
                 <label>Tồn kho (S / M / L)</label>
@@ -621,6 +624,23 @@
                 <button type="submit" class="act-btn" style="border-color:var(--gold);color:var(--gold)">Lưu thay đổi</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- MODAL CẮT ẢNH (THÊM SẢN PHẨM) -->
+<div id="addCropMo" class="modal-overlay crop-overlay">
+    <div class="crop-box">
+        <div class="crop-hdr">
+            <span>Cắt ảnh sản phẩm</span>
+            <button type="button" class="modal-x" id="addCropCancel">×</button>
+        </div>
+        <div class="crop-body">
+            <img id="addCropImg" alt="" />
+        </div>
+        <div class="crop-foot">
+            <button type="button" class="btn-outline" id="addCropCancel2">Hủy</button>
+            <button type="button" class="btn-gold" id="addCropApply">Áp dụng</button>
+        </div>
     </div>
 </div>
 
@@ -837,15 +857,26 @@ function initPublishConfirmModal() {
     mo.addEventListener('click', e => { if (e.target === mo) closePublishConfirm(); });
 }
 
+let addImageUpload = null;
+
 function initAddProductModal() {
     const mo = document.getElementById('addMo');
     if (!mo) return;
+
+    if (window.NevaProductImageUpload && !addImageUpload) {
+        addImageUpload = window.NevaProductImageUpload.init({ prefix: 'add', aspectRatio: 4 / 5 });
+        document.getElementById('addCropCancel2')?.addEventListener('click', () => {
+            document.getElementById('addCropCancel')?.click();
+        });
+    }
+
     function closeAdd() { mo.classList.remove('open'); }
     document.getElementById('btnOpenAddProduct')?.addEventListener('click', () => {
         document.getElementById('addForm')?.reset();
         document.getElementById('addStockS').value = 0;
         document.getElementById('addStockM').value = 0;
         document.getElementById('addStockL').value = 0;
+        addImageUpload?.reset();
         mo.classList.add('open');
     });
     document.getElementById('addClose')?.addEventListener('click', closeAdd);

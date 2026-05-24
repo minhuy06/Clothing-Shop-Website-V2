@@ -19,7 +19,7 @@
     <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Error"]</div>
 }
 
-<div class="page-wrap">
+<div class="page-wrap" data-profile-tab="@(TempData["Tab"]?.ToString() ?? "")">
     <aside>
         <div class="profile-card">
             <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">@initials</div></div>
@@ -148,12 +148,31 @@
 
                 @foreach (var addr in Model.UserAddresses)
                 {
-                    <div class="addr-card">
+                    <div class="addr-card @(addr.IsDefault ? "def" : "")">
+                        @if (addr.IsDefault)
+                        {
+                            <span class="addr-badge">Mặc định</span>
+                        }
                         <div class="addr-name">@addr.FullName · @addr.Phone</div>
 
                         <div class="addr-text">@addr.DetailedAddress, @addr.Province_City</div>
 
                         <div class="addr-acts">
+                            @if (!addr.IsDefault)
+                            {
+                                <form method="post" asp-controller="Account" asp-action="SetDefaultAddress" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="addressId" value="@addr.AddressID">
+                                    <button type="submit" class="addr-act">Đặt mặc định</button>
+                                </form>
+                            }
+                            <button type="button" class="addr-act"
+                                    data-id="@addr.AddressID"
+                                    data-name="@addr.FullName"
+                                    data-phone="@addr.Phone"
+                                    data-province="@addr.Province_City"
+                                    data-detail="@addr.DetailedAddress"
+                                    onclick="openEditAddrMo(this)">Chỉnh sửa</button>
                             <form method="post" asp-controller="Account" asp-action="DeleteAddress" style="display:inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="addressId" value="@addr.AddressID">
@@ -202,24 +221,27 @@
     </main>
 </div>
 
-<!-- MODAL THÊM ĐỊA CHỈ -->
+<!-- MODAL THÊM / SỬA ĐỊA CHỈ -->
 <div class="mo" id="addrMo" onclick="if(event.target===this)closeAddrMo()">
     <div class="modal">
         <div class="mhdr">
-            <div class="mhdr-t">Thêm địa chỉ mới</div>
-            <button class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
+            <div class="mhdr-t" id="addrMoTitle">Thêm địa chỉ mới</div>
+            <button type="button" class="mclose" onclick="closeAddrMo()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
         </div>
-        <form method="post" asp-controller="Account" asp-action="AddAddress">
+        <form method="post" asp-controller="Account" asp-action="AddAddress" id="addrForm"
+              data-add-url="@Url.Action("AddAddress", "Account")"
+              data-update-url="@Url.Action("UpdateAddress", "Account")">
             @Html.AntiForgeryToken()
+            <input type="hidden" name="addressId" id="addrIdField" value="">
             <div class="mbody">
                 <div class="frow">
-                    <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" name="fullName" required></div>
-                    <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" name="phone" required></div>
+                    <div class="fgroup"><label class="flabel">Họ và tên</label><input class="finput" name="fullName" id="addrFullName" required></div>
+                    <div class="fgroup"><label class="flabel">Số điện thoại</label><input class="finput" name="phone" id="addrPhone" required></div>
                 </div>
                 <div class="frow">
                     <div class="fgroup">
                         <label class="flabel">Tỉnh / Thành phố</label>
-                        <select class="fselect" name="province_City">
+                        <select class="fselect" name="province_City" id="addrProvince">
                             <option value="Đà Nẵng">Đà Nẵng</option>
                             <option value="Hà Nội">Hà Nội</option>
                             <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
@@ -228,12 +250,12 @@
                             <option value="Huế">Huế</option>
                         </select>
                     </div>
-                    <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" name="detailedAddress" placeholder="Số nhà, tên đường, phường/xã..." required></div>
+                    <div class="fgroup"><label class="flabel">Địa chỉ chi tiết</label><input class="finput" name="detailedAddress" id="addrDetail" placeholder="Số nhà, tên đường, phường/xã..." required></div>
                 </div>
             </div>
             <div class="mfoot">
                 <button type="button" class="btn-outline" onclick="closeAddrMo()">Hủy</button>
-                <button type="submit" class="btn-gold">Lưu địa chỉ</button>
+                <button type="submit" class="btn-gold" id="addrSubmitBtn">Lưu địa chỉ</button>
             </div>
         </form>
     </div>

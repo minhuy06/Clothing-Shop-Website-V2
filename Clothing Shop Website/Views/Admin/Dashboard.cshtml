@@ -27,13 +27,13 @@
         <aside class="admin-sidebar">
             <div class="sb-section">
                 <div class="sb-lbl">Quản lý</div>
-                <a asp-controller="Admin" asp-action="Dashboard" class="sitem active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>Dashboard</a>
-                <a asp-controller="Admin" asp-action="Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>Sản phẩm</a>
-                <a asp-controller="Admin" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>Đơn hàng</a>
-                <a asp-controller="Admin" asp-action="Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>Khách hàng</a>
+                <a asp-controller="Admin" asp-action="Dashboard" class="sitem active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+                <a asp-controller="Admin" asp-action="Products" class="sitem"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Sản phẩm</a>
+                <a asp-controller="Admin" asp-action="Staff" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Nhân viên</a>
+                <a asp-controller="Admin" asp-action="Advertisements" class="sitem"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Quảng cáo</a>
             </div>
             <div class="sb-section" style="margin-top:12px">
-                <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Đăng xuất</a>
+                <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
             </div>
         </aside>
         <main class="admin-main">
@@ -42,7 +42,16 @@
 
             @if (TempData["Success"] != null)
             {
-                <div class="dash-banner ok">@TempData["Success"]</div>
+                <div class="dash-banner ok">
+                    @TempData["Success"]
+                    @if (TempData["LastReceiptId"] != null)
+                    {
+                        <a href="@Url.Action("ExportReceipt","Admin",new{receiptId=TempData["LastReceiptId"]})"
+                           style="margin-left:14px;font-size:10px;letter-spacing:1.5px;color:var(--gold);border:1px solid rgba(201,168,76,.35);padding:3px 10px;text-decoration:none">
+                            ⬇ Xuất hóa đơn Excel
+                        </a>
+                    }
+                </div>
             }
             @if (TempData["Error"] != null)
             {
@@ -66,15 +75,25 @@
                         <svg viewBox="0 0 24 24" style="width:20px; fill:var(--gold); margin-right:8px; vertical-align:middle">
                             <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
                         </svg>
-                        🚀 AI Gợi ý nhập hàng (3 tháng tới)
+                        🚀 AI Gợi ý nhập hàng — Dự đoán
+                        <select id="aiMonthsSelect" class="dash-select" style="margin-left:8px;padding:4px 8px;font-size:10px">
+                            <option value="1">1 tháng</option>
+                            <option value="2">2 tháng</option>
+                            <option value="3" selected>3 tháng</option>
+                            <option value="4">4 tháng</option>
+                            <option value="6">6 tháng</option>
+                            <option value="9">9 tháng</option>
+                            <option value="12">12 tháng</option>
+                        </select>
+                        <span style="font-size:10px;letter-spacing:1px;color:rgba(250,248,242,.4);margin-left:4px">tới</span>
                     </div>
                     <div id="aiStatus" style="font-size: 11px; color: var(--gold); font-style: italic;">Đang phân tích dữ liệu...</div>
                 </div>
-                <div class="ai-content" id="aiBoxContent" style="padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="ai-content" id="aiBoxContent" style="padding: 15px; display: flex; align-items: center; justify-content: space-between; gap:12px">
                     <div id="aiPredictionResult">
                         <span style="color:rgba(250,248,242,0.5)">Hệ thống đang kết nối với SSAS Data Mining...</span>
                     </div>
-                    <button type="button" id="btnShowAiDetail" class="act-btn" style="display:none; border-color:var(--gold); color:var(--gold)">
+                    <button type="button" id="btnShowAiDetail" class="act-btn" style="display:none; border-color:var(--gold); color:var(--gold); white-space:nowrap">
                         Xem chi tiết nhập hàng
                     </button>
                 </div>
@@ -136,9 +155,14 @@
             </div>
 
             <div class="grid2" style="margin-top:12px">
-                <div class="abox">
+                <div class="abox chart-cat-pie-box">
                     <div class="abox-hdr"><div class="abox-t">Tỉ trọng doanh thu theo danh mục</div></div>
-                    <div class="chart-canvas-wrap"><canvas id="catPie"></canvas></div>
+                    <div class="chart-cat-pie-split">
+                        <div class="chart-cat-pie-left">
+                            <canvas id="catPie"></canvas>
+                        </div>
+                        <div id="catPieLegend" class="chart-cat-pie-legend"></div>
+                    </div>
                 </div>
                 <div class="abox">
                     <div class="abox-hdr"><div class="abox-t">Doanh thu theo nhóm tuổi</div></div>
@@ -234,6 +258,10 @@
             </form>
         </div>
     </div>
+    @if (TempData["LastReceiptId"] != null)
+    {
+        <!-- Receipt export banner already shown above -->
+    }
 
     <script id="dashPayload" type="application/json">
 @Html.Raw(JsonSerializer.Serialize(new {

@@ -31,7 +31,7 @@ namespace Clothing_Shop_Website.Models
 
         public int Session { get; set; }
 
-        [MaxLength(10)]
+        [MaxLength(50)]
         public string? Color { get; set; }
 
         [MaxLength(50)]
@@ -39,6 +39,9 @@ namespace Clothing_Shop_Website.Models
 
         [MaxLength(50)]
         public string? Material { get; set; }
+
+        /// <summary>0 = chưa hiển thị giao diện khách, 1 = đã cập nhật lên giao diện.</summary>
+        public int Status { get; set; } = 0;
 
         [ForeignKey("CategoryID")]
         public virtual Category Category { get; set; } = null!;

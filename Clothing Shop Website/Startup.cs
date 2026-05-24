@@ -55,6 +55,14 @@ namespace Clothing_Shop_Website
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                // Code First: C# model → migration → DB (Update-Database hoặc AutoMigrate)
+                if (Configuration.GetValue<bool>("Database:AutoMigrate"))
+                    db.Database.Migrate();
+            }
+
             if (env.IsDevelopment())
             {
                 // Hiển thị lỗi chi tiết khi đang code

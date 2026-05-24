@@ -371,6 +371,9 @@ nav {
     text-transform: uppercase;
     border: none;
     font-family: var(--font-b);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
     transition: opacity .2s
 }
 
@@ -387,6 +390,9 @@ nav {
     text-transform: uppercase;
     border: 1px solid var(--border);
     font-family: var(--font-b);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
     transition: all .2s
 }
 
@@ -570,7 +576,14 @@ nav {
     font-size: 11px;
     letter-spacing: 1.5px;
     color: rgba(250,248,242,.5);
+    border: none;
     border-bottom: 1px solid transparent;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-b);
+    -webkit-appearance: none;
+    appearance: none;
     transition: all .2s
 }
 
@@ -579,10 +592,29 @@ nav {
         border-color: var(--gold)
     }
 
+    .addr-act.red {
+        color: rgba(212,122,118,.65)
+    }
+
     .addr-act.red:hover {
         color: #d47a76;
         border-color: #d47a76
     }
+
+/* Reset native button chrome inside profile page */
+.page-wrap button,
+.mo button {
+    -webkit-appearance: none;
+    appearance: none
+}
+
+.page-wrap .btn-gold,
+.page-wrap .btn-outline,
+.page-wrap .btn-danger,
+.mo .btn-gold,
+.mo .btn-outline {
+    cursor: pointer
+}
 
 /* Toast */
 .toast {
@@ -666,8 +698,11 @@ nav {
     width: 28px;
     height: 28px;
     border: 1px solid var(--border);
-    background: none;
+    background: transparent;
     color: var(--white);
+    cursor: pointer;
+    padding: 0;
+    font-family: var(--font-b);
     display: flex;
     align-items: center;
     justify-content: center;

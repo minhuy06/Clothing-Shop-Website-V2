@@ -23,5 +23,6 @@ namespace Clothing_Shop_Website.Data
         public DbSet<Supplier> Suppliers { get; set; } = null!;
         public DbSet<InventoryReceipt> InventoryReceipts { get; set; } = null!;
         public DbSet<InventoryReceiptDetail> InventoryReceiptDetails { get; set; } = null!;
+        public DbSet<Advertisement> Advertisements { get; set; } = null!;
     }
 }

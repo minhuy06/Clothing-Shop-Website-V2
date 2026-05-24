@@ -13,6 +13,10 @@
     var totalPages = (int)(ViewBag.TotalPages ?? 1);
     var rowFrom = totalFiltered == 0 ? 0 : (currentPage - 1) * pageSize + 1;
     var rowTo = totalFiltered == 0 ? 0 : Math.Min(currentPage * pageSize, totalFiltered);
+    var receiptPage = (int)(ViewBag.ReceiptPage ?? 1);
+    var receiptPageSize = (int)(ViewBag.ReceiptPageSize ?? 10);
+    var receiptTotal = (int)(ViewBag.ReceiptTotal ?? receipts.Count);
+    var receiptTotalPages = (int)(ViewBag.ReceiptTotalPages ?? 1);
 
     string ProductsPageUrl(int p)
     {
@@ -23,7 +27,20 @@
             parts.Add("categoryId=" + ViewBag.CategoryId);
         if (!string.IsNullOrEmpty(ViewBag.Season as string))
             parts.Add("season=" + ViewBag.Season);
+        if (receiptPage > 1)
+            parts.Add("receiptPage=" + receiptPage);
         return "/Admin/Products?" + string.Join("&", parts);
+    }
+    string ReceiptsPageUrl(int p)
+    {
+        var parts = new List<string> { "page=" + currentPage, "receiptPage=" + p };
+        if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            parts.Add("search=" + Uri.EscapeDataString((string)ViewBag.Search));
+        if (ViewBag.CategoryId != null && !string.IsNullOrEmpty(ViewBag.CategoryId.ToString()))
+            parts.Add("categoryId=" + ViewBag.CategoryId);
+        if (!string.IsNullOrEmpty(ViewBag.Season as string))
+            parts.Add("season=" + ViewBag.Season);
+        return "/Admin/Products?" + string.Join("&", parts) + "#imports";
     }
     string GetSeason(int s) => s switch { 1=>"Xuân",2=>"Hạ",3=>"Thu",4=>"Đông",_=>"" };
     int SizeQty(Clothing_Shop_Website.Models.Product p, string sizeName)
@@ -224,16 +241,19 @@
                                 <button type="button" class="btn-edit-product ia-btn" data-id="@p.ProductID" title="Sửa thông tin">
                                     <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
-                                <button type="button" class="btn-publish-row ia-btn publish" data-id="@p.ProductID" data-name="@p.ProductName" title="Cập nhật lên giao diện">
+                                <button type="button" class="btn-publish-row ia-btn publish" data-id="@p.ProductID" data-name="@p.ProductName" data-status="@p.Status" title="@(p.Status == 1 ? "Ẩn khỏi giao diện" : "Hiển thị lên giao diện")">
                                     <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
                                 </button>
-                                <form method="post" asp-controller="Admin" asp-action="DeleteProduct" style="display:inline">
+                                @if (p.Status != 1)
+                                {
+                                <form method="post" asp-controller="Admin" asp-action="DeleteProduct" class="btn-del-product-form" style="display:inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="productID" value="@p.ProductID">
                                     <button type="submit" class="ia-btn del" title="Xóa" onclick="return confirm('Xóa sản phẩm này?')">
                                         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                                     </button>
                                 </form>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -318,6 +338,23 @@
                 }
                 </tbody>
             </table>
+            @if (receiptTotalPages > 1)
+            {
+                <div class="pagination">
+                    @if (receiptPage > 1)
+                    {
+                        <a class="pp" href="@ReceiptsPageUrl(receiptPage - 1)" title="Trang trước">‹</a>
+                    }
+                    @for (var i = 1; i <= receiptTotalPages; i++)
+                    {
+                        <a class="pp @(i == receiptPage ? "on" : "")" href="@ReceiptsPageUrl(i)">@i</a>
+                    }
+                    @if (receiptPage < receiptTotalPages)
+                    {
+                        <a class="pp" href="@ReceiptsPageUrl(receiptPage + 1)" title="Trang sau">›</a>
+                    }
+                </div>
+            }
             <table class="sup-table">
                 <thead><tr>
                     <th>Tên nhà cung cấp</th><th>SĐT</th><th>Thành phố</th><th>Quốc gia</th><th>Thao tác</th>
@@ -606,11 +643,11 @@
     </div>
 </div>
 
-<!-- MODAL XÁC NHẬN CẬP NHẬT LÊN GIAO DIỆN -->
+<!-- MODAL XÁC NHẬN HIỂN THỊ / ẨN SẢN PHẨM -->
 <div id="publishConfirmMo" class="modal-overlay">
     <div class="modal-box" style="max-width:480px">
-        <div class="modal-hdr">Cập nhật lên giao diện <button type="button" class="modal-x" id="publishConfirmClose">×</button></div>
-        <p style="padding:8px 0 20px;color:rgba(250,248,242,.75);font-size:13px;line-height:1.65;font-weight:200">
+        <div class="modal-hdr"><span id="publishConfirmTitle">Cập nhật lên giao diện</span> <button type="button" class="modal-x" id="publishConfirmClose">×</button></div>
+        <p id="publishConfirmText" style="padding:8px 0 20px;color:rgba(250,248,242,.75);font-size:13px;line-height:1.65;font-weight:200">
             Xác nhận hiển thị sản phẩm <strong id="publishConfirmName" style="color:var(--gold);font-weight:400"></strong> trên giao diện khách hàng?
         </p>
         <div class="modal-actions">
@@ -701,21 +738,28 @@ function showToast(msg, type) {
 }
 window.showToast = showToast;
 
-let pendingPublish = { id: null, btn: null, name: '' };
+let pendingPublish = { id: null, btn: null, name: '', status: 0 };
 
 function openPublishConfirm(productId, btn) {
+    const status = parseInt(btn?.getAttribute('data-status') || '0', 10);
     pendingPublish = {
         id: productId,
         btn: btn,
-        name: btn?.getAttribute('data-name') || ('#' + String(productId).padStart(3, '0'))
+        name: btn?.getAttribute('data-name') || ('#' + String(productId).padStart(3, '0')),
+        status: status
     };
+    const isOn = status === 1;
+    document.getElementById('publishConfirmTitle').textContent = isOn ? 'Ẩn khỏi giao diện' : 'Cập nhật lên giao diện';
     document.getElementById('publishConfirmName').textContent = pendingPublish.name;
+    document.getElementById('publishConfirmText').innerHTML = isOn
+        ? 'Xác nhận ẩn sản phẩm <strong id="publishConfirmName" style="color:var(--gold);font-weight:400">' + pendingPublish.name + '</strong> khỏi giao diện khách hàng?'
+        : 'Xác nhận hiển thị sản phẩm <strong id="publishConfirmName" style="color:var(--gold);font-weight:400">' + pendingPublish.name + '</strong> trên giao diện khách hàng?';
     document.getElementById('publishConfirmMo')?.classList.add("open");
 }
 
 function closePublishConfirm() {
     document.getElementById('publishConfirmMo')?.classList.remove('open');
-    pendingPublish = { id: null, btn: null, name: '' };
+    pendingPublish = { id: null, btn: null, name: '', status: 0 };
 }
 
 async function confirmPublish() {
@@ -735,13 +779,34 @@ async function confirmPublish() {
             showToast(data.message || 'Không cập nhật được.', 'err');
             return;
         }
-        showToast('✓ ' + (data.message || 'Đã cập nhật lên giao diện.'), 'ok');
+        showToast('✓ ' + (data.message || 'Đã cập nhật.'), 'ok');
         const tr = btn?.closest('tr');
         const badge = tr?.querySelector('.status-badge');
+        const newStatus = data.status ?? 1;
         if (badge) {
-            badge.classList.remove('off');
-            badge.classList.add('on');
-            badge.textContent = 'Đã hiển thị';
+            badge.classList.toggle('on', newStatus === 1);
+            badge.classList.toggle('off', newStatus !== 1);
+            badge.textContent = newStatus === 1 ? 'Đã hiển thị' : 'Chưa hiển thị';
+        }
+        if (btn) {
+            btn.setAttribute('data-status', String(newStatus));
+            btn.title = newStatus === 1 ? 'Ẩn khỏi giao diện' : 'Hiển thị lên giao diện';
+        }
+        const actRow = tr?.querySelector('.act-row');
+        let delForm = tr?.querySelector('.btn-del-product-form');
+        if (newStatus === 1 && delForm) {
+            delForm.remove();
+        } else if (newStatus !== 1 && !delForm && actRow) {
+            const wrap = document.createElement('form');
+            wrap.method = 'post';
+            wrap.action = '/Admin/DeleteProduct';
+            wrap.className = 'btn-del-product-form';
+            wrap.style.display = 'inline';
+            wrap.innerHTML = '<input type="hidden" name="__RequestVerificationToken" value="' + token + '" />' +
+                '<input type="hidden" name="productID" value="' + id + '" />' +
+                '<button type="submit" class="ia-btn del" title="Xóa" onclick="return confirm(\'Xóa sản phẩm này?\')">' +
+                '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>';
+            actRow.appendChild(wrap);
         }
     } catch {
         showToast('Lỗi kết nối khi cập nhật.', 'err');
@@ -854,6 +919,13 @@ function switchTab(tab,btn){
     document.getElementById('importsTab').style.display=tab==='imports'?'block':'none';
     document.getElementById('discountsTab').style.display=tab==='discounts'?'block':'none';
 }
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    if (window.location.hash === '#imports' || params.get('receiptPage')) {
+        const tabBtn = document.querySelector('.atab[onclick*="imports"]');
+        if (tabBtn) switchTab('imports', tabBtn);
+    }
+})();
 document.querySelectorAll('.mo').forEach(mo => {
     const observer = new MutationObserver(() => {
         if (mo.classList.contains('open')) { mo.style.opacity = '1'; mo.style.pointerEvents = 'all'; }

@@ -333,12 +333,14 @@ namespace Clothing_Shop_Website.Controllers
         // ═══════════════════════════════
         //   SẢN PHẨM
         // ═══════════════════════════════
-        public async Task<IActionResult> Products(string? search, int? categoryId, string? season, int page = 1)
+        public async Task<IActionResult> Products(string? search, int? categoryId, string? season, int page = 1, int receiptPage = 1)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             const int pageSize = 10;
+            const int receiptPageSize = 10;
             if (page < 1) page = 1;
+            if (receiptPage < 1) receiptPage = 1;
 
             var query = _db.Products
                 .AsNoTracking()
@@ -373,14 +375,23 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.TotalFiltered = totalFiltered;
             ViewBag.TotalPages = totalPages;
 
+            var receiptTotal = await _db.InventoryReceipts.AsNoTracking().CountAsync();
+            var receiptTotalPages = receiptTotal == 0 ? 1 : (int)Math.Ceiling(receiptTotal / (double)receiptPageSize);
+            if (receiptPage > receiptTotalPages) receiptPage = receiptTotalPages;
+
             ViewBag.Receipts = await _db.InventoryReceipts.AsNoTracking()
                 .Include(r => r.Supplier)
                 .Include(r => r.InventoryReceiptDetails)
                     .ThenInclude(d => d.ProductSize)
                         .ThenInclude(s => s.Product)
                 .OrderByDescending(r => r.ReceiptID)
-                .Take(100)
+                .Skip((receiptPage - 1) * receiptPageSize)
+                .Take(receiptPageSize)
                 .ToListAsync();
+            ViewBag.ReceiptPage = receiptPage;
+            ViewBag.ReceiptPageSize = receiptPageSize;
+            ViewBag.ReceiptTotal = receiptTotal;
+            ViewBag.ReceiptTotalPages = receiptTotalPages;
             ViewBag.Suppliers = await _db.Suppliers.AsNoTracking()
                 .OrderBy(s => s.SupplierName)
                 .ToListAsync();
@@ -634,9 +645,12 @@ namespace Clothing_Shop_Website.Controllers
             if (p == null)
                 return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
 
-            p.Status = 1;
+            p.Status = p.Status == 1 ? 0 : 1;
             await _db.SaveChangesAsync();
-            return Json(new { success = true, message = "Đã cập nhật sản phẩm #" + productId.ToString("D3") + " lên giao diện khách hàng." });
+            var msg = p.Status == 1
+                ? "Đã cập nhật sản phẩm #" + productId.ToString("D3") + " lên giao diện khách hàng."
+                : "Đã ẩn sản phẩm #" + productId.ToString("D3") + " khỏi giao diện khách hàng.";
+            return Json(new { success = true, status = p.Status, message = msg });
         }
 
         [HttpPost]
@@ -958,17 +972,27 @@ namespace Clothing_Shop_Website.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int productID)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             var p = await _db.Products.FindAsync(productID);
-            if (p != null)
+            if (p == null)
             {
-                _db.Products.Remove(p);
-                await _db.SaveChangesAsync();
-                TempData["Success"] = "Đã xóa sản phẩm!";
+                TempData["Error"] = "Không tìm thấy sản phẩm.";
+                return RedirectToAction("Products");
             }
+
+            if (p.Status == 1)
+            {
+                TempData["Error"] = "Không thể xóa sản phẩm đang hiển thị trên giao diện. Hãy ẩn sản phẩm trước.";
+                return RedirectToAction("Products");
+            }
+
+            _db.Products.Remove(p);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa sản phẩm!";
             return RedirectToAction("Products");
         }
 
@@ -1345,40 +1369,130 @@ namespace Clothing_Shop_Website.Controllers
 
             using var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("PhieuNhap");
-            ws.Cell(1, 1).Value = "HÓA ĐƠN NHẬP HÀNG - NEVA";
-            ws.Cell(2, 1).Value = "Số phiếu";
-            ws.Cell(2, 2).Value = "#" + receiptId.ToString("D6");
-            ws.Cell(3, 1).Value = "Nhà cung cấp";
-            ws.Cell(3, 2).Value = receipt.Supplier?.SupplierName ?? "";
-            ws.Cell(4, 1).Value = "Ngày nhập";
-            ws.Cell(4, 2).Value = receipt.ImportDate.ToString("dd/MM/yyyy HH:mm");
+            var details = receipt.InventoryReceiptDetails
+                .OrderBy(d => d.DetailID)
+                .ToList();
+            var supplierName = receipt.Supplier?.SupplierName ?? "";
+            var red = XLColor.FromHtml("#CC0000");
+            var thin = XLBorderStyleValues.Thin;
 
-            int row = 6;
-            ws.Cell(row, 1).Value = "STT";
-            ws.Cell(row, 2).Value = "Sản phẩm";
-            ws.Cell(row, 3).Value = "Size";
-            ws.Cell(row, 4).Value = "Số lượng";
-            ws.Cell(row, 5).Value = "Giá nhập (đ)";
-            ws.Cell(row, 6).Value = "Thành tiền (đ)";
-            row++;
-
-            int idx = 1;
-            decimal totalAmt = 0;
-            foreach (var d in receipt.InventoryReceiptDetails)
+            void StyleRedBorder(IXLRange range)
             {
-                decimal sub = d.Quantity * d.ImportPrice;
-                totalAmt += sub;
+                range.Style.Font.FontColor = red;
+                range.Style.Border.OutsideBorder = thin;
+                range.Style.Border.InsideBorder = thin;
+                range.Style.Border.OutsideBorderColor = red;
+                range.Style.Border.InsideBorderColor = red;
+            }
+
+            ws.Column(1).Width = 6;
+            ws.Column(2).Width = 14;
+            ws.Column(3).Width = 38;
+            ws.Column(4).Width = 8;
+            ws.Column(5).Width = 11;
+            ws.Column(6).Width = 11;
+            ws.Column(7).Width = 16;
+
+            ws.Cell(1, 1).Value = "NEVA";
+            ws.Cell(1, 1).Style.Font.Bold = true;
+            ws.Cell(1, 1).Style.Font.FontSize = 16;
+            ws.Cell(1, 1).Style.Font.FontColor = red;
+            ws.Range(1, 1, 2, 2).Merge();
+
+            ws.Cell(1, 3).Value = "PHIẾU NHẬP KHO";
+            ws.Cell(2, 3).Value = "RECEIVING SLIP";
+            ws.Range(1, 3, 2, 5).Merge();
+            ws.Cell(1, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(1, 3).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Cell(1, 3).Style.Font.Bold = true;
+            ws.Cell(1, 3).Style.Font.FontSize = 14;
+            ws.Cell(2, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            ws.Cell(1, 6).Value = "Số:";
+            ws.Cell(1, 7).Value = receiptId.ToString("D6");
+            ws.Cell(2, 6).Value = "Ngày/Date:";
+            ws.Cell(2, 7).Value = receipt.ImportDate.ToString("dd/MM/yyyy");
+            StyleRedBorder(ws.Range(1, 1, 2, 7));
+
+            ws.Cell(3, 1).Value = "Người giao/Deliver:";
+            ws.Cell(3, 2).Value = supplierName;
+            ws.Range(3, 2, 3, 4).Merge();
+            ws.Cell(3, 5).Value = "Bộ phận/Department:";
+            ws.Cell(3, 6).Value = receipt.Supplier?.City ?? "";
+            ws.Range(3, 6, 3, 7).Merge();
+            StyleRedBorder(ws.Range(3, 1, 3, 7));
+
+            ws.Cell(4, 1).Value = "Nội dung/Remarks:";
+            ws.Cell(4, 2).Value = "nhập hàng";
+            ws.Range(4, 2, 4, 7).Merge();
+            StyleRedBorder(ws.Range(4, 1, 4, 7));
+
+            ws.Cell(5, 1).Value = "I- Thành phẩm/Details:";
+            ws.Range(5, 1, 5, 7).Merge();
+            ws.Cell(5, 1).Style.Font.Bold = true;
+            ws.Cell(5, 1).Style.Font.FontColor = red;
+
+            ws.Cell(6, 1).Value = "STT\r\nNo";
+            ws.Cell(6, 2).Value = "Mã VT\r\nCode";
+            ws.Cell(6, 3).Value = "Tên chi tiết\r\nName & Specification";
+            ws.Cell(6, 4).Value = "Đv\r\nUnit";
+            ws.Cell(6, 5).Value = "Số lượng/Qty";
+            ws.Range(6, 5, 6, 6).Merge();
+            ws.Cell(6, 7).Value = "Ghi chú\r\nRemark";
+            ws.Cell(7, 5).Value = "Ctừ\r\non Doc.";
+            ws.Cell(7, 6).Value = "Thực tế\r\nPhysical";
+            ws.Range(6, 1, 6, 4).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Range(6, 1, 7, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Range(6, 1, 7, 7).Style.Alignment.WrapText = true;
+            ws.Range(6, 1, 7, 7).Style.Font.Bold = true;
+            StyleRedBorder(ws.Range(6, 1, 7, 7));
+
+            int row = 8;
+            int idx = 1;
+            int totalQty = 0;
+            decimal totalAmt = 0;
+            foreach (var d in details)
+            {
+                var pname = d.ProductSize?.Product?.ProductName ?? "";
+                var sname = d.ProductSize?.SizeName ?? "";
+                var pid = d.ProductSize?.ProductID ?? 0;
+                var lineTotal = d.Quantity * d.ImportPrice;
+                totalQty += d.Quantity;
+                totalAmt += lineTotal;
+
                 ws.Cell(row, 1).Value = idx++;
-                ws.Cell(row, 2).Value = d.ProductSize?.Product?.ProductName ?? "";
-                ws.Cell(row, 3).Value = d.ProductSize?.SizeName ?? "";
-                ws.Cell(row, 4).Value = d.Quantity;
-                ws.Cell(row, 5).Value = d.ImportPrice;
-                ws.Cell(row, 6).Value = sub;
+                ws.Cell(row, 2).Value = pid > 0 ? pid.ToString("D3") : "";
+                ws.Cell(row, 3).Value = string.IsNullOrEmpty(sname) ? pname : pname + " — Size " + sname;
+                ws.Cell(row, 4).Value = "Cái";
+                ws.Cell(row, 5).Value = d.Quantity;
+                ws.Cell(row, 6).Value = d.Quantity;
+                ws.Cell(row, 7).Value = d.ImportPrice.ToString("N0") + "đ";
+                ws.Range(row, 1, row, 7).Style.Alignment.WrapText = true;
+                StyleRedBorder(ws.Range(row, 1, row, 7));
                 row++;
             }
-            ws.Cell(row, 5).Value = "Tổng cộng";
-            ws.Cell(row, 6).Value = totalAmt;
-            ws.Columns().AdjustToContents();
+
+            ws.Cell(row, 1).Value = "Tổng cộng";
+            ws.Cell(row, 2).Value = "Total";
+            ws.Range(row, 1, row, 4).Merge();
+            ws.Cell(row, 5).Value = totalQty;
+            ws.Cell(row, 6).Value = totalQty;
+            ws.Cell(row, 7).Value = totalAmt.ToString("N0") + "đ";
+            ws.Range(row, 1, row, 7).Style.Font.Bold = true;
+            StyleRedBorder(ws.Range(row, 1, row, 7));
+            row += 2;
+
+            ws.Cell(row, 1).Value = "Người giao/Deliver";
+            ws.Range(row, 1, row, 3).Merge();
+            ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(row, 1).Style.Font.Bold = true;
+            ws.Cell(row + 1, 1).Value = supplierName;
+            ws.Range(row + 1, 1, row + 2, 3).Merge();
+            ws.Range(row, 1, row + 2, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Range(row, 1, row + 2, 3).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            StyleRedBorder(ws.Range(row, 1, row + 2, 3));
+
+            ws.Range(1, 1, row + 2, 7).Style.Font.FontColor = red;
 
             await using var ms = new MemoryStream();
             wb.SaveAs(ms);

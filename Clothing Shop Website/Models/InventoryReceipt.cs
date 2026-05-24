@@ -16,6 +16,16 @@ namespace Clothing_Shop_Website.Models
         [Required]
         public DateTime ImportDate { get; set; }
 
+        // Cột Trạng thái (0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối)
+        [Required]
+        public int Status { get; set; } = 0;
+
+        [Required]
+        public int CreatedBy { get; set; }
+
+        [ForeignKey("CreatedBy")]
+        public virtual User Creator { get; set; } = null!;
+
         // Khóa ngoại trỏ về bảng Suppliers
         [ForeignKey("SupplierID")]
         public virtual Supplier Supplier { get; set; } = null!;

@@ -29,6 +29,7 @@ namespace Clothing_Shop_Website.Controllers
             var query = _db.Products
                 .Include(p => p.Category)
                 .Include(p => p.ProductSizes)
+                .Where(p => p.Status == 1)
                 .AsQueryable();
 
             // Lọc theo tên
@@ -79,7 +80,7 @@ namespace Clothing_Shop_Website.Controllers
                 .Include(p => p.ProductSizes)
                 .FirstOrDefaultAsync(p => p.ProductID == id);
 
-            if (product == null) return NotFound();
+            if (product == null || product.Status != 1) return NotFound();
 
             return View(product);
         }

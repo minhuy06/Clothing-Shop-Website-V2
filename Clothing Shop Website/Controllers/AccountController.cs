@@ -6,38 +6,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
-using System.Security.Cryptography;
-using System.Text;
+using Clothing_Shop_Website.Enums;
+using Clothing_Shop_Website.ViewModels;
+using Clothing_Shop_Website.Helper;
 
 namespace Clothing_Shop_Website.Controllers
 {
     public class AccountController : Controller
     {
         private readonly AppDbContext _db;
-        public AccountController(AppDbContext db) { _db = db; }
 
-        private string HashPassword(string password)
+        public AccountController(AppDbContext db)
         {
-            using var sha = SHA256.Create();
-            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToHexString(bytes).ToLower();
+            _db = db;
         }
 
-        private void SetUserSession(User user)
-        {
-            HttpContext.Session.SetInt32("UserId", user.UserID);
-            HttpContext.Session.SetString("FullName", user.FullName);
-            HttpContext.Session.SetString("Phone", user.Phone);
-            HttpContext.Session.SetInt32("Role", user.Role);
-            HttpContext.Session.SetInt32("Points", user.RewardPoints);
-        }
-
-        // ── LOGIN ──
+        // ĐĂNG NHẬP
         [HttpGet]
         public IActionResult Login()
         {
-            if (HttpContext.Session.GetInt32("UserId") != null)
+            if (HttpContext.Session.GetUserId() != null)
+            {
+                var role = HttpContext.Session.GetInt32("Role");
+                if (role == (int)UserRole.Admin) return RedirectToAction("Dashboard", "Admin");
+                if (role == (int)UserRole.Staff) return RedirectToAction("Inventory", "Staff");
                 return RedirectToAction("Profile");
+            }
             return View();
         }
 
@@ -49,24 +43,30 @@ namespace Clothing_Shop_Website.Controllers
                 TempData["Error"] = "Vui lòng nhập đầy đủ thông tin!";
                 return View();
             }
-            var hashed = HashPassword(password);
+
+            var hashed = SecurityHelper.HashPassword(password);
+
             var user = await _db.Users
                 .Include(u => u.CustomerDetail)
                 .FirstOrDefaultAsync(u => u.Phone == phone && u.Password == hashed);
+
             if (user == null) { TempData["Error"] = "Số điện thoại hoặc mật khẩu không đúng!"; return View(); }
-            if (user.Status == 0) { TempData["Error"] = "Tài khoản của bạn đã bị khóa!"; return View(); }
-            SetUserSession(user);
-            return (user.Role == 0 || user.Role == 1)
-                ? RedirectToAction("Dashboard", "Admin")
-                : RedirectToAction("Profile");
+
+            if (user.Status == (int)UserStatus.Inactive) { TempData["Error"] = "Tài khoản của bạn đã bị khóa!"; return View(); }
+
+            HttpContext.Session.SetUserSession(user);
+
+            if (user.Role == (int)UserRole.Admin) return RedirectToAction("Dashboard", "Admin");
+            if (user.Role == (int)UserRole.Staff) return RedirectToAction("Inventory", "Staff");
+
+            return RedirectToAction("Profile");
         }
 
-        // ── REGISTER ──
+        // ĐĂNG KÝ
         [HttpPost]
         public async Task<IActionResult> Register(string fullName, string phone, string password, string confirmPassword)
         {
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phone) ||
-                string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
+            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
             { TempData["RegError"] = "Vui lòng điền đầy đủ thông tin!"; return View("Login"); }
 
             if (password != confirmPassword)
@@ -80,112 +80,245 @@ namespace Clothing_Shop_Website.Controllers
 
             var newUser = new User
             {
-                FullName = fullName,
-                Phone = phone,
-                Password = HashPassword(password),
-                Role = 2,
-                Status = 1,
+                FullName = fullName.Trim(),
+                Phone = phone.Trim(),
+                Password = SecurityHelper.HashPassword(password),
+                Role = (int)UserRole.Customer,
+                Status = (int)UserStatus.Active,
                 RewardPoints = 0,
                 Gender = 0,
                 DateOfBirth = null
             };
+
             _db.Users.Add(newUser);
             await _db.SaveChangesAsync();
-            SetUserSession(newUser);
+            HttpContext.Session.SetUserSession(newUser);
+
             TempData["Success"] = "Tạo tài khoản thành công!";
             return RedirectToAction("Profile");
         }
 
-        // ── PROFILE ──
+        // QUẢN LÝ HỒ SƠ
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
             var user = await _db.Users
-                .Include(u => u.UserAddresses)
                 .Include(u => u.CustomerDetail)
+                .Include(u => u.UserAddresses)
                 .FirstOrDefaultAsync(u => u.UserID == userId);
-            if (user == null) return RedirectToAction("Login");
-            return View(user);
+
+            if (user == null) return NotFound();
+
+            var model = new ProfileViewModel
+            {
+                FullName = user.FullName,
+                Phone = user.Phone,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender,
+                RewardPoints = user.RewardPoints,
+                Status = user.Status,
+                UserAddresses = user.UserAddresses
+                    .OrderByDescending(a => a.IsDefault)
+                    .ThenByDescending(a => a.AddressID)
+                    .ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login");
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            var model = new EditProfileViewModel
+            {
+                FullName = user.FullName,
+                Phone = user.Phone,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateProfile(string fullName, string phone, string? dateOfBirth, int gender)
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var user = await _db.Users.FindAsync(userId);
-            if (user == null) return RedirectToAction("Login");
-            user.FullName = fullName;
-            user.Phone = phone;
-            user.Gender = gender;
-            if (string.IsNullOrWhiteSpace(dateOfBirth))
-                user.DateOfBirth = null;
-            else if (DateTime.TryParse(dateOfBirth, out var dob))
-                user.DateOfBirth = dob.Date;
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            user.FullName = model.FullName.Trim();
+            user.Phone = model.Phone.Trim();
+            user.DateOfBirth = model.DateOfBirth;
+            user.Gender = model.Gender;
+
+            _db.Update(user);
             await _db.SaveChangesAsync();
-            HttpContext.Session.SetString("FullName", fullName);
-            HttpContext.Session.SetString("Phone", phone);
-            TempData["Success"] = "Cập nhật thông tin thành công!";
+
+            TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("Profile");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
+            var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login");
+
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return RedirectToAction("Login");
-            if (user.Password != HashPassword(currentPassword))
+
+            if (user.Password != SecurityHelper.HashPassword(currentPassword))
             { TempData["PassError"] = "Mật khẩu hiện tại không đúng!"; return RedirectToAction("Profile"); }
+
             if (newPassword != confirmPassword)
             { TempData["PassError"] = "Mật khẩu xác nhận không khớp!"; return RedirectToAction("Profile"); }
+
             if (newPassword.Length < 6)
             { TempData["PassError"] = "Mật khẩu mới phải ít nhất 6 ký tự!"; return RedirectToAction("Profile"); }
-            user.Password = HashPassword(newPassword);
+
+            user.Password = SecurityHelper.HashPassword(newPassword);
             await _db.SaveChangesAsync();
+
             TempData["Success"] = "Đổi mật khẩu thành công!";
             return RedirectToAction("Profile");
         }
 
-        // ── LOGOUT ──
+        // QUẢN LÝ SỔ ĐỊA CHỈ
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAddress([Bind("FullName,Phone,Province_City,DetailedAddress")] UserAddress address)
+        {
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login");
+
+            if (!ModelState.IsValid)
+            {
+                var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                TempData["Error"] = firstError ?? "Dữ liệu địa chỉ không hợp lệ!";
+                TempData["Tab"] = "address";
+                return RedirectToAction("Profile");
+            }
+
+            var isFirst = !await _db.UserAddresses.AnyAsync(a => a.UserID == userId);
+
+            address.UserID = userId.Value;
+            address.IsDefault = isFirst;
+
+            try
+            {
+                _db.UserAddresses.Add(address);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Đã thêm địa chỉ mới thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Có lỗi xảy ra: " + ex.Message;
+            }
+
+            TempData["Tab"] = "address";
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAddress(int addressId, string fullName, string phone, string province_City, string detailedAddress)
+        {
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login");
+
+            var address = await _db.UserAddresses
+                .FirstOrDefaultAsync(a => a.AddressID == addressId && a.UserID == userId);
+
+            if (address == null) return RedirectToAction("Profile");
+
+            address.FullName = fullName;
+            address.Phone = phone;
+            address.Province_City = province_City;
+            address.DetailedAddress = detailedAddress;
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật địa chỉ!";
+            TempData["Tab"] = "address";
+
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetDefaultAddress(int addressId)
+        {
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login");
+
+            var addresses = await _db.UserAddresses.Where(a => a.UserID == userId).ToListAsync();
+            var target = addresses.FirstOrDefault(a => a.AddressID == addressId);
+
+            if (target == null) return RedirectToAction("Profile");
+
+            foreach (var a in addresses)
+            {
+                a.IsDefault = (a.AddressID == addressId);
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã đặt địa chỉ mặc định!";
+            TempData["Tab"] = "address";
+
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAddress(int addressId)
+        {
+            var userId = HttpContext.Session.GetUserId();
+            if (userId == null) return RedirectToAction("Login");
+
+            var address = await _db.UserAddresses
+                .FirstOrDefaultAsync(a => a.AddressID == addressId && a.UserID == userId);
+
+            if (address != null)
+            {
+                var wasDefault = address.IsDefault;
+                _db.UserAddresses.Remove(address);
+                await _db.SaveChangesAsync();
+
+                if (wasDefault)
+                {
+                    var next = await _db.UserAddresses
+                        .Where(a => a.UserID == userId)
+                        .OrderByDescending(a => a.AddressID)
+                        .FirstOrDefaultAsync();
+
+                    if (next != null)
+                    {
+                        next.IsDefault = true;
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
+            TempData["Tab"] = "address";
+            return RedirectToAction("Profile");
+        }
+
+        // ĐĂNG XUẤT
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
-        }
-
-        // ── ADDRESS ──
-        [HttpPost]
-        public async Task<IActionResult> AddAddress(string fullName, string phone, string province_City, string detailedAddress)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var address = new UserAddress
-            {
-                UserID = userId.Value,
-                FullName = fullName,
-                Phone = phone,
-                Province_City = province_City,
-                DetailedAddress = detailedAddress
-            };
-            _db.UserAddresses.Add(address);
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm địa chỉ!";
-            return RedirectToAction("Profile");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteAddress(int addressId)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
-            var address = await _db.UserAddresses
-                .FirstOrDefaultAsync(a => a.AddressID == addressId && a.UserID == userId);
-            if (address != null) { _db.UserAddresses.Remove(address); await _db.SaveChangesAsync(); }
-            return RedirectToAction("Profile");
         }
     }
 }

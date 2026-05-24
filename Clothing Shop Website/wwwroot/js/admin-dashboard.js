@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     const gold = '#c9a84c';
     const goldDim = 'rgba(201,168,76,0.35)';
     const text = 'rgba(250,248,242,0.75)';
@@ -25,12 +25,38 @@
         });
     }
 
+    const pieColors = ['#c9a84c', '#8b7355', '#5c4d3a', '#3d3428', '#7a6a4a', '#a08b5a', '#c4b896', '#6b5c48', '#9a8468', '#4a3f32'];
+
+    function renderPieLegend(rows, colors) {
+        const el = document.getElementById('catPieLegend');
+        if (!el) return;
+        const total = (rows || []).reduce((s, r) => s + (Number(r.amount) || 0), 0);
+        if (!rows || !rows.length || total <= 0) {
+            el.innerHTML = '<div class="cat-pie-legend-empty">Chưa có dữ liệu danh mục.</div>';
+            return;
+        }
+        el.innerHTML = rows.map((r, i) => {
+            const amt = Number(r.amount) || 0;
+            const pct = total > 0 ? (amt / total * 100).toFixed(1) : '0';
+            const color = colors[i % colors.length];
+            const label = String(r.label || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return '<div class="cat-pie-legend-item">' +
+                '<span class="cat-pie-legend-swatch" style="background:' + color + '"></span>' +
+                '<div class="cat-pie-legend-body">' +
+                '<div class="cat-pie-legend-label">' + label + '</div>' +
+                '<div class="cat-pie-legend-amt">' + amt.toLocaleString('vi-VN') + 'đ · ' + pct + '%</div>' +
+                '</div></div>';
+        }).join('');
+    }
+
     let chartPie, chartBar;
     function renderPie(rows) {
         const ctx = document.getElementById('catPie');
         if (!ctx) return;
         const labels = (rows || []).map(r => r.label);
         const data = (rows || []).map(r => Number(r.amount) || 0);
+        const colors = data.map((_, i) => pieColors[i % pieColors.length]);
+        renderPieLegend(rows, colors);
         if (chartPie) chartPie.destroy();
         chartPie = new Chart(ctx, {
             type: 'doughnut',
@@ -38,13 +64,15 @@
                 labels,
                 datasets: [{
                     data,
-                    backgroundColor: ['#c9a84c', '#8b7355', '#5c4d3a', '#3d3428', '#7a6a4a', '#a08b5a'],
+                    backgroundColor: colors,
                     borderColor: '#0a0908',
                     borderWidth: 2
                 }]
             },
             options: {
-                plugins: { legend: { labels: { color: text, font: { size: 10 } } } },
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
                 cutout: '58%'
             }
         });
@@ -100,59 +128,60 @@
     }
 
     // ==========================================
-    // --- LOGIC XỬ LÝ AI PREDICTION (TIME SERIES) ---
+    // --- AI PREDICTION với chọn số tháng ---
     // ==========================================
+
+    function getSelectedMonths() {
+        const sel = document.getElementById('aiMonthsSelect');
+        return sel ? parseInt(sel.value, 10) || 3 : 3;
+    }
 
     function fetchAIPrediction() {
         const btnDetail = document.getElementById('btnShowAiDetail');
         const resultText = document.getElementById('aiPredictionResult');
         const status = document.getElementById('aiStatus');
-
         if (!status || !resultText) return;
 
-        status.innerText = "AI đang phân tích...";
+        const months = getSelectedMonths();
+        status.innerText = 'AI đang phân tích...';
 
-        fetch(`/Admin/GetAIPrediction`)
+        fetch('/Admin/GetAIPrediction?months=' + months)
             .then(res => res.json())
             .then(data => {
-                status.innerText = "Hoàn tất";
+                status.innerText = 'Hoàn tất';
                 if (data.success) {
                     resultText.innerHTML = `<strong style="font-size:16px; color:#fff">${data.message}</strong>`;
-
                     if (btnDetail) {
                         btnDetail.style.display = 'block';
                         btnDetail.onclick = function () {
-                            showAiProductDetail(data.categoryName, data.predictedQty);
+                            showAiProductDetail(data.categoryName, data.predictedQty, data.months || months);
                         };
                     }
                 } else {
                     resultText.innerHTML = `<span style="color:var(--gold)">${data.message}</span>`;
+                    if (btnDetail) btnDetail.style.display = 'none';
                 }
             })
-            .catch(err => {
-                status.innerText = "Lỗi kết nối";
-                resultText.innerHTML = `<span style="color:#ff6b6b">Không thể lấy dữ liệu dự báo từ SSAS.</span>`;
+            .catch(() => {
+                status.innerText = 'Lỗi kết nối';
+                resultText.innerHTML = '<span style="color:#ff6b6b">Không thể lấy dữ liệu dự báo từ SSAS.</span>';
             });
     }
 
-    function showAiProductDetail(categoryName, predictedQty) {
+    function showAiProductDetail(categoryName, predictedQty, months) {
         const modal = document.getElementById('aiDetailMo');
         const list = document.getElementById('aiProductList');
         const summary = document.getElementById('aiDetailSummary');
 
-        // KIỂM TRA: Nếu thiếu HTML, bật cảnh báo ngay lập tức
         if (!modal || !list || !summary) {
-            alert("Lỗi: Không tìm thấy HTML của bảng Modal AI! Vui lòng kiểm tra lại file Dashboard.cshtml");
+            alert('Lỗi: Không tìm thấy HTML Modal AI!');
             return;
         }
 
-        summary.innerText = `Danh mục ${categoryName}: AI đề xuất nhập tổng ${predictedQty} sản phẩm dựa trên tỉ trọng 3 tháng qua.`;
+        summary.innerText = `Danh mục ${categoryName}: AI đề xuất nhập tổng ${predictedQty} sản phẩm trong ${months || 3} tháng tới, phân bổ theo tỉ trọng bán hàng lịch sử.`;
         list.innerHTML = '<div style="text-align:center; padding:20px; color: var(--gold);">Đang tìm sản phẩm gánh team...</div>';
-
-        // Bật hiển thị Modal
         modal.classList.add('active');
 
-        // Gọi API lên C#
         fetch(`/Admin/GetImportSuggestionsForCategory?categoryName=${encodeURIComponent(categoryName)}&aiPredictedQuantity=${predictedQty}`)
             .then(res => res.json())
             .then(res => {
@@ -176,12 +205,11 @@
                 });
             })
             .catch(err => {
-                list.innerHTML = `<div style="text-align:center; padding:20px; color: #ff6b6b;">Lỗi khi lấy dữ liệu sản phẩm từ Cube MDX. Vui lòng nhấn F12 để xem chi tiết.</div>`;
-                console.error("Lỗi API GetImportSuggestionsForCategory:", err);
+                list.innerHTML = '<div style="text-align:center; padding:20px; color: #ff6b6b;">Lỗi khi lấy dữ liệu từ Cube MDX.</div>';
+                console.error('Lỗi API GetImportSuggestionsForCategory:', err);
             });
     }
 
-    // Đóng Modal AI
     document.addEventListener('click', function (e) {
         if (e.target.id === 'aiDetailClose' || e.target.id === 'aiDetailCancel') {
             const mod = document.getElementById('aiDetailMo');
@@ -189,7 +217,6 @@
         }
     });
 
-    // Sự kiện khi bấm "Chọn" từ bảng gợi ý của AI (Dùng Vanilla JS để tránh lỗi $)
     document.addEventListener('click', function (e) {
         if (e.target && e.target.classList.contains('btn-fill-import')) {
             const btn = e.target;
@@ -197,15 +224,12 @@
             const pname = btn.getAttribute('data-pname');
             const qty = btn.getAttribute('data-qty');
 
-            // Đóng modal AI
             const detailMo = document.getElementById('aiDetailMo');
             if (detailMo) detailMo.classList.remove('active');
 
-            // Mở modal Nhập hàng gốc 
             const importModal = document.getElementById('importMo');
             if (importModal) importModal.classList.add('active');
 
-            // Điền dữ liệu
             const impPid = document.getElementById('impProductId');
             const impPname = document.getElementById('impProductName');
             const impQty = document.getElementById('impQty');
@@ -214,29 +238,31 @@
             if (impPname) impPname.value = pname;
             if (impQty) impQty.value = qty;
 
-            // Bật Toast thông báo
             const toast = document.getElementById('toast');
             if (toast) {
-                toast.innerText = "AI đã tự động điền số lượng dự đoán!";
+                toast.innerText = 'AI đã tự động điền số lượng dự đoán!';
                 toast.classList.add('active');
                 setTimeout(() => toast.classList.remove('active'), 3000);
             }
         }
     });
 
-    // ==========================================
-    // --- GỘP CHUNG VÀO 1 SỰ KIỆN KHỞI TẠO TRANG ---
-    // ==========================================
+    // Re-fetch khi thay đổi số tháng dự đoán
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.id === 'aiMonthsSelect') {
+            const btnDetail = document.getElementById('btnShowAiDetail');
+            if (btnDetail) btnDetail.style.display = 'none';
+            fetchAIPrediction();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         const p = readPayload();
         renderBars6m(p.revenue6m || []);
         renderPie(p.catPie || []);
         renderAgeBar(p.ageRev || []);
         wireFilters();
-
-        // Chạy AI ngay khi trang vừa load xong
         fetchAIPrediction();
-
         if (window.NevaAdminImportModal) window.NevaAdminImportModal.init({ bindTopSellList: true });
     });
 

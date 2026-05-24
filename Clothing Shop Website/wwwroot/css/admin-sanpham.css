@@ -416,7 +416,9 @@ nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all .2s
+    transition: all .2s;
+    cursor: pointer;
+    padding: 0;
 }
 
     .ia-btn:hover {
@@ -517,9 +519,9 @@ nav {
 
 .pagination {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 3px;
-    margin-top: 16px
+    margin-top: 20px;
 }
 
 .pp {
@@ -572,6 +574,9 @@ nav {
         color: #d47a76
     }
 
+.toast.active {
+    display: block
+}
 
 .mo {
     position: fixed;
@@ -795,6 +800,120 @@ nav {
         border-color: #d47a76;
         color: #d47a76
     }
+
+.img-upload-area.has-image {
+    padding: 12px;
+    cursor: default
+}
+
+.img-upload-area.dz-over {
+    border-color: var(--gold);
+    background: rgba(201,168,76,.04)
+}
+
+.img-zone-preview {
+    margin-bottom: 10px
+}
+
+    .img-zone-preview img {
+        width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+        border: 1px solid var(--border)
+    }
+
+.img-zone-current {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,.65);
+    margin-bottom: 8px
+}
+
+.img-zone-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap
+}
+
+.img-zone-change {
+    padding: 6px 12px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: rgba(250,248,242,.55);
+    font-family: var(--font-b);
+    cursor: pointer;
+    transition: all .2s
+}
+
+    .img-zone-change:hover {
+        border-color: var(--gold);
+        color: var(--gold)
+    }
+
+.img-zone-label {
+    font-size: 10px;
+    color: rgba(250,248,242,.35);
+    letter-spacing: 1px
+}
+
+.ia-btn.publish {
+    border-color: rgba(122,184,255,.35)
+}
+
+    .ia-btn.publish:hover {
+        border-color: #7ab8e8
+    }
+
+        .ia-btn.publish:hover svg {
+            stroke: #7ab8e8
+        }
+
+.crop-overlay {
+    z-index: 9001
+}
+
+.crop-box {
+    width: min(560px, 96vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    background: var(--dark2);
+    border: 1px solid var(--border)
+}
+
+.crop-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold)
+}
+
+.crop-body {
+    padding: 16px;
+    max-height: 60vh;
+    overflow: hidden
+}
+
+    .crop-body img {
+        display: block;
+        max-width: 100%
+    }
+
+.crop-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px 18px
+}
 
 .btn-gold {
     padding: 10px 22px;

@@ -1,11 +1,20 @@
-Use ClothingShopWebsiteDB
+﻿Use ClothingShopWebsiteDB
 go
+
+-- Đảm bảo cột Status tồn tại trước khi seed (0 = chưa hiển thị, 1 = đã hiển thị giao diện khách)
+IF COL_LENGTH('dbo.Products', 'Status') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Products] ADD [Status] INT NOT NULL CONSTRAINT [DF_Products_Status] DEFAULT (0);
+    PRINT N'Đã thêm cột Products.Status.';
+END
+GO
 
 -- 1. XÓA DỮ LIỆU CŨ THEO ĐÚNG THỨ TỰ RÀNG BUỘC KHÓA NGOẠI (Từ bảng con đến bảng cha)
 DELETE FROM [InventoryReceiptDetails];
 DELETE FROM [OrderDetails];
 DELETE FROM [CartItems];
 DELETE FROM [ProductSizes];
+DELETE FROM [Advertisements];
 DELETE FROM [UserAddresses];
 DELETE FROM [Orders];
 DELETE FROM [InventoryReceipts];
@@ -167,25 +176,25 @@ SET IDENTITY_INSERT [StaffShifts] OFF;
 GO
 
 -- ==================================================================================
--- CHÈN DỮ LIỆU BẢNG 5: [Products] (Sản phẩm - ĐÃ BỎ thuộc tính OriginalPrice)
+-- CHÈN DỮ LIỆU BẢNG 5: [Products] (Sản phẩm — Status: 0=chưa hiển thị, 1=đã hiển thị)
 -- ==================================================================================
 SET IDENTITY_INSERT [Products] ON;
-INSERT INTO [Products] ([ProductID], [CategoryID], [ProductName], [Price], [ImageUrl], [Description], [Session], [Color], [Style], [Material]) VALUES
-(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/uploads/products/somi_nam.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton'),
-(2, 1, N'Áo thun nam polo basic', 250000.00, '/uploads/products/polo_nam.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu'),
-(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/uploads/products/quantay_nam.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa'),
-(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/uploads/products/short_kaki.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki'),
-(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/uploads/products/vay_hoanhi.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon'),
-(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/uploads/products/dam_dahoi.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin'),
-(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/uploads/products/cardigan_nu.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm'),
-(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/uploads/products/croptop_nu.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn'),
-(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/uploads/products/bo_thethao_nam.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester'),
-(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/uploads/products/set_gym_nu.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex'),
-(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/uploads/products/thatlung_da.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò'),
-(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/uploads/products/khoacgio_nam.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon'),
-(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/uploads/products/aoloclo_nu.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu'),
-(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/uploads/products/jean_nam.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim'),
-(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/uploads/products/chanvay_a.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn');
+INSERT INTO [Products] ([ProductID], [CategoryID], [ProductName], [Price], [ImageUrl], [Description], [Session], [Color], [Style], [Material], [Status]) VALUES
+(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/uploads/products/somi_nam.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton', 1),
+(2, 1, N'Áo thun nam polo basic', 250000.00, '/uploads/products/polo_nam.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu', 1),
+(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/uploads/products/quantay_nam.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa', 1),
+(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/uploads/products/short_kaki.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki', 1),
+(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/uploads/products/vay_hoanhi.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon', 1),
+(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/uploads/products/dam_dahoi.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin', 1),
+(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/uploads/products/cardigan_nu.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm', 1),
+(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/uploads/products/croptop_nu.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn', 1),
+(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/uploads/products/bo_thethao_nam.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester', 1),
+(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/uploads/products/set_gym_nu.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex', 1),
+(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/uploads/products/thatlung_da.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò', 0),
+(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/uploads/products/khoacgio_nam.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon', 0),
+(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/uploads/products/aoloclo_nu.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu', 0),
+(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/uploads/products/jean_nam.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim', 0),
+(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/uploads/products/chanvay_a.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn', 0);
 SET IDENTITY_INSERT [Products] OFF;
 GO
 
@@ -227,21 +236,19 @@ INSERT INTO [ProductSizes] ([SizeID], [ProductID], [SizeName], [StockQuantity], 
 SET IDENTITY_INSERT [ProductSizes] OFF;
 GO
 
--- ==================================================================================
 -- CHÈN DỮ LIỆU BẢNG 7: [InventoryReceipts] (Phiếu nhập kho - 10 phiếu phân bổ)
--- ==================================================================================
 SET IDENTITY_INSERT [InventoryReceipts] ON;
-INSERT INTO [InventoryReceipts] ([ReceiptID], [SupplierID], [ImportDate]) VALUES
-(1, 1, '2025-11-15 09:30:00'),
-(2, 2, '2025-12-05 14:15:00'),
-(3, 3, '2025-12-20 10:00:00'),
-(4, 4, '2026-01-10 11:45:00'),
-(5, 1, '2026-02-05 08:30:00'),
-(6, 2, '2026-02-25 15:00:00'),
-(7, 3, '2026-03-12 13:20:00'),
-(8, 4, '2026-04-01 10:15:00'),
-(9, 1, '2026-04-20 09:00:00'),
-(10, 2, '2026-05-10 14:30:00');
+INSERT INTO [InventoryReceipts] ([ReceiptID], [SupplierID], [ImportDate], [Status], [CreatedBy]) VALUES
+(1, 1, '2025-11-15 09:30:00', 1, 2),    -- Tạo bởi Trần Thị Thu
+(2, 2, '2025-12-05 14:15:00', 1, 33),   -- Tạo bởi Nguyễn Minh Triết
+(3, 3, '2025-12-20 10:00:00', 1, 34),   -- Tạo bởi Phạm Thảo Vy
+(4, 4, '2026-01-10 11:45:00', 1, 35),   -- Tạo bởi Lê Anh Tuấn
+(5, 1, '2026-02-05 08:30:00', 1, 2),
+(6, 2, '2026-02-25 15:00:00', 1, 33),
+(7, 3, '2026-03-12 13:20:00', 1, 34),
+(8, 4, '2026-04-01 10:15:00', 1, 35),
+(9, 1, '2026-04-20 09:00:00', 1, 2),
+(10, 2, '2026-05-10 14:30:00', 0, 33);  -- Phiếu mới nhất đang ở trạng thái Chờ duyệt
 SET IDENTITY_INSERT [InventoryReceipts] OFF;
 GO
 
@@ -304,42 +311,42 @@ GO
 -- Dữ liệu thực tế: Một số khách hàng có nhiều địa chỉ nhận hàng
 -- ==================================================================================
 SET IDENTITY_INSERT [UserAddresses] ON;
-INSERT INTO [UserAddresses] ([AddressID], [UserID], [Province_City], [Country], [DetailedAddress], [FullName], [Phone]) VALUES
-(1, 3, N'Hà Nội', N'Việt Nam', N'Số 12 ngõ 45 Cầu Giấy', N'Nguyễn Văn Nam', '0912345678'),
-(2, 3, N'Hải Phòng', N'Việt Nam', N'Kiốt số 3 chợ Đổ, Hồng Bàng', N'Nguyễn Văn Nam', '0912345678'), 
-(3, 4, N'TP Hồ Chí Minh', N'Việt Nam', N'180/45 Nguyễn Thị Minh Khai, Q.3', N'Trần Thị Hương', '0987654321'),
-(4, 5, N'Hà Nội', N'Việt Nam', N'P.402 Chung cư HH2 Linh Đàm, Hoàng Mai', N'Lê Hoàng Long', '0905123456'),
-(5, 5, N'Đà Nẵng', N'Việt Nam', N'88 Lê Duẩn, Hải Châu', N'Lê Hoàng Long', '0905123456'), 
-(6, 6, N'Cần Thơ', N'Việt Nam', N'45 Đường 3/2, Ninh Kiều', N'Phạm Minh Tuấn', '0945678901'),
-(7, 7, N'Hà Nội', N'Việt Nam', N'Số 5 ngách 82 Yên Hòa, Cầu Giấy', N'Vũ Thị Mai', '0934567890'),
-(8, 8, N'Đồng Nai', N'Việt Nam', N'12/3 Biên Hòa', N'Hoàng Anh Đức', '0978123456'),
-(9, 9, N'Hải Dương', N'Việt Nam', N'88 Trần Hưng Đạo', N'Đỗ Huy Khánh', '0919876543'),
-(10, 10, N'Hà Nội', N'Việt Nam', N'Số 10 ngõ 102 Chùa Láng, Đống Đa', N'Phan Thanh Hà', '0963112233'),
-(11, 11, N'TP Hồ Chí Minh', N'Việt Nam', N'90 Lê Lợi, Bến Nghé, Quận 1', N'Ngô Quốc Anh', '0909112233'),
-(12, 12, N'Hà Nội', N'Việt Nam', N'Số 8 Trấn Vũ, Ba Đình', N'Bùi Thị Lan', '0988223344'),
-(13, 13, N'Bắc Ninh', N'Việt Nam', N'22 Ngô Gia Tự', N'Nguyễn Đình Huy', '0977334455'),
-(14, 14, N'Quảng Ninh', N'Việt Nam', N'102 Kênh Liêm, Hạ Long', N'Đặng Minh Triết', '0911445566'),
-(15, 14, N'Hà Nội', N'Việt Nam', N'55 Phố Huế, Hai Bà Trưng', N'Đặng Minh Triết', '0911445566'), 
-(16, 15, N'Thừa Thiên Huế', N'Việt Nam', N'15 Hùng Vương', N'Dương Thúy Hằng', '0944556677'),
-(17, 16, N'Khánh Hòa', N'Việt Nam', N'40 Trần Phú, Nha Trang', N'Võ Duy Mạnh', '0933667788'),
-(18, 17, N'Hà Nội', N'Việt Nam', N'Số 6 ngõ 8 Chùa Bộc, Đống Đa', N'Đinh Văn Hùng', '0966778899'),
-(19, 18, N'Đà Nẵng', N'Việt Nam', N'120 Nguyễn Văn Linh, Thanh Khê', N'Lâm Mỹ Tâm', '0988778899'),
-(20, 19, N'Thanh Hóa', N'Việt Nam', N'88 Lê Lai', N'Lý Hải Nam', '0977889900'),
-(21, 20, N'Hà Nội', N'Việt Nam', N'Số 12 ngõ 20 Cát Linh, Đống Đa', N'Tạ Minh Quân', '0911889900'),
-(22, 20, N'Vĩnh Phúc', N'Việt Nam', N'22 Mê Linh, Vĩnh Yên', N'Tạ Minh Quân', '0911889900'), 
-(23, 21, N'Nghệ An', N'Việt Nam', N'45 Quang Trung, Vinh', N'Trịnh Phương Nam', '0944889900'),
-(24, 22, N'Hà Nội', N'Việt Nam', N'P.1205 Tòa nhà CT3 Nam Cường, Bắc Từ Liêm', N'Phùng Kiến Quốc', '0933990011'),
-(25, 23, N'Bình Dương', N'Việt Nam', N'80 Đại lộ Bình Dương, Thủ Dầu Một', N'Cao Thanh Thảo', '0966990011'),
-(26, 24, N'Hà Nội', N'Việt Nam', N'Số 17 ngõ 233 Xuân Thủy, Cầu Giấy', N'Mai Ngọc Anh', '0988990011'),
-(27, 25, N'TP Hồ Chí Minh', N'Việt Nam', N'450 Cách Mạng Tháng 8, Quận 3', N'Đào Quốc Bảo', '0977001122'),
-(28, 26, N'Thái Nguyên', N'Việt Nam', N'12 Lương Ngọc Quyến', N'Hà Thị Cúc', '0911001122'),
-(29, 27, N'Hà Nội', N'Việt Nam', N'Số 88 Trần Duy Hưng, Cầu Giấy', N'Lương Thế Thành', '0944001122'),
-(30, 28, N'Lâm Đồng', N'Việt Nam', N'15 Bùi Thị Xuân, Đà Lạt', N'Nghiêm Xuân Trường', '0933112244'),
-(31, 28, N'Hà Nội', N'Việt Nam', N'Số 10 Hàng Gai, Hoàn Kiếm', N'Nghiêm Xuân Trường', '0933112244'), 
-(32, 29, N'Hà Nội', N'Việt Nam', N'Số 5 ngõ 18 Nguyễn Khánh Toàn, Cầu Giấy', N'Quách Hoàng Diệu', '0966112244'),
-(33, 30, N'Hà Nội', N'Việt Nam', N'P.809 Chung cư Times City, Hai Bà Trưng', N'Giang Hồng Ngọc', '0988112244'),
-(34, 31, N'Nam Định', N'Việt Nam', N'88 Trần Hưng Đạo', N'Chu Văn Biên', '0977223355'),
-(35, 32, N'Hà Nội', N'Việt Nam', N'Số 2 ngõ 45 Tây Sơn, Đống Đa', N'Đỗ Thùy Trang', '0911223355');
+INSERT INTO [UserAddresses] ([AddressID], [UserID], [Province_City], [DetailedAddress], [FullName], [Phone], [IsDefault]) VALUES
+(1, 3, N'Hà Nội', N'Số 12 ngõ 45 Cầu Giấy', N'Nguyễn Văn Nam', '0912345678', 1),
+(2, 3, N'Hải Phòng', N'Kiốt số 3 chợ Đổ, Hồng Bàng', N'Nguyễn Văn Nam', '0912345678', 1), 
+(3, 4, N'TP Hồ Chí Minh', N'180/45 Nguyễn Thị Minh Khai, Q.3', N'Trần Thị Hương', '0987654321', 1),
+(4, 5, N'Hà Nội', N'P.402 Chung cư HH2 Linh Đàm, Hoàng Mai', N'Lê Hoàng Long', '0905123456', 1),
+(5, 5, N'Đà Nẵng', N'88 Lê Duẩn, Hải Châu', N'Lê Hoàng Long', '0905123456', 1), 
+(6, 6, N'Cần Thơ', N'45 Đường 3/2, Ninh Kiều', N'Phạm Minh Tuấn', '0945678901', 1),
+(7, 7, N'Hà Nội', N'Số 5 ngách 82 Yên Hòa, Cầu Giấy', N'Vũ Thị Mai', '0934567890', 1),
+(8, 8, N'Đồng Nai', N'12/3 Biên Hòa', N'Hoàng Anh Đức', '0978123456', 1),
+(9, 9, N'Hải Dương', N'88 Trần Hưng Đạo', N'Đỗ Huy Khánh', '0919876543', 1),
+(10, 10, N'Hà Nội', N'Số 10 ngõ 102 Chùa Láng, Đống Đa', N'Phan Thanh Hà', '0963112233', 1),
+(11, 11, N'TP Hồ Chí Minh', N'90 Lê Lợi, Bến Nghé, Quận 1', N'Ngô Quốc Anh', '0909112233', 1),
+(12, 12, N'Hà Nội', N'Số 8 Trấn Vũ, Ba Đình', N'Bùi Thị Lan', '0988223344', 1),
+(13, 13, N'Bắc Ninh', N'22 Ngô Gia Tự', N'Nguyễn Đình Huy', '0977334455', 1),
+(14, 14, N'Quảng Ninh', N'102 Kênh Liêm, Hạ Long', N'Đặng Minh Triết', '0911445566', 1),
+(15, 14, N'Hà Nội', N'55 Phố Huế, Hai Bà Trưng', N'Đặng Minh Triết', '0911445566', 1), 
+(16, 15, N'Thừa Thiên Huế', N'15 Hùng Vương', N'Dương Thúy Hằng', '0944556677', 1),
+(17, 16, N'Khánh Hòa', N'40 Trần Phú, Nha Trang', N'Võ Duy Mạnh', '0933667788', 1),
+(18, 17, N'Hà Nội', N'Số 6 ngõ 8 Chùa Bộc, Đống Đa', N'Đinh Văn Hùng', '0966778899', 1),
+(19, 18, N'Đà Nẵng', N'120 Nguyễn Văn Linh, Thanh Khê', N'Lâm Mỹ Tâm', '0988778899', 1),
+(20, 19, N'Thanh Hóa', N'88 Lê Lai', N'Lý Hải Nam', '0977889900', 1),
+(21, 20, N'Hà Nội', N'Số 12 ngõ 20 Cát Linh, Đống Đa', N'Tạ Minh Quân', '0911889900', 1),
+(22, 20, N'Vĩnh Phúc', N'22 Mê Linh, Vĩnh Yên', N'Tạ Minh Quân', '0911889900', 1), 
+(23, 21, N'Nghệ An', N'45 Quang Trung, Vinh', N'Trịnh Phương Nam', '0944889900', 1),
+(24, 22, N'Hà Nội', N'P.1205 Tòa nhà CT3 Nam Cường, Bắc Từ Liêm', N'Phùng Kiến Quốc', '0933990011', 1),
+(25, 23, N'Bình Dương', N'80 Đại lộ Bình Dương, Thủ Dầu Một', N'Cao Thanh Thảo', '0966990011', 1),
+(26, 24, N'Hà Nội', N'Số 17 ngõ 233 Xuân Thủy, Cầu Giấy', N'Mai Ngọc Anh', '0988990011', 1),
+(27, 25, N'TP Hồ Chí Minh', N'450 Cách Mạng Tháng 8, Quận 3', N'Đào Quốc Bảo', '0977001122', 1),
+(28, 26, N'Thái Nguyên', N'12 Lương Ngọc Quyến', N'Hà Thị Cúc', '0911001122', 1),
+(29, 27, N'Hà Nội', N'Số 88 Trần Duy Hưng, Cầu Giấy', N'Lương Thế Thành', '0944001122', 1),
+(30, 28, N'Lâm Đồng', N'15 Bùi Thị Xuân, Đà Lạt', N'Nghiêm Xuân Trường', '0933112244', 1),
+(31, 28, N'Hà Nội', N'Số 10 Hàng Gai, Hoàn Kiếm', N'Nghiêm Xuân Trường', '0933112244', 1), 
+(32, 29, N'Hà Nội', N'Số 5 ngõ 18 Nguyễn Khánh Toàn, Cầu Giấy', N'Quách Hoàng Diệu', '0966112244', 1),
+(33, 30, N'Hà Nội', N'P.809 Chung cư Times City, Hai Bà Trưng', N'Giang Hồng Ngọc', '0988112244', 1),
+(34, 31, N'Nam Định', N'88 Trần Hưng Đạo', N'Chu Văn Biên', '0977223355', 1),
+(35, 32, N'Hà Nội', N'Số 2 ngõ 45 Tây Sơn, Đống Đa', N'Đỗ Thùy Trang', '0911223355', 1);
 SET IDENTITY_INSERT [UserAddresses] OFF;
 GO
 
@@ -624,7 +631,18 @@ FROM [Orders] o;
 GO
 
 -- IN THÔNG BÁO HOÀN THÀNH
-PRINT N'ĐÃ CHÈN THÀNH CÔNG DỮ LIỆU MẪU CHO TẤT CẢ 15 BẢNG THÀNH CÔNG!';
+-- ==================================================================================
+-- CHÈN DỮ LIỆU BẢNG 13: [Advertisements] (Quảng cáo)
+-- ==================================================================================
+SET IDENTITY_INSERT [Advertisements] ON;
+INSERT INTO [Advertisements] ([AdID], [Title], [ImageUrl], [LinkUrl], [Position], [IsActive], [CreatedDate], [ProductID]) VALUES
+(1, N'Sale Hè Rực Rỡ', '/images/ads/summer-sale.jpg', NULL, 'banner', 1, '2026-05-01 00:00:00', 1),
+(2, N'Bộ Sưu Tập Công Sở', '/images/ads/office-collection.jpg', NULL, 'sidebar', 1, '2026-05-10 00:00:00', 3),
+(3, N'Đầm Dạ Hội Cao Cấp', '/images/ads/evening-dress.jpg', NULL, 'popup', 1, '2026-05-15 00:00:00', 6);
+SET IDENTITY_INSERT [Advertisements] OFF;
+GO
+
+PRINT N'ĐÃ CHÈN THÀNH CÔNG DỮ LIỆU MẪU CHO TẤT CẢ 16 BẢNG THÀNH CÔNG!';
 PRINT N'- 6 Danh mục sản phẩm (Categories)';
 PRINT N'- 5 Mã giảm giá (Discounts)';
 PRINT N'- 4 Nhà cung cấp (Suppliers)';
@@ -632,7 +650,7 @@ PRINT N'- 35 Người dùng (Users: 1 Admin + 4 Staff + 30 Customers)';
 PRINT N'- 30 Chi tiết khách hàng (CustomerDetails - chuyển RewardPoints)';
 PRINT N'- 4 Chi tiết nhân viên (StaffDetails)';
 PRINT N'- 9 Ca làm việc của nhân viên (StaffShifts)';
-PRINT N'- 15 Sản phẩm thực tế (Products - Đã lược bỏ OriginalPrice)';
+PRINT N'- 15 Sản phẩm thực tế (Products — 10 Status=1 hiển thị, 5 Status=0 chờ publish)';
 PRINT N'- 45 Size sản phẩm (ProductSizes)';
 PRINT N'- 10 Phiếu nhập kho (InventoryReceipts)';
 PRINT N'- 35 Chi tiết nhập kho (InventoryReceiptDetails)';
@@ -640,3 +658,4 @@ PRINT N'- 35 Địa chỉ nhận hàng (UserAddresses)';
 PRINT N'- 100 Đơn hàng thực tế phân bổ 6 tháng qua (Orders)';
 PRINT N'- 220 Chi tiết đơn hàng (OrderDetails)';
 PRINT N'- 15 Giỏ hàng hiện tại (CartItems)';
+PRINT N'- 3 Quảng cáo (Advertisements)';

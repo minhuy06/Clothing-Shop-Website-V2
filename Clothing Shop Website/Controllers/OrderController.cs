@@ -164,7 +164,6 @@ namespace Clothing_Shop_Website.Controllers
             var orders = await _db.Orders
                 .Include(o => o.OrderDetails)
                     .ThenInclude(d => d.Product)
-                .Include(o => o.Discount)
                 .Where(o => o.UserID == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();

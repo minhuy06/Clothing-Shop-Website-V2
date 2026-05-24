@@ -551,6 +551,9 @@ nav {
     text-transform: uppercase;
     border: 1px solid var(--border);
     font-family: var(--font-b);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
     transition: all .2s
 }
 

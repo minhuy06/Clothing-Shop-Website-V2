@@ -19,6 +19,47 @@ namespace Clothing_Shop_Website.Migrations
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Clothing_Shop_Website.Models.Advertisement", b =>
+                {
+                    b.Property<int>("AdID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("AdID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("Advertisements");
+                });
+
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
                 {
                     b.Property<int>("CartID")
@@ -117,13 +158,21 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ImportDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int>("SupplierID")
                         .HasColumnType("int");
 
                     b.HasKey("ReceiptID");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("SupplierID");
 
@@ -256,8 +305,8 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Color")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(100)
@@ -280,6 +329,9 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Session")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("Style")
@@ -440,11 +492,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("DetailedAddress")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -454,6 +501,9 @@ namespace Clothing_Shop_Website.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -473,6 +523,15 @@ namespace Clothing_Shop_Website.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.Advertisement", b =>
+                {
+                    b.HasOne("Clothing_Shop_Website.Models.Product", "Product")
+                        .WithMany("Advertisements")
+                        .HasForeignKey("ProductID");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
@@ -507,11 +566,19 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.InventoryReceipt", b =>
                 {
+                    b.HasOne("Clothing_Shop_Website.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Clothing_Shop_Website.Models.Supplier", "Supplier")
                         .WithMany("InventoryReceipts")
                         .HasForeignKey("SupplierID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Creator");
 
                     b.Navigation("Supplier");
                 });
@@ -648,6 +715,8 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Product", b =>
                 {
+                    b.Navigation("Advertisements");
+
                     b.Navigation("CartItems");
 
                     b.Navigation("OrderDetails");

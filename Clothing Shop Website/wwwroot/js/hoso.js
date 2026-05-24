@@ -25,11 +25,53 @@ function cancelEdit() {
     if (b) b.style.display = '';
 }
 
+function setAddrMoMode(mode, data) {
+    const form = document.getElementById('addrForm');
+    const title = document.getElementById('addrMoTitle');
+    const submitBtn = document.getElementById('addrSubmitBtn');
+    const idField = document.getElementById('addrIdField');
+    if (!form || !title || !submitBtn || !idField) return;
+
+    const addUrl = form.dataset.addUrl || '/Account/AddAddress';
+    const updateUrl = form.dataset.updateUrl || '/Account/UpdateAddress';
+
+    if (mode === 'edit' && data) {
+        form.action = updateUrl;
+        title.textContent = 'Chỉnh sửa địa chỉ';
+        submitBtn.textContent = 'Lưu thay đổi';
+        idField.value = data.id || '';
+        document.getElementById('addrFullName').value = data.name || '';
+        document.getElementById('addrPhone').value = data.phone || '';
+        document.getElementById('addrDetail').value = data.detail || '';
+        const prov = document.getElementById('addrProvince');
+        if (prov && data.province) prov.value = data.province;
+    } else {
+        form.action = addUrl;
+        title.textContent = 'Thêm địa chỉ mới';
+        submitBtn.textContent = 'Lưu địa chỉ';
+        idField.value = '';
+        form.reset();
+    }
+}
+
 function openAddrMo() {
     const mo = document.getElementById('addrMo');
     if (!mo) return;
-    const form = mo.querySelector('form');
-    if (form) form.reset();
+    setAddrMoMode('add');
+    mo.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function openEditAddrMo(btn) {
+    const mo = document.getElementById('addrMo');
+    if (!mo || !btn) return;
+    setAddrMoMode('edit', {
+        id: btn.dataset.id,
+        name: btn.dataset.name,
+        phone: btn.dataset.phone,
+        province: btn.dataset.province,
+        detail: btn.dataset.detail
+    });
     mo.classList.add('open');
     document.body.style.overflow = 'hidden';
 }
@@ -39,4 +81,13 @@ function closeAddrMo() {
     if (!mo) return;
     mo.classList.remove('open');
     document.body.style.overflow = '';
+    setAddrMoMode('add');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tab = document.body.dataset.profileTab;
+    if (tab) {
+        const item = document.querySelector(`.smenu-item[onclick*="'${tab}'"]`);
+        sw(tab, item);
+    }
+});

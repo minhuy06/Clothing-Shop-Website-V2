@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
-using Clothing_Shop_Website.ViewModels;
+using Clothing_Shop_Website.Helper;
 using Clothing_Shop_Website.Services;
 
 namespace Clothing_Shop_Website.Controllers
@@ -29,6 +29,8 @@ namespace Clothing_Shop_Website.Controllers
 
         // Bảo mật dùng chung cho các hàm dưới
         private bool IsAdmin() => HttpContext.Session.GetInt32("Role") == 0;
+
+        
 
         // Phân tích dữ liệu
         public async Task<IActionResult> Dashboard(string? season, string? ageGroup)
@@ -104,7 +106,7 @@ namespace Clothing_Shop_Website.Controllers
             var importSuggestions = new List<Object>();
 
             // Phân bổ tỷ lệ đóng góp
-            foreach(var prod in topProducts)
+            foreach (var prod in topProducts)
             {
                 double ratio = (double)prod.QuantitySold / totalHistory;
 
@@ -126,88 +128,194 @@ namespace Clothing_Shop_Website.Controllers
             return Json(new { success = true, data = importSuggestions });
         }
 
-        // Lấy các phiếu nhập kho nhân viên vừa tạo
-        [HttpGet]
-        public async Task<IActionResult> PendingReceipts()
+        // Quản lý nhân viên
+        public async Task<IActionResult> StaffMembers(string? search)
         {
             if (!IsAdmin())
                 return RedirectToAction("Login", "Account");
 
-            // Lấy danh sách phiếu nhập
-            var pendings = _db.InventoryReceipts
-                .Include(r => r.Supplier)
-                .Include(r => r.Creator)
-                .Where(r => r.Status == 0)
-                .OrderByDescending(r => r.ImportDate)
-                .ToListAsync();
+            var querry = _db.Users
+                .Include(u => u.StaffDetail)
+                    .ThenInclude(sd => sd.StaffShifts)
+                .Where(u => u.Role == 1)
+                .AsQueryable();
 
-            return View(pendings);
+            if (!string.IsNullOrEmpty(search))
+                querry = querry.Where(u => u.FullName.Contains(search) || u.Phone.Contains(search));
+
+            return View(await querry.OrderByDescending(u => u.UserID).ToListAsync());
         }
 
-        // Duyệt phiếu nhập
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveReceipt(int receiptId)
+        public async Task<IActionResult> AddStaff(string fullName, string phone, string password, int gender, DateTime dateOfBirth, decimal salary, DateTime hireDate, List<string> selectedShifts)
         {
             if (!IsAdmin())
                 return RedirectToAction("Login", "Account");
 
-            var receipt = await _db.InventoryReceipts
-                .Include(r => r.InventoryReceiptDetails)
-                .FirstOrDefaultAsync(r => r.ReceiptID == receiptId && r.Status == 0);
-
-            if (receipt == null)
+            if (await _db.Users.AnyAsync(u => u.Phone == phone))
             {
-                TempData["Error"] = "Phiếu nhập không tồn tại hoặc đã được người khác xử lý.";
-                return RedirectToAction("PendingReceipts");
+                TempData["Error"] = "Số điện thoại này đã được sử dụng!";
+                return RedirectToAction("StaffMembers");
             }
-
-            // Mở cổng giao dịch
             await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
-                receipt.Status = 1;
-
-                // Quét qua từng mặt hàng trong phiếu nhập
-                foreach (var detail in receipt.InventoryReceiptDetails)
+                var newStaff = new User
                 {
-                    // Tìm mặt hàng tương ứng trong kho
-                    var sizeStock = await _db.ProductSizes.FirstOrDefaultAsync(s => s.SizeID == detail.SizeID);
-                    if (sizeStock != null)
-                        sizeStock.StockQuantity += detail.Quantity;
+                    FullName = fullName.Trim(),
+                    Phone = phone.Trim(),
+                    Password = SecurityHelper.HashPassword(password),
+                    Role = 1,
+                    Status = 1,
+                    Gender = gender,
+                    DateOfBirth = dateOfBirth
+                };
+
+                _db.Users.Add(newStaff);
+                await _db.SaveChangesAsync();
+
+                // Lưu vào StaffDetail
+                _db.StaffDetails.Add(new StaffDetail { UserID = newStaff.UserID, Salary = salary, HireDate = hireDate });
+                await _db.SaveChangesAsync();
+
+                // Lịch làm việc
+                if (selectedShifts != null && selectedShifts.Any())
+                {
+                    foreach(var shiftCode in selectedShifts)
+                    {
+                        // Cắt chuỗi dựa vào '_'
+                        var parts = shiftCode.Split('_');
+                        if (parts.Length == 2)
+                        {
+                            string dayOfWeek = parts[0];
+                            if(int.TryParse(parts[1], out int shiftType))
+                            {
+                                _db.StaffShifts.Add(new StaffShift
+                                {
+                                    UserID = newStaff.UserID,
+                                    DayOfWeek = dayOfWeek,
+                                    ShiftType = shiftType
+                                });
+                            }
+                        }
+                    }
+                }
+                await _db.SaveChangesAsync();
+
+                await tx.CommitAsync();
+                TempData["Success"] = "Đã tuyển dụng nhân viên mới với đầy đủ hồ sơ!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi khi thêm nhân viên: " + ex.Message;
+            }
+
+            return RedirectToAction("StaffMembers");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStaff(int userId, string fullName, string phone, int gender, DateTime dateOfBirth, decimal salary, DateTime hireDate, int status, List<string> selectedShifts)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            var user = await _db.Users
+                .Include(u => u.StaffDetail)
+                    .ThenInclude(sd => sd.StaffShifts)
+                .FirstOrDefaultAsync(u => u.UserID == userId && u.Role == 1);
+
+            if (user == null) return NotFound();
+
+            if (await _db.Users.AnyAsync(u => u.Phone == phone && u.UserID != userId))
+            {
+                TempData["Error"] = "Thất bại: Số điện thoại bị trùng với người khác!";
+                return RedirectToAction("StaffMembers");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                user.FullName = fullName.Trim();
+                user.Phone = phone.Trim();
+                user.Gender = gender;
+                user.DateOfBirth = dateOfBirth;
+                user.Status = status;
+
+                if (user.StaffDetail != null)
+                {
+                    user.StaffDetail.Salary = salary;
+                }
+
+                // Xóa lịch cũ
+                if (user.StaffDetail != null && user.StaffDetail.StaffShifts.Any())
+                {
+                    _db.StaffShifts.RemoveRange(user.StaffDetail.StaffShifts);
+                }
+
+                // Thêm lịch mới
+                if (selectedShifts != null && selectedShifts.Any())
+                {
+                    foreach (var shiftCode in selectedShifts)
+                    {
+                        var parts = shiftCode.Split('_');
+                        if (parts.Length == 2)
+                        {
+                            string dayOfWeek = parts[0];
+                            if (int.TryParse(parts[1], out int shiftType))
+                            {
+                                _db.StaffShifts.Add(new StaffShift
+                                {
+                                    UserID = userId,
+                                    DayOfWeek = dayOfWeek,
+                                    ShiftType = shiftType
+                                });
+                            }
+                        }
+                    }
                 }
 
                 await _db.SaveChangesAsync();
                 await tx.CommitAsync();
-                TempData["Success"] = $"Đã duyệt phiếu số #{receiptId}. Hàng đã chính thức lên kệ!";
+                TempData["Success"] = "Đã cập nhật hồ sơ và Lưới lịch trực của nhân viên!";
             }
-
             catch (Exception ex)
             {
                 await tx.RollbackAsync();
-                TempData["Error"] = "Lỗi hệ thống khi cập nhật kho: " + ex.Message;
+                TempData["Error"] = "Lỗi khi cập nhật dữ liệu: " + ex.Message;
             }
 
-            return RedirectToAction("PendingReceipts");
+            return RedirectToAction("StaffMembers");
         }
 
-        // Bác bỏ phiếu nhập
+        // Xóa nhân viên
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectReceipt(int receiptId)
+        public async Task<IActionResult> DeleteStaff(int userId)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            var receipt = await _db.InventoryReceipts.FirstOrDefaultAsync(r => r.ReceiptID == receiptId && r.Status == 0);
-            if (receipt != null)
-            {
-                receipt.Status = 2;
-                await _db.SaveChangesAsync();
+            var user = await _db.Users
+            .Include(u => u.StaffDetail)
+                .ThenInclude(sd => sd.StaffShifts)
+            .FirstOrDefaultAsync(u => u.UserID == userId && u.Role == 1);
 
-                TempData["Success"] = $"Đã từ chối phiếu nhập số #{receiptId}. Số lượng trong kho không bị thay đổi.";
+            if (user == null)
+            {
+                TempData["Error"] = "Không tìm thấy nhân viên!";
+                return RedirectToAction("StaffMembers");
             }
 
-            return RedirectToAction("PendingReceipts");
+            user.Status = 0;
+
+            if (user.StaffDetail != null && user.StaffDetail.StaffShifts.Any())
+                _db.StaffShifts.RemoveRange(user.StaffDetail.StaffShifts);
+
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = $"Đã chuyển nhân viên {user.FullName} sang trạng thái Nghỉ việc (Bảo lưu dữ liệu lịch sử thành công).";
+            return RedirectToAction("StaffMembers");
         }
     }
 }

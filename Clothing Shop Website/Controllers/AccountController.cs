@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
-using System.Security.Cryptography;
-using System.Text;
+using Clothing_Shop_Website.Helper;
 using Clothing_Shop_Website.ViewModels;
 
 namespace Clothing_Shop_Website.Controllers
@@ -17,12 +16,7 @@ namespace Clothing_Shop_Website.Controllers
         private readonly AppDbContext _db;
         public AccountController(AppDbContext db) { _db = db; }
 
-        private string HashPassword(string password)
-        {
-            using var sha = SHA256.Create();
-            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToHexString(bytes).ToLower();
-        }
+        
 
         private void SetUserSession(User user)
         {
@@ -50,7 +44,7 @@ namespace Clothing_Shop_Website.Controllers
                 TempData["Error"] = "Vui lòng nhập đầy đủ thông tin!";
                 return View();
             }
-            var hashed = HashPassword(password);
+            var hashed = (password);
             var user = await _db.Users
                 .Include(u => u.CustomerDetail)
                 .FirstOrDefaultAsync(u => u.Phone == phone && u.Password == hashed);
@@ -83,7 +77,7 @@ namespace Clothing_Shop_Website.Controllers
             {
                 FullName = fullName,
                 Phone = phone,
-                Password = HashPassword(password),
+                Password = SecurityHelper.HashPassword(password),
                 Role = 2,
                 Status = 1,
                 RewardPoints = 0,
@@ -176,13 +170,13 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login");
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return RedirectToAction("Login");
-            if (user.Password != HashPassword(currentPassword))
+            if (user.Password != SecurityHelper.HashPassword(currentPassword))
             { TempData["PassError"] = "Mật khẩu hiện tại không đúng!"; return RedirectToAction("Profile"); }
             if (newPassword != confirmPassword)
             { TempData["PassError"] = "Mật khẩu xác nhận không khớp!"; return RedirectToAction("Profile"); }
             if (newPassword.Length < 6)
             { TempData["PassError"] = "Mật khẩu mới phải ít nhất 6 ký tự!"; return RedirectToAction("Profile"); }
-            user.Password = HashPassword(newPassword);
+            user.Password = SecurityHelper.HashPassword(newPassword);
             await _db.SaveChangesAsync();
             TempData["Success"] = "Đổi mật khẩu thành công!";
             return RedirectToAction("Profile");

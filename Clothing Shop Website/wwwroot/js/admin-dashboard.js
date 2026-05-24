@@ -44,7 +44,16 @@
                 }]
             },
             options: {
-                plugins: { legend: { labels: { color: text, font: { size: 10 } } } },
+                responsive: true,
+                maintainAspectRatio: true,
+                layout: { padding: { left: 8, right: 12 } },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        align: 'center',
+                        labels: { color: text, font: { size: 10 }, boxWidth: 12, padding: 10 }
+                    }
+                },
                 cutout: '58%'
             }
         });

@@ -620,6 +620,18 @@
     max-height: 280px;
 }
 
+.chart-cat-pie-wrap {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 8px 20px 20px 12px;
+    min-height: 240px;
+}
+
+.chart-cat-pie-wrap canvas {
+    max-width: min(100%, 420px);
+}
+
 /* MODAL */
 .modal-overlay {
     position: fixed;

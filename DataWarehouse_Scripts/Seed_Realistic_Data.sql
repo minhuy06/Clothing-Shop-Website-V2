@@ -5,6 +5,14 @@
 Use ClothingShopWebsiteDB
 go
 
+-- Đảm bảo cột Status tồn tại trước khi seed (0 = chưa hiển thị, 1 = đã hiển thị giao diện khách)
+IF COL_LENGTH('dbo.Products', 'Status') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[Products] ADD [Status] INT NOT NULL CONSTRAINT [DF_Products_Status] DEFAULT (0);
+    PRINT N'Đã thêm cột Products.Status.';
+END
+GO
+
 -- 1. XÓA DỮ LIỆU CŨ THEO ĐÚNG THỨ TỰ RÀNG BUỘC KHÓA NGOẠI (Từ bảng con đến bảng cha)
 DELETE FROM [InventoryReceiptDetails];
 DELETE FROM [OrderDetails];
@@ -171,25 +179,25 @@ SET IDENTITY_INSERT [StaffShifts] OFF;
 GO
 
 -- ==================================================================================
--- CHÈN DỮ LIỆU BẢNG 5: [Products] (Sản phẩm - ĐÃ BỎ thuộc tính OriginalPrice)
+-- CHÈN DỮ LIỆU BẢNG 5: [Products] (Sản phẩm — Status: 0=chưa hiển thị, 1=đã hiển thị)
 -- ==================================================================================
 SET IDENTITY_INSERT [Products] ON;
-INSERT INTO [Products] ([ProductID], [CategoryID], [ProductName], [Price], [ImageUrl], [Description], [Session], [Color], [Style], [Material]) VALUES
-(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/uploads/products/somi_nam.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton'),
-(2, 1, N'Áo thun nam polo basic', 250000.00, '/uploads/products/polo_nam.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu'),
-(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/uploads/products/quantay_nam.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa'),
-(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/uploads/products/short_kaki.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki'),
-(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/uploads/products/vay_hoanhi.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon'),
-(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/uploads/products/dam_dahoi.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin'),
-(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/uploads/products/cardigan_nu.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm'),
-(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/uploads/products/croptop_nu.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn'),
-(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/uploads/products/bo_thethao_nam.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester'),
-(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/uploads/products/set_gym_nu.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex'),
-(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/uploads/products/thatlung_da.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò'),
-(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/uploads/products/khoacgio_nam.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon'),
-(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/uploads/products/aoloclo_nu.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu'),
-(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/uploads/products/jean_nam.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim'),
-(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/uploads/products/chanvay_a.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn');
+INSERT INTO [Products] ([ProductID], [CategoryID], [ProductName], [Price], [ImageUrl], [Description], [Session], [Color], [Style], [Material], [Status]) VALUES
+(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/uploads/products/somi_nam.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton', 1),
+(2, 1, N'Áo thun nam polo basic', 250000.00, '/uploads/products/polo_nam.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu', 1),
+(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/uploads/products/quantay_nam.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa', 1),
+(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/uploads/products/short_kaki.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki', 1),
+(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/uploads/products/vay_hoanhi.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon', 1),
+(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/uploads/products/dam_dahoi.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin', 1),
+(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/uploads/products/cardigan_nu.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm', 1),
+(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/uploads/products/croptop_nu.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn', 1),
+(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/uploads/products/bo_thethao_nam.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester', 1),
+(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/uploads/products/set_gym_nu.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex', 1),
+(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/uploads/products/thatlung_da.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò', 0),
+(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/uploads/products/khoacgio_nam.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon', 0),
+(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/uploads/products/aoloclo_nu.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu', 0),
+(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/uploads/products/jean_nam.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim', 0),
+(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/uploads/products/chanvay_a.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn', 0);
 SET IDENTITY_INSERT [Products] OFF;
 GO
 
@@ -636,7 +644,7 @@ PRINT N'- 35 Người dùng (Users: 1 Admin + 4 Staff + 30 Customers)';
 PRINT N'- 30 Chi tiết khách hàng (CustomerDetails - chuyển RewardPoints)';
 PRINT N'- 4 Chi tiết nhân viên (StaffDetails)';
 PRINT N'- 9 Ca làm việc của nhân viên (StaffShifts)';
-PRINT N'- 15 Sản phẩm thực tế (Products - Đã lược bỏ OriginalPrice)';
+PRINT N'- 15 Sản phẩm thực tế (Products — 10 Status=1 hiển thị, 5 Status=0 chờ publish)';
 PRINT N'- 45 Size sản phẩm (ProductSizes)';
 PRINT N'- 10 Phiếu nhập kho (InventoryReceipts)';
 PRINT N'- 35 Chi tiết nhập kho (InventoryReceiptDetails)';

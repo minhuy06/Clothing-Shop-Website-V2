@@ -28,6 +28,5 @@ namespace Clothing_Shop_Website.Models
 
         // Quan hệ 1-N: 1 Nhà cung cấp có nhiều Phiếu nhập
         public virtual ICollection<InventoryReceipt> InventoryReceipts { get; set; } = new List<InventoryReceipt>();
-        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

@@ -40,13 +40,11 @@ namespace Clothing_Shop_Website.Models
         [MaxLength(50)]
         public string? Material { get; set; }
 
-        public int? SupplierID { get; set; }
+        /// <summary>0 = chưa hiển thị giao diện khách, 1 = đã cập nhật lên giao diện.</summary>
+        public int Status { get; set; } = 0;
 
         [ForeignKey("CategoryID")]
         public virtual Category Category { get; set; } = null!;
-
-        [ForeignKey("SupplierID")]
-        public virtual Supplier? Supplier { get; set; }
 
         public virtual ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();

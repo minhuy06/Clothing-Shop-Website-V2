@@ -58,7 +58,9 @@ namespace Clothing_Shop_Website
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.Migrate();
+                // Code First: C# model → migration → DB (Update-Database hoặc AutoMigrate)
+                if (Configuration.GetValue<bool>("Database:AutoMigrate"))
+                    db.Database.Migrate();
             }
 
             if (env.IsDevelopment())

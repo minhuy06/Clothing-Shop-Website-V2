@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
+using ClosedXML.Excel;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -20,6 +22,15 @@ namespace Clothing_Shop_Website.Controllers
     {
         public int ShiftType { get; set; }
         public string DayOfWeek { get; set; } = "";
+    }
+
+    public class ImportReceiptLineInput
+    {
+        public int ProductId { get; set; }
+        public decimal ImportPrice { get; set; }
+        public int StockS { get; set; }
+        public int StockM { get; set; }
+        public int StockL { get; set; }
     }
 
     public class AdminController : Controller
@@ -179,30 +190,6 @@ namespace Clothing_Shop_Website.Controllers
             return Json(list);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSupplier(int id)
-        {
-            if (!IsAdmin()) return Unauthorized();
-            if (id < 1) return Json(new { success = false });
-
-            var s = await _db.Suppliers.AsNoTracking().FirstOrDefaultAsync(x => x.SupplierID == id);
-            if (s == null) return Json(new { success = false, message = "Không tìm thấy nhà cung cấp." });
-
-            return Json(new
-            {
-                success = true,
-                supplier = new
-                {
-                    id = s.SupplierID,
-                    name = s.SupplierName,
-                    phone = s.Phone ?? "",
-                    city = s.City ?? "",
-                    country = s.Country ?? "",
-                    contactInfo = s.ContactInfo ?? ""
-                }
-            });
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportStock(
@@ -277,8 +264,6 @@ namespace Clothing_Shop_Website.Controllers
                     product.Price = salePrice;
                     if (!string.IsNullOrEmpty(imageUrl))
                         product.ImageUrl = imageUrl;
-                    if (product.SupplierID != supplierId)
-                        product.SupplierID = supplierId;
                 }
                 else
                 {
@@ -290,7 +275,7 @@ namespace Clothing_Shop_Website.Controllers
                         Price = salePrice,
                         ImageUrl = imageUrl,
                         Description = "",
-                        SupplierID = supplierId
+                        Status = 0
                     };
                     _db.Products.Add(product);
                     await _db.SaveChangesAsync();
@@ -388,6 +373,18 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.TotalFiltered = totalFiltered;
             ViewBag.TotalPages = totalPages;
 
+            ViewBag.Receipts = await _db.InventoryReceipts.AsNoTracking()
+                .Include(r => r.Supplier)
+                .Include(r => r.InventoryReceiptDetails)
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
+                .OrderByDescending(r => r.ReceiptID)
+                .Take(100)
+                .ToListAsync();
+            ViewBag.Suppliers = await _db.Suppliers.AsNoTracking()
+                .OrderBy(s => s.SupplierName)
+                .ToListAsync();
+
             return View(products);
         }
 
@@ -420,28 +417,6 @@ namespace Clothing_Shop_Website.Controllers
             return Json(new { success = true, count = list.Count, data = list });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddProduct(
-            string productName, int categoryID, int session,
-            decimal price,
-            int stock, string? imageUrl, string? description)
-        {
-            if (!IsAdmin()) return RedirectToAction("Login", "Account");
-
-            _db.Products.Add(new Product
-            {
-                ProductName = productName,
-                CategoryID = categoryID,
-                Session = session,
-                Price = price,
-                ImageUrl = imageUrl,
-                Description = description
-            });
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm sản phẩm!";
-            return RedirectToAction("Products");
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetProduct(int id)
         {
@@ -449,14 +424,11 @@ namespace Clothing_Shop_Website.Controllers
 
             var p = await _db.Products.AsNoTracking()
                 .Include(x => x.Category)
-                .Include(x => x.Supplier)
                 .Include(x => x.ProductSizes)
                 .FirstOrDefaultAsync(x => x.ProductID == id);
 
             if (p == null)
                 return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
-
-            var supplier = p.Supplier ?? await GetLatestReceiptSupplierAsync(p.ProductID, p.ProductSizes.Select(s => s.SizeID).ToList());
 
             return Json(new
             {
@@ -474,20 +446,12 @@ namespace Clothing_Shop_Website.Controllers
                     color = p.Color ?? "",
                     style = p.Style ?? "",
                     material = p.Material ?? "",
+                    status = p.Status,
                     stock = p.ProductSizes.Sum(s => s.StockQuantity),
                     sizes = p.ProductSizes
                         .OrderBy(s => s.SizeName)
                         .Select(s => new { id = s.SizeID, sizeName = s.SizeName, stockQuantity = s.StockQuantity })
-                        .ToList(),
-                    supplier = supplier == null ? null : new
-                    {
-                        id = supplier.SupplierID,
-                        name = supplier.SupplierName,
-                        phone = supplier.Phone ?? "",
-                        city = supplier.City ?? "",
-                        country = supplier.Country ?? "",
-                        contactInfo = supplier.ContactInfo ?? ""
-                    }
+                        .ToList()
                 }
             });
         }
@@ -507,12 +471,6 @@ namespace Clothing_Shop_Website.Controllers
             int stockS,
             int stockM,
             int stockL,
-            int supplierId,
-            string? supplierName,
-            string? supplierPhone,
-            string? supplierCity,
-            string? supplierCountry,
-            string? supplierContactInfo,
             IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -555,9 +513,6 @@ namespace Clothing_Shop_Website.Controllers
                 imageUrl = "/uploads/products/" + safe;
             }
 
-            var resolvedSupplierId = await ResolveSupplierForSaveAsync(
-                supplierId, supplierName, supplierPhone, supplierCity, supplierCountry, supplierContactInfo, allowCreate: true);
-
             var product = new Product
             {
                 ProductName = productName,
@@ -569,7 +524,7 @@ namespace Clothing_Shop_Website.Controllers
                 Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim(),
                 Style = string.IsNullOrWhiteSpace(style) ? null : style.Trim(),
                 Material = string.IsNullOrWhiteSpace(material) ? null : material.Trim(),
-                SupplierID = resolvedSupplierId
+                Status = 0
             };
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
@@ -599,12 +554,6 @@ namespace Clothing_Shop_Website.Controllers
             int stockS,
             int stockM,
             int stockL,
-            int supplierId,
-            string? supplierName,
-            string? supplierPhone,
-            string? supplierCity,
-            string? supplierCountry,
-            string? supplierContactInfo,
             IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -660,7 +609,7 @@ namespace Clothing_Shop_Website.Controllers
             p.CategoryID = categoryID;
             p.Session = session;
             p.Price = price;
-            p.ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? p.ImageUrl : imageUrl.Trim();
+            p.ImageUrl = imageFile is { Length: > 0 } ? imageUrl : p.ImageUrl;
             p.Description = description?.Trim();
             p.Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
             p.Style = string.IsNullOrWhiteSpace(style) ? null : style.Trim();
@@ -670,72 +619,324 @@ namespace Clothing_Shop_Website.Controllers
             SetProductSizeStock(p, "M", stockM);
             SetProductSizeStock(p, "L", stockL);
 
-            p.SupplierID = await ResolveSupplierForSaveAsync(
-                supplierId, supplierName, supplierPhone, supplierCity, supplierCountry, supplierContactInfo, allowCreate: false);
-
             await _db.SaveChangesAsync();
             TempData["Success"] = "Đã cập nhật sản phẩm #" + productID.ToString("D3") + " (tồn S/M/L: " + stockS + "/" + stockM + "/" + stockL + ")!";
             return RedirectToAction("Products");
         }
 
-        async Task<Supplier?> GetLatestReceiptSupplierAsync(int productId, List<int> sizeIds)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PublishProduct(int productId)
         {
-            if (sizeIds.Count == 0) return null;
-            return await (
-                from d in _db.InventoryReceiptDetails.AsNoTracking()
-                join r in _db.InventoryReceipts on d.ReceiptID equals r.ReceiptID
-                join s in _db.Suppliers on r.SupplierID equals s.SupplierID
-                where sizeIds.Contains(d.SizeID)
-                orderby r.ImportDate descending
-                select s
-            ).FirstOrDefaultAsync();
+            if (!IsAdmin()) return Unauthorized();
+
+            var p = await _db.Products.FindAsync(productId);
+            if (p == null)
+                return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+            p.Status = 1;
+            await _db.SaveChangesAsync();
+            return Json(new { success = true, message = "Đã cập nhật sản phẩm #" + productId.ToString("D3") + " lên giao diện khách hàng." });
         }
 
-        async Task<int?> ResolveSupplierForSaveAsync(
-            int supplierId,
-            string? supplierName,
-            string? phone,
-            string? city,
-            string? country,
-            string? contactInfo,
-            bool allowCreate)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateImportReceipt(int supplierId, string linesJson)
         {
-            Supplier? sup = null;
-            if (supplierId > 0)
-                sup = await _db.Suppliers.FindAsync(supplierId);
+            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền." });
 
-            if (sup == null && !string.IsNullOrWhiteSpace(supplierName))
+            if (supplierId < 1 || !await _db.Suppliers.AnyAsync(s => s.SupplierID == supplierId))
+                return Json(new { success = false, message = "Vui lòng chọn nhà cung cấp." });
+
+            List<ImportReceiptLineInput> lines;
+            try
             {
-                var name = supplierName.Trim();
-                sup = await _db.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == name);
-                if (sup == null && allowCreate)
-                {
-                    sup = new Supplier
-                    {
-                        SupplierName = name,
-                        Phone = phone?.Trim(),
-                        City = city?.Trim(),
-                        Country = country?.Trim(),
-                        ContactInfo = contactInfo?.Trim()
-                    };
-                    _db.Suppliers.Add(sup);
-                    await _db.SaveChangesAsync();
-                    return sup.SupplierID;
-                }
+                lines = JsonSerializer.Deserialize<List<ImportReceiptLineInput>>(linesJson ?? "[]",
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ImportReceiptLineInput>();
+            }
+            catch
+            {
+                return Json(new { success = false, message = "Dữ liệu phiếu nhập không hợp lệ." });
             }
 
-            if (sup == null) return null;
+            if (lines.Count < 1)
+                return Json(new { success = false, message = "Thêm ít nhất một sản phẩm vào phiếu nhập." });
 
-            UpdateSupplierFields(sup, phone, city, country, contactInfo);
-            return sup.SupplierID;
+            foreach (var line in lines)
+            {
+                if (line.ProductId < 1)
+                    return Json(new { success = false, message = "Chọn sản phẩm hợp lệ cho từng dòng." });
+                if (line.ImportPrice < 0)
+                    return Json(new { success = false, message = "Giá gốc không được âm." });
+                if (line.StockS < 0 || line.StockM < 0 || line.StockL < 0)
+                    return Json(new { success = false, message = "Số lượng size không được âm." });
+                if (line.StockS + line.StockM + line.StockL < 1)
+                    return Json(new { success = false, message = "Mỗi sản phẩm cần nhập ít nhất 1 size (S/M/L)." });
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var receipt = new InventoryReceipt
+                {
+                    SupplierID = supplierId,
+                    ImportDate = DateTime.Now
+                };
+                _db.InventoryReceipts.Add(receipt);
+                await _db.SaveChangesAsync();
+
+                foreach (var line in lines)
+                {
+                    var product = await _db.Products.Include(p => p.ProductSizes)
+                        .FirstOrDefaultAsync(p => p.ProductID == line.ProductId);
+                    if (product == null)
+                    {
+                        await tx.RollbackAsync();
+                        return Json(new { success = false, message = "Không tìm thấy sản phẩm #" + line.ProductId + "." });
+                    }
+
+                    foreach (var (sizeName, qty) in new[] { ("S", line.StockS), ("M", line.StockM), ("L", line.StockL) })
+                    {
+                        if (qty < 1) continue;
+                        var size = product.ProductSizes.FirstOrDefault(s =>
+                            string.Equals(s.SizeName, sizeName, StringComparison.OrdinalIgnoreCase));
+                        if (size == null)
+                        {
+                            size = new ProductSize
+                            {
+                                ProductID = product.ProductID,
+                                SizeName = sizeName,
+                                StockQuantity = qty,
+                                MinimumStock = 0
+                            };
+                            _db.ProductSizes.Add(size);
+                            await _db.SaveChangesAsync();
+                            product.ProductSizes.Add(size);
+                        }
+                        else
+                            size.StockQuantity += qty;
+
+                        _db.InventoryReceiptDetails.Add(new InventoryReceiptDetail
+                        {
+                            ReceiptID = receipt.ReceiptID,
+                            SizeID = size.SizeID,
+                            Quantity = qty,
+                            ImportPrice = line.ImportPrice
+                        });
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    receiptId = receipt.ReceiptID,
+                    message = "Đã tạo phiếu nhập #" + receipt.ReceiptID.ToString("D6") + "."
+                });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return Json(new { success = false, message = "Lỗi tạo phiếu nhập: " + ex.Message });
+            }
         }
 
-        static void UpdateSupplierFields(Supplier sup, string? phone, string? city, string? country, string? contactInfo)
+        [HttpGet]
+        public async Task<IActionResult> GetImportReceipt(int id)
         {
-            if (!string.IsNullOrWhiteSpace(phone)) sup.Phone = phone.Trim();
-            if (!string.IsNullOrWhiteSpace(city)) sup.City = city.Trim();
-            if (!string.IsNullOrWhiteSpace(country)) sup.Country = country.Trim();
-            if (!string.IsNullOrWhiteSpace(contactInfo)) sup.ContactInfo = contactInfo.Trim();
+            if (!IsAdmin()) return Unauthorized();
+
+            var r = await _db.InventoryReceipts.AsNoTracking()
+                .Include(x => x.Supplier)
+                .Include(x => x.InventoryReceiptDetails)
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
+                .FirstOrDefaultAsync(x => x.ReceiptID == id);
+
+            if (r == null)
+                return Json(new { success = false, message = "Không tìm thấy phiếu nhập." });
+
+            var details = r.InventoryReceiptDetails.OrderBy(d => d.DetailID).ToList();
+            var sizeTotals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["S"] = 0, ["M"] = 0, ["L"] = 0 };
+            foreach (var d in details)
+            {
+                var sn = d.ProductSize?.SizeName ?? "";
+                if (sizeTotals.ContainsKey(sn))
+                    sizeTotals[sn] += d.Quantity;
+            }
+
+            var lines = details.Select(d => new
+            {
+                productName = d.ProductSize?.Product?.ProductName ?? "—",
+                sizeName = d.ProductSize?.SizeName ?? "—",
+                quantity = d.Quantity,
+                importPrice = d.ImportPrice,
+                lineTotal = d.Quantity * d.ImportPrice
+            }).ToList();
+
+            return Json(new
+            {
+                success = true,
+                receipt = new
+                {
+                    id = r.ReceiptID,
+                    importDate = r.ImportDate.ToString("dd/MM/yyyy HH:mm"),
+                    supplierName = r.Supplier?.SupplierName ?? "—",
+                    sizeS = sizeTotals["S"],
+                    sizeM = sizeTotals["M"],
+                    sizeL = sizeTotals["L"],
+                    totalAmount = details.Sum(d => d.Quantity * d.ImportPrice),
+                    lines
+                }
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteImportReceipt(int receiptId)
+        {
+            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền." });
+
+            var receipt = await _db.InventoryReceipts
+                .Include(r => r.InventoryReceiptDetails)
+                    .ThenInclude(d => d.ProductSize)
+                .FirstOrDefaultAsync(r => r.ReceiptID == receiptId);
+
+            if (receipt == null)
+                return Json(new { success = false, message = "Không tìm thấy phiếu nhập." });
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var d in receipt.InventoryReceiptDetails)
+                {
+                    if (d.ProductSize != null)
+                    {
+                        d.ProductSize.StockQuantity -= d.Quantity;
+                        if (d.ProductSize.StockQuantity < 0)
+                            d.ProductSize.StockQuantity = 0;
+                    }
+                }
+                _db.InventoryReceiptDetails.RemoveRange(receipt.InventoryReceiptDetails);
+                _db.InventoryReceipts.Remove(receipt);
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                return Json(new { success = true, message = "Đã xóa phiếu nhập #" + receiptId.ToString("D6") + " và trừ tồn kho tương ứng." });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return Json(new { success = false, message = "Lỗi xóa phiếu: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSupplier(int id)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var s = await _db.Suppliers.AsNoTracking().FirstOrDefaultAsync(x => x.SupplierID == id);
+            if (s == null)
+                return Json(new { success = false, message = "Không tìm thấy nhà cung cấp." });
+
+            return Json(new
+            {
+                success = true,
+                supplier = new
+                {
+                    id = s.SupplierID,
+                    name = s.SupplierName,
+                    phone = s.Phone ?? "",
+                    city = s.City ?? "",
+                    country = s.Country ?? ""
+                }
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditSupplier(int supplierId, string supplierName, string? phone, string? city, string? country)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            supplierName = (supplierName ?? "").Trim();
+            if (string.IsNullOrEmpty(supplierName))
+            {
+                TempData["Error"] = "Tên nhà cung cấp không được để trống.";
+                return RedirectToAction("Products");
+            }
+
+            var s = await _db.Suppliers.FindAsync(supplierId);
+            if (s == null)
+            {
+                TempData["Error"] = "Không tìm thấy nhà cung cấp.";
+                return RedirectToAction("Products");
+            }
+
+            if (await _db.Suppliers.AnyAsync(x => x.SupplierName == supplierName && x.SupplierID != supplierId))
+            {
+                TempData["Error"] = "Tên nhà cung cấp \"" + supplierName + "\" đã được dùng.";
+                return RedirectToAction("Products");
+            }
+
+            s.SupplierName = supplierName;
+            s.Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+            s.City = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
+            s.Country = string.IsNullOrWhiteSpace(country) ? null : country.Trim();
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật nhà cung cấp \"" + supplierName + "\".";
+            return RedirectToAction("Products");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSupplier(int supplierId)
+        {
+            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền." });
+
+            var s = await _db.Suppliers.FindAsync(supplierId);
+            if (s == null)
+                return Json(new { success = false, message = "Không tìm thấy nhà cung cấp." });
+
+            if (await _db.InventoryReceipts.AnyAsync(r => r.SupplierID == supplierId))
+                return Json(new { success = false, message = "Không thể xóa — nhà cung cấp đã có phiếu nhập." });
+
+            _db.Suppliers.Remove(s);
+            await _db.SaveChangesAsync();
+            return Json(new { success = true, message = "Đã xóa nhà cung cấp \"" + s.SupplierName + "\"." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddSupplier(string supplierName, string? phone, string? city, string? country)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
+            supplierName = (supplierName ?? "").Trim();
+            if (string.IsNullOrEmpty(supplierName))
+            {
+                TempData["Error"] = "Tên nhà cung cấp không được để trống.";
+                return RedirectToAction("Products");
+            }
+
+            if (await _db.Suppliers.AnyAsync(s => s.SupplierName == supplierName))
+            {
+                TempData["Error"] = "Nhà cung cấp \"" + supplierName + "\" đã tồn tại.";
+                return RedirectToAction("Products");
+            }
+
+            _db.Suppliers.Add(new Supplier
+            {
+                SupplierName = supplierName,
+                Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim(),
+                City = string.IsNullOrWhiteSpace(city) ? null : city.Trim(),
+                Country = string.IsNullOrWhiteSpace(country) ? null : country.Trim()
+            });
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã thêm nhà cung cấp \"" + supplierName + "\".";
+            return RedirectToAction("Products");
         }
 
         static void SetProductSizeStock(Product product, string sizeName, int quantity)
@@ -1100,7 +1301,7 @@ namespace Clothing_Shop_Website.Controllers
         //   XUẤT HÓA ĐƠN NHẬP HÀNG
         // ═══════════════════════════════
         [HttpGet]
-        public async Task<IActionResult> ExportReceipt(int receiptId)
+        public async Task<IActionResult> ExportReceipt(int receiptId, string? format)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
@@ -1114,31 +1315,76 @@ namespace Clothing_Shop_Website.Controllers
             if (receipt == null)
             {
                 TempData["Error"] = "Không tìm thấy phiếu nhập!";
-                return RedirectToAction("Dashboard");
+                return RedirectToAction("Products");
             }
 
-            var sb = new StringBuilder();
-            sb.AppendLine("HÓA ĐƠN NHẬP HÀNG - NEVA");
-            sb.AppendLine($"Số phiếu,#{receiptId:D6}");
-            sb.AppendLine($"Nhà cung cấp,{receipt.Supplier?.SupplierName}");
-            sb.AppendLine($"Ngày nhập,{receipt.ImportDate:dd/MM/yyyy HH:mm}");
-            sb.AppendLine();
-            sb.AppendLine("STT,Sản phẩm,Size,Số lượng,Giá nhập (đ),Thành tiền (đ)");
-            int i = 1;
-            decimal total = 0;
+            if (string.Equals(format, "csv", StringComparison.OrdinalIgnoreCase))
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("HÓA ĐƠN NHẬP HÀNG - NEVA");
+                sb.AppendLine($"Số phiếu,#{receiptId:D6}");
+                sb.AppendLine($"Nhà cung cấp,{receipt.Supplier?.SupplierName}");
+                sb.AppendLine($"Ngày nhập,{receipt.ImportDate:dd/MM/yyyy HH:mm}");
+                sb.AppendLine();
+                sb.AppendLine("STT,Sản phẩm,Size,Số lượng,Giá nhập (đ),Thành tiền (đ)");
+                int i = 1;
+                decimal total = 0;
+                foreach (var d in receipt.InventoryReceiptDetails)
+                {
+                    decimal sub = d.Quantity * d.ImportPrice;
+                    total += sub;
+                    var pname = d.ProductSize?.Product?.ProductName ?? "";
+                    var sname = d.ProductSize?.SizeName ?? "";
+                    sb.AppendLine($"{i++},\"{pname}\",{sname},{d.Quantity},{d.ImportPrice:N0},{sub:N0}");
+                }
+                sb.AppendLine($",,,, Tổng cộng,{total:N0}");
+                var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+                return File(bytes, "text/csv; charset=utf-8",
+                    $"HoaDonNhap_{receiptId:D6}_{receipt.ImportDate:yyyyMMdd}.csv");
+            }
+
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("PhieuNhap");
+            ws.Cell(1, 1).Value = "HÓA ĐƠN NHẬP HÀNG - NEVA";
+            ws.Cell(2, 1).Value = "Số phiếu";
+            ws.Cell(2, 2).Value = "#" + receiptId.ToString("D6");
+            ws.Cell(3, 1).Value = "Nhà cung cấp";
+            ws.Cell(3, 2).Value = receipt.Supplier?.SupplierName ?? "";
+            ws.Cell(4, 1).Value = "Ngày nhập";
+            ws.Cell(4, 2).Value = receipt.ImportDate.ToString("dd/MM/yyyy HH:mm");
+
+            int row = 6;
+            ws.Cell(row, 1).Value = "STT";
+            ws.Cell(row, 2).Value = "Sản phẩm";
+            ws.Cell(row, 3).Value = "Size";
+            ws.Cell(row, 4).Value = "Số lượng";
+            ws.Cell(row, 5).Value = "Giá nhập (đ)";
+            ws.Cell(row, 6).Value = "Thành tiền (đ)";
+            row++;
+
+            int idx = 1;
+            decimal totalAmt = 0;
             foreach (var d in receipt.InventoryReceiptDetails)
             {
                 decimal sub = d.Quantity * d.ImportPrice;
-                total += sub;
-                var pname = d.ProductSize?.Product?.ProductName ?? "";
-                var sname = d.ProductSize?.SizeName ?? "";
-                sb.AppendLine($"{i++},\"{pname}\",{sname},{d.Quantity},{d.ImportPrice:N0},{sub:N0}");
+                totalAmt += sub;
+                ws.Cell(row, 1).Value = idx++;
+                ws.Cell(row, 2).Value = d.ProductSize?.Product?.ProductName ?? "";
+                ws.Cell(row, 3).Value = d.ProductSize?.SizeName ?? "";
+                ws.Cell(row, 4).Value = d.Quantity;
+                ws.Cell(row, 5).Value = d.ImportPrice;
+                ws.Cell(row, 6).Value = sub;
+                row++;
             }
-            sb.AppendLine($",,,, Tổng cộng,{total:N0}");
+            ws.Cell(row, 5).Value = "Tổng cộng";
+            ws.Cell(row, 6).Value = totalAmt;
+            ws.Columns().AdjustToContents();
 
-            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-            return File(bytes, "text/csv; charset=utf-8",
-                $"HoaDonNhap_{receiptId:D6}_{receipt.ImportDate:yyyyMMdd}.csv");
+            await using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            return File(ms.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"PhieuNhap_{receiptId:D6}_{receipt.ImportDate:yyyyMMdd}.xlsx");
         }
 
     }

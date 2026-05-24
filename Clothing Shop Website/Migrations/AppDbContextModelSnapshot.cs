@@ -292,8 +292,8 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Color")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(100)
@@ -318,18 +318,16 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<int>("Session")
                         .HasColumnType("int");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Style")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("SupplierID")
-                        .HasColumnType("int");
-
                     b.HasKey("ProductID");
 
                     b.HasIndex("CategoryID");
-
-                    b.HasIndex("SupplierID");
 
                     b.ToTable("Products");
                 });
@@ -623,14 +621,7 @@ namespace Clothing_Shop_Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Clothing_Shop_Website.Models.Supplier", "Supplier")
-                        .WithMany("Products")
-                        .HasForeignKey("SupplierID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Category");
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.ProductSize", b =>
@@ -719,8 +710,6 @@ namespace Clothing_Shop_Website.Migrations
             modelBuilder.Entity("Clothing_Shop_Website.Models.Supplier", b =>
                 {
                     b.Navigation("InventoryReceipts");
-
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.User", b =>

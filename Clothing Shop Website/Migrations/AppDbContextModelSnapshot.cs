@@ -45,12 +45,17 @@ namespace Clothing_Shop_Website.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("AdID");
+
+                    b.HasIndex("ProductID");
 
                     b.ToTable("Advertisements");
                 });
@@ -520,6 +525,15 @@ namespace Clothing_Shop_Website.Migrations
                     b.ToTable("UserAddresses");
                 });
 
+            modelBuilder.Entity("Clothing_Shop_Website.Models.Advertisement", b =>
+                {
+                    b.HasOne("Clothing_Shop_Website.Models.Product", "Product")
+                        .WithMany("Advertisements")
+                        .HasForeignKey("ProductID");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
                 {
                     b.HasOne("Clothing_Shop_Website.Models.Product", "Product")
@@ -701,6 +715,8 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Product", b =>
                 {
+                    b.Navigation("Advertisements");
+
                     b.Navigation("CartItems");
 
                     b.Navigation("OrderDetails");

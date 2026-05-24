@@ -189,7 +189,7 @@ namespace Clothing_Shop_Website.Controllers
             }
             catch
             {
-                return View(new Clothing_Shop_Website.Models.ViewModels.AdminDashboardViewModel
+                return View(new Clothing_Shop_Website.ViewModels.AdminDashboardViewModel
                 {
                     CubeError = "Không kết nối được Cube. Hiển thị dữ liệu trực tiếp."
                 });

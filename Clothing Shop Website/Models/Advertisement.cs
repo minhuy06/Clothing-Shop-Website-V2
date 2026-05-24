@@ -24,5 +24,10 @@ namespace Clothing_Shop_Website.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+        // Khóa ngoại trỏ tới bảng Products (Có thể null nếu quảng cáo không thuộc sản phẩm nào)
+        public int? ProductID { get; set; }
+        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("ProductID")]
+        public virtual Product? Product { get; set; }
     }
 }

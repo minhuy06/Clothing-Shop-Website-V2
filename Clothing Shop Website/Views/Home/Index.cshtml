@@ -1,10 +1,32 @@
-﻿@{
+﻿@model Clothing_Shop_Website.Models.ViewModels.HomeIndexViewModel
+@{
     ViewData["Title"] = "Trang chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var bannerImages = Model.BannerAds.Where(a => !string.IsNullOrEmpty(a.ImageUrl)).ToList();
+    var bannerText = Model.BannerAds.Where(a => string.IsNullOrEmpty(a.ImageUrl)).ToList();
+    var popupAd = Model.PopupAds.FirstOrDefault();
+    var heroSlideCount = bannerImages.Count > 0 ? bannerImages.Count : 3;
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/trang-chu.css" asp-append-version="true" />
+}
+
+@if (bannerText.Count > 0)
+{
+    <div class="home-ad-strip" id="homeAdStrip">
+        @foreach (var ad in bannerText)
+        {
+            @if (!string.IsNullOrEmpty(ad.LinkUrl))
+            {
+                <a href="@ad.LinkUrl" class="home-ad-strip-item" target="_blank" rel="noopener">@ad.Title</a>
+            }
+            else
+            {
+                <span class="home-ad-strip-item">@ad.Title</span>
+            }
+        }
+    </div>
 }
 
 <!-- HERO BLOCK -->
@@ -18,15 +40,37 @@
 
     <!-- Hero slideshow -->
     <div class="hp">
-        <div class="hs on">
-            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=88" alt="NEVA Couture">
-        </div>
-        <div class="hs">
-            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=88" alt="NEVA Couture 2">
-        </div>
-        <div class="hs">
-            <img src="https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=900&q=88" alt="NEVA Couture 3">
-        </div>
+        @if (bannerImages.Count > 0)
+        {
+            @for (var i = 0; i < bannerImages.Count; i++)
+            {
+                var ad = bannerImages[i];
+                <div class="hs @(i == 0 ? "on" : "")">
+                    @if (!string.IsNullOrEmpty(ad.LinkUrl))
+                    {
+                        <a href="@ad.LinkUrl" class="hs-link" target="_blank" rel="noopener">
+                            <img src="@ad.ImageUrl" alt="@ad.Title">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@ad.ImageUrl" alt="@ad.Title">
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="hs on">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=88" alt="NEVA Couture">
+            </div>
+            <div class="hs">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=88" alt="NEVA Couture 2">
+            </div>
+            <div class="hs">
+                <img src="https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=900&q=88" alt="NEVA Couture 3">
+            </div>
+        }
 
         <div class="hv"></div>
 
@@ -48,12 +92,16 @@
             <a asp-controller="Product" asp-action="Index" class="ht-link">Khám Phá Di Sản</a>
         </div>
 
-        <div class="sa sp" onclick="prevSlide()">‹</div>
-        <div class="sa sn" onclick="nextSlide()">›</div>
+        @if (heroSlideCount > 1)
+        {
+            <div class="sa sp" onclick="prevSlide()">‹</div>
+            <div class="sa sn" onclick="nextSlide()">›</div>
+        }
         <div class="sdots" id="dots">
-            <div class="sd on"></div>
-            <div class="sd"></div>
-            <div class="sd"></div>
+            @for (var i = 0; i < heroSlideCount; i++)
+            {
+                <div class="sd @(i == 0 ? "on" : "")"></div>
+            }
         </div>
     </div>
 
@@ -188,6 +236,38 @@
         </div>
     </div>
 </div>
+
+@if (popupAd != null)
+{
+    <div class="home-ad-popup" id="homeAdPopup" data-ad-id="@popupAd.AdID" hidden>
+        <div class="home-ad-popup-backdrop" id="homeAdPopupBackdrop"></div>
+        <div class="home-ad-popup-box">
+            <button type="button" class="home-ad-popup-close" id="homeAdPopupClose" aria-label="Đóng">×</button>
+            @if (!string.IsNullOrEmpty(popupAd.ImageUrl))
+            {
+                @if (!string.IsNullOrEmpty(popupAd.LinkUrl))
+                {
+                    <a href="@popupAd.LinkUrl" target="_blank" rel="noopener" class="home-ad-popup-media">
+                        <img src="@popupAd.ImageUrl" alt="@popupAd.Title">
+                    </a>
+                }
+                else
+                {
+                    <div class="home-ad-popup-media">
+                        <img src="@popupAd.ImageUrl" alt="@popupAd.Title">
+                    </div>
+                }
+            }
+            <div class="home-ad-popup-body">
+                <div class="home-ad-popup-title">@popupAd.Title</div>
+                @if (!string.IsNullOrEmpty(popupAd.LinkUrl))
+                {
+                    <a href="@popupAd.LinkUrl" class="home-ad-popup-cta" target="_blank" rel="noopener">Xem ngay</a>
+                }
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script src="~/js/trang-chu.js" asp-append-version="true"></script>

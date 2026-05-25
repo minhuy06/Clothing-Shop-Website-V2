@@ -1313,10 +1313,28 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
+            title = (title ?? "").Trim();
+            if (string.IsNullOrEmpty(title))
+            {
+                TempData["Error"] = "Tiêu đề quảng cáo không được để trống.";
+                return RedirectToAction("Advertisements");
+            }
+
+            var allowedPositions = new[] { "banner", "popup", "sidebar" };
+            position = (position ?? "banner").Trim().ToLowerInvariant();
+            if (!allowedPositions.Contains(position))
+                position = "banner";
+
             string? imageUrl = null;
             if (imageFile is { Length: > 0 })
             {
-                var ext = Path.GetExtension(imageFile.FileName);
+                var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                var allowedExt = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+                if (!allowedExt.Contains(ext))
+                {
+                    TempData["Error"] = "Ảnh quảng cáo phải là JPG, PNG, WEBP hoặc GIF.";
+                    return RedirectToAction("Advertisements");
+                }
                 if (ext.Length > 10) ext = "";
                 var safe = $"{Guid.NewGuid():N}{ext}";
                 var dir = Path.Combine(_env.WebRootPath, "uploads", "ads");
@@ -1328,15 +1346,15 @@ namespace Clothing_Shop_Website.Controllers
 
             _db.Advertisements.Add(new Advertisement
             {
-                Title = (title ?? "").Trim(),
+                Title = title,
                 ImageUrl = imageUrl,
-                LinkUrl = linkUrl?.Trim(),
-                Position = position ?? "banner",
+                LinkUrl = string.IsNullOrWhiteSpace(linkUrl) ? null : linkUrl.Trim(),
+                Position = position,
                 IsActive = true,
                 CreatedDate = DateTime.Now
             });
             await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm quảng cáo!";
+            TempData["Success"] = "Đã thêm quảng cáo \"" + title + "\".";
             return RedirectToAction("Advertisements");
         }
 
@@ -1346,8 +1364,24 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
             var ad = await _db.Advertisements.FindAsync(adId);
-            if (ad != null) { _db.Advertisements.Remove(ad); await _db.SaveChangesAsync(); }
-            TempData["Success"] = "Đã xóa quảng cáo!";
+            if (ad == null)
+            {
+                TempData["Error"] = "Không tìm thấy quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            if (!string.IsNullOrEmpty(ad.ImageUrl) && ad.ImageUrl.StartsWith("/uploads/ads/", StringComparison.OrdinalIgnoreCase))
+            {
+                var path = Path.Combine(_env.WebRootPath, ad.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(path))
+                {
+                    try { System.IO.File.Delete(path); } catch { /* ignore */ }
+                }
+            }
+
+            _db.Advertisements.Remove(ad);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa quảng cáo \"" + ad.Title + "\".";
             return RedirectToAction("Advertisements");
         }
 
@@ -1357,7 +1391,17 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
             var ad = await _db.Advertisements.FindAsync(adId);
-            if (ad != null) { ad.IsActive = !ad.IsActive; await _db.SaveChangesAsync(); }
+            if (ad == null)
+            {
+                TempData["Error"] = "Không tìm thấy quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            ad.IsActive = !ad.IsActive;
+            await _db.SaveChangesAsync();
+            TempData["Success"] = ad.IsActive
+                ? "Đã bật hiển thị quảng cáo \"" + ad.Title + "\"."
+                : "Đã ẩn quảng cáo \"" + ad.Title + "\".";
             return RedirectToAction("Advertisements");
         }
 

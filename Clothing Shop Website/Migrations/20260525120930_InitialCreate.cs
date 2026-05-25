@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Clothing_Shop_Website.Migrations
@@ -7,24 +7,6 @@ namespace Clothing_Shop_Website.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Advertisements",
-                columns: table => new
-                {
-                    AdID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    LinkUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Position = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Advertisements", x => x.AdID);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
@@ -107,7 +89,7 @@ namespace Clothing_Shop_Website.Migrations
                     Color = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Style = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Material = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,7 +148,6 @@ namespace Clothing_Shop_Website.Migrations
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Cascade);
                 });
-
 
             migrationBuilder.CreateTable(
                 name: "Orders",
@@ -247,30 +228,28 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartItems",
+                name: "Advertisements",
                 columns: table => new
                 {
-                    CartID = table.Column<int>(type: "int", nullable: false)
+                    AdID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    ProductID = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    LinkUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Position = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartItems", x => x.CartID);
+                    table.PrimaryKey("PK_Advertisements", x => x.AdID);
                     table.ForeignKey(
-                        name: "FK_CartItems_Products_ProductID",
+                        name: "FK_Advertisements_Products_ProductID",
                         column: x => x.ProductID,
                         principalTable: "Products",
                         principalColumn: "ProductID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CartItems_Users_UserID",
-                        column: x => x.UserID,
-                        principalTable: "Users",
-                        principalColumn: "UserID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -296,34 +275,6 @@ namespace Clothing_Shop_Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderDetails",
-                columns: table => new
-                {
-                    OrderDetailID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderID = table.Column<int>(type: "int", nullable: false),
-                    ProductID = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
-                    table.ForeignKey(
-                        name: "FK_OrderDetails_Orders_OrderID",
-                        column: x => x.OrderID,
-                        principalTable: "Orders",
-                        principalColumn: "OrderID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderDetails_Products_ProductID",
-                        column: x => x.ProductID,
-                        principalTable: "Products",
-                        principalColumn: "ProductID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StaffShifts",
                 columns: table => new
                 {
@@ -340,6 +291,33 @@ namespace Clothing_Shop_Website.Migrations
                         name: "FK_StaffShifts_StaffDetails_UserID",
                         column: x => x.UserID,
                         principalTable: "StaffDetails",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
+                columns: table => new
+                {
+                    CartID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    SizeID = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItems", x => x.CartID);
+                    table.ForeignKey(
+                        name: "FK_CartItems_ProductSizes_SizeID",
+                        column: x => x.SizeID,
+                        principalTable: "ProductSizes",
+                        principalColumn: "SizeID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -372,10 +350,43 @@ namespace Clothing_Shop_Website.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    OrderDetailID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderID = table.Column<int>(type: "int", nullable: false),
+                    SizeID = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Orders_OrderID",
+                        column: x => x.OrderID,
+                        principalTable: "Orders",
+                        principalColumn: "OrderID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_ProductSizes_SizeID",
+                        column: x => x.SizeID,
+                        principalTable: "ProductSizes",
+                        principalColumn: "SizeID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_CartItems_ProductID",
-                table: "CartItems",
+                name: "IX_Advertisements_ProductID",
+                table: "Advertisements",
                 column: "ProductID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartItems_SizeID",
+                table: "CartItems",
+                column: "SizeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CartItems_UserID",
@@ -408,9 +419,9 @@ namespace Clothing_Shop_Website.Migrations
                 column: "OrderID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderDetails_ProductID",
+                name: "IX_OrderDetails_SizeID",
                 table: "OrderDetails",
-                column: "ProductID");
+                column: "SizeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_DiscountID",
@@ -470,10 +481,10 @@ namespace Clothing_Shop_Website.Migrations
                 name: "InventoryReceipts");
 
             migrationBuilder.DropTable(
-                name: "ProductSizes");
+                name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "ProductSizes");
 
             migrationBuilder.DropTable(
                 name: "StaffDetails");
@@ -482,10 +493,10 @@ namespace Clothing_Shop_Website.Migrations
                 name: "Suppliers");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "Discounts");
 
             migrationBuilder.DropTable(
-                name: "Discounts");
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Users");

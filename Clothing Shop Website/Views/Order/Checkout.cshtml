@@ -23,7 +23,6 @@
         <form method="post" asp-controller="Order" asp-action="PlaceOrder" id="orderForm">
             @Html.AntiForgeryToken()
 
-            <!-- ĐỊA CHỈ -->
             <div class="form-box">
                 <div class="form-box-title">
                     <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
@@ -80,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- THANH TOÁN -->
             <div class="form-box">
                 <div class="form-box-title">
                     <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
@@ -100,7 +98,6 @@
                 </div>
             </div>
 
-            <!-- MÃ GIẢM GIÁ -->
             <div class="form-box">
                 <div class="form-box-title">
                     <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>
@@ -121,25 +118,34 @@
         </form>
     </div>
 
-    <!-- ORDER SUMMARY -->
     <div class="order-side">
         <div class="summary-box">
             <div class="summary-title">Đơn hàng của bạn</div>
             <div class="order-items">
-                @foreach (var item in cartItems!)
+                @if (cartItems != null)
                 {
-                    <div class="oitem">
-                        <div class="oitem-thumb">
-                            <img src="@item.Product.ImageUrl" alt="@item.Product.ProductName"
-                                 onerror="this.style.display='none'">
-                            <div class="oitem-qty">@item.Quantity</div>
+                    foreach (var item in cartItems)
+                    {
+                        <div class="oitem">
+                            <div class="oitem-thumb">
+                                <img src="@item.ProductSize.Product.ImageUrl" alt="@item.ProductSize.Product.ProductName"
+                                     onerror="this.style.display='none'">
+                                <div class="oitem-qty">@item.Quantity</div>
+                            </div>
+                            <div style="flex:1">
+                                <div class="oitem-name">@item.ProductSize.Product.ProductName</div>
+
+                                <div class="oitem-meta">
+                                    @item.ProductSize.Product.Category?.CategoryName
+                                    <span style="margin:0 4px;color:rgba(250,248,242,.2)">|</span>
+                                    <span style="color:var(--gold); border: 1px solid rgba(201,168,76,.3); padding: 1px 4px; border-radius: 2px; font-size: 9px; line-height: 1;">
+                                        Size: @item.ProductSize.SizeName
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="oitem-price">@((item.ProductSize.Product.Price * item.Quantity).ToString("N0"))đ</div>
                         </div>
-                        <div style="flex:1">
-                            <div class="oitem-name">@item.Product.ProductName</div>
-                            <div class="oitem-meta">@item.Product.Category?.CategoryName</div>
-                        </div>
-                        <div class="oitem-price">@((item.Product.Price * item.Quantity).ToString("N0"))đ</div>
-                    </div>
+                    }
                 }
             </div>
             <hr class="sdiv">
@@ -164,9 +170,9 @@
         function fillAddr(sel) {
             if (!sel.value) return;
             const parts = sel.value.split('|');
-            document.getElementById('rcvName').value     = parts[0] || '';
-            document.getElementById('rcvPhone').value    = parts[1] || '';
-            document.getElementById('rcvAddr').value     = parts[2] || '';
+            document.getElementById('rcvName').value = parts[0] || '';
+            document.getElementById('rcvPhone').value = parts[1] || '';
+            document.getElementById('rcvAddr').value = parts[2] || '';
             const prov = document.getElementById('rcvProvince');
             for (let i = 0; i < prov.options.length; i++) {
                 if (prov.options[i].value === parts[3]) { prov.selectedIndex = i; break; }

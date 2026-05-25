@@ -1,11 +1,10 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Clothing_Shop_Website.Data;
-using Clothing_Shop_Website.Models;
+using Clothing_Shop_Website.Enums;
 using Clothing_Shop_Website.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,55 +26,82 @@ namespace Clothing_Shop_Website.Controllers
             _env = env;
         }
 
-        // Role 0 = Admin, Role 1 = Staff — both can access staff pages
-        private bool IsStaff()
-        {
-            var role = HttpContext.Session.GetInt32("Role");
-            return role == 0 || role == 1;
-        }
+        private bool IsStaff() => HttpContext.Session.GetInt32("Role") == (int)UserRole.Staff;
 
         public IActionResult Index() => RedirectToAction("Inventory");
 
-        // ═══════════════════════════════
-        //   KHO HÀNG (INVENTORY)
-        // ═══════════════════════════════
+        // KHO HÀNG
         public async Task<IActionResult> Inventory(string? search, int? categoryId)
         {
             if (!IsStaff()) return RedirectToAction("Login", "Account");
 
-            var query = _db.Products
+            // Sử dụng AsNoTracking
+            var querry = _db.Products
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Include(p => p.ProductSizes)
                 .AsQueryable();
 
+            // Bộ lọc
             if (!string.IsNullOrEmpty(search))
-                query = query.Where(p => p.ProductName.Contains(search));
-            if (categoryId.HasValue)
-                query = query.Where(p => p.CategoryID == categoryId);
+                querry = querry.Where(p => p.ProductName.Contains(search.Trim()));
 
-            ViewBag.Categories = await _db.Categories.OrderBy(c => c.CategoryName).ToListAsync();
+            if (!categoryId.HasValue)
+                querry = querry.Where(p => p.CategoryID == categoryId);
+
+            // Gửi danh sách sang View
+            ViewBag.Categories = await _db.Categories.AsNoTracking().OrderBy(c => c.CategoryName).ToListAsync();
+
+            // Giữ trạng thái lọc cũ trên giao diện
             ViewBag.Search = search;
-            ViewBag.CategoryId = categoryId;
+            ViewBag.CagoryId = categoryId;
 
-            return View(await query.OrderByDescending(p => p.ProductID).ToListAsync());
+            return View(await querry.OrderByDescending(p => p.ProductID).ToListAsync());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStock(List<StockUpdateRow> rows)
+        public async Task<IActionResult> UpdateStock(Dictionary<int, int> duLieuTonKho)
         {
-            if (!IsStaff()) return RedirectToAction("Login", "Account");
+            if (!IsStaff())
+                return RedirectToAction("Login", "Account");
+
+            if(duLieuTonKho == null || !duLieuTonKho.Any())
+            {
+                TempData["Error"] = "Khong co du lieu ton kho nao duoc gui len";
+                return RedirectToAction("Inventory");
+            }
 
             int updated = 0;
-            foreach (var row in rows ?? new List<StockUpdateRow>())
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
             {
-                var size = await _db.ProductSizes.FindAsync(row.SizeId);
-                if (size == null) continue;
-                size.StockQuantity = Math.Max(0, row.NewQty);
-                updated++;
+                foreach(var item in duLieuTonKho)
+                {
+                    int maKichCo = item.Key;
+                    int soLuongMoi = item.Value;
+
+                    if (soLuongMoi <= 0)
+                        throw new Exception("Ton kho khong duoc nho hon 0");
+
+                    var size = await _db.ProductSizes.FindAsync(maKichCo);
+                    if(size != null)
+                    {
+                        size.StockQuantity += soLuongMoi;
+                        updated++;
+                    }
+                }
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                if (updated > 0)
+                    TempData["Success"] = $"Da cap nhat thanh cong {updated} dong ton kho";
             }
-            await _db.SaveChangesAsync();
-            TempData["Success"] = $"Đã cập nhật {updated} dòng tồn kho.";
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi cập nhật tồn kho: " + ex.Message;
+            }
             return RedirectToAction("Inventory");
         }
 
@@ -118,62 +144,7 @@ namespace Clothing_Shop_Website.Controllers
         // ═══════════════════════════════
         //   ĐƠN HÀNG
         // ═══════════════════════════════
-        public async Task<IActionResult> Orders(string? status, string? search)
-        {
-            if (!IsStaff()) return RedirectToAction("Login", "Account");
-
-            var query = _db.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.Product)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(status) && int.TryParse(status, out int s))
-                query = query.Where(o => o.Status == s);
-
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(o =>
-                    o.ReceiverName.Contains(search) ||
-                    o.ReceiverPhone.Contains(search) ||
-                    o.OrderID.ToString().Contains(search));
-
-            ViewBag.Status = status;
-            ViewBag.Search = search;
-
-            return View(await query.OrderByDescending(o => o.OrderDate).ToListAsync());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, int status)
-        {
-            if (!IsStaff()) return RedirectToAction("Login", "Account");
-
-            var order = await _db.Orders.FindAsync(orderId);
-            if (order != null)
-            {
-                order.Status = status;
-                await _db.SaveChangesAsync();
-                TempData["Success"] = "Đã cập nhật trạng thái!";
-            }
-            return RedirectToAction("Orders");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteOrder(int orderId)
-        {
-            if (!IsStaff()) return RedirectToAction("Login", "Account");
-
-            var order = await _db.Orders.FindAsync(orderId);
-            if (order != null)
-            {
-                _db.Orders.Remove(order);
-                await _db.SaveChangesAsync();
-                TempData["Success"] = "Đã xóa đơn hàng!";
-            }
-            return RedirectToAction("Orders");
-        }
+        
 
         // ═══════════════════════════════
         //   THỐNG KÊ

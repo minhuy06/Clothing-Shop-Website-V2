@@ -12,7 +12,7 @@ namespace Clothing_Shop_Website.Models
         public int OrderID { get; set; }
 
         [Required]
-        public int ProductID { get; set; }
+        public int SizeID { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
@@ -25,7 +25,7 @@ namespace Clothing_Shop_Website.Models
         [ForeignKey("OrderID")]
         public virtual Order Order { get; set; } = null!;
 
-        [ForeignKey("ProductID")]
-        public virtual Product Product { get; set; } = null!;
+        [ForeignKey("SizeID")]
+        public virtual ProductSize ProductSize { get; set; } = null!;
     }
 }

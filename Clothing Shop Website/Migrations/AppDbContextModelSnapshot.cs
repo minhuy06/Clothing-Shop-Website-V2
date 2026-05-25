@@ -67,10 +67,13 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ProductID")
+                    b.Property<int?>("ProductID")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeID")
                         .HasColumnType("int");
 
                     b.Property<int>("UserID")
@@ -79,6 +82,8 @@ namespace Clothing_Shop_Website.Migrations
                     b.HasKey("CartID");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("SizeID");
 
                     b.HasIndex("UserID");
 
@@ -276,10 +281,13 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<int>("OrderID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductID")
+                    b.Property<int?>("ProductID")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeID")
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitPrice")
@@ -290,6 +298,8 @@ namespace Clothing_Shop_Website.Migrations
                     b.HasIndex("OrderID");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("SizeID");
 
                     b.ToTable("OrderDetails");
                 });
@@ -536,9 +546,13 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
                 {
-                    b.HasOne("Clothing_Shop_Website.Models.Product", "Product")
+                    b.HasOne("Clothing_Shop_Website.Models.Product", null)
                         .WithMany("CartItems")
-                        .HasForeignKey("ProductID")
+                        .HasForeignKey("ProductID");
+
+                    b.HasOne("Clothing_Shop_Website.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("SizeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -548,7 +562,7 @@ namespace Clothing_Shop_Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductSize");
 
                     b.Navigation("User");
                 });
@@ -627,15 +641,19 @@ namespace Clothing_Shop_Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Clothing_Shop_Website.Models.Product", "Product")
+                    b.HasOne("Clothing_Shop_Website.Models.Product", null)
                         .WithMany("OrderDetails")
-                        .HasForeignKey("ProductID")
+                        .HasForeignKey("ProductID");
+
+                    b.HasOne("Clothing_Shop_Website.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("SizeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Product", b =>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
+using Clothing_Shop_Website.Enums; // 💡 Đừng quên using Enum nhé
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -21,21 +22,23 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var cartItems = await _db.CartItems
-                .Include(c => c.Product)
+                .Include(c => c.ProductSize)     // 💡 Thay đổi: Kéo ProductSize
+                    .ThenInclude(s => s.Product) // 💡 Thay đổi: Từ Size kéo ngược ra Product
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
             if (!cartItems.Any())
                 return RedirectToAction("Index", "Cart");
 
-            // Lấy địa chỉ mặc định
             var addresses = await _db.UserAddresses
                 .Where(a => a.UserID == userId)
                 .ToListAsync();
 
             ViewBag.CartItems = cartItems;
             ViewBag.Addresses = addresses;
-            ViewBag.Total = cartItems.Sum(c => c.Product.Price * c.Quantity);
+
+            // 💡 Thay đổi cách tính tổng tiền (phải đi qua ProductSize)
+            ViewBag.Total = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
 
             return View();
         }
@@ -59,19 +62,29 @@ namespace Clothing_Shop_Website.Controllers
             if (user == null) return RedirectToAction("Login", "Account");
 
             var cartItems = await _db.CartItems
-                .Include(c => c.Product)
+                .Include(c => c.ProductSize)     // 💡 Cập nhật Include
+                    .ThenInclude(s => s.Product) // 💡 Cập nhật Include
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
             if (!cartItems.Any())
                 return RedirectToAction("Index", "Cart");
 
-            // Tính tổng tiền
-            decimal subtotal = cartItems.Sum(c => c.Product.Price * c.Quantity);
+            // BUSINESS LOGIC: Kiểm tra tồn kho trước khi cho phép đặt hàng
+            foreach (var item in cartItems)
+            {
+                if (item.ProductSize.StockQuantity < item.Quantity)
+                {
+                    TempData["Error"] = $"Sản phẩm {item.ProductSize.Product.ProductName} (Size {item.ProductSize.SizeName}) không đủ số lượng trong kho.";
+                    return RedirectToAction("Checkout"); // Trả về trang thanh toán báo lỗi
+                }
+            }
+
+            // Tính toán tiền bạc
+            decimal subtotal = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
             decimal shipping = subtotal >= 500000 ? 0 : 30000;
             decimal discount = 0;
 
-            // Kiểm tra mã giảm giá
             int? discountId = null;
             if (!string.IsNullOrEmpty(discountCode))
             {
@@ -81,7 +94,6 @@ namespace Clothing_Shop_Website.Controllers
                         && d.UsedCount < d.Quantity);
                 if (disc != null)
                 {
-                    // DiscountType: 0 = VNĐ, 1 = phần trăm (theo model)
                     discount = disc.DiscountType == 1
                         ? subtotal * disc.DiscountValue / 100m
                         : disc.DiscountValue;
@@ -90,7 +102,6 @@ namespace Clothing_Shop_Website.Controllers
                 }
             }
 
-            // Điểm thưởng
             decimal pointsDiscount = 0;
             int pointsUsed = 0;
             if (usePoints > 0 && user.RewardPoints >= usePoints)
@@ -103,48 +114,62 @@ namespace Clothing_Shop_Website.Controllers
 
             decimal total = subtotal + shipping - discount - pointsDiscount;
 
-            // Tạo đơn hàng
-            var order = new Order
+            // Bắt đầu Transaction để bảo toàn dữ liệu (tránh lỗi cấn trừ kho)
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
             {
-                UserID = userId.Value,
-                DiscountID = discountId,
-                OrderDate = DateTime.Now,
-                ShippingAddress = shippingAddress,
-                ShippingProvince = shippingProvince,
-                ReceiverName = receiverName,
-                ReceiverPhone = receiverPhone,
-                TotalAmount = total,
-                Status = 0,  // Chờ duyệt
-                RedemptionPoints = pointsUsed
-            };
-            _db.Orders.Add(order);
-            await _db.SaveChangesAsync();
-
-            // Tạo OrderDetails
-            foreach (var item in cartItems)
-            {
-                _db.OrderDetails.Add(new OrderDetail
+                var order = new Order
                 {
-                    OrderID = order.OrderID,
-                    ProductID = item.ProductID,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.Product.Price
-                });
+                    UserID = userId.Value,
+                    DiscountID = discountId,
+                    OrderDate = DateTime.Now,
+                    ShippingAddress = shippingAddress,
+                    ShippingProvince = shippingProvince,
+                    ReceiverName = receiverName,
+                    ReceiverPhone = receiverPhone,
+                    TotalAmount = total,
+                    Status = (int)OrderStatus.Pending, // 💡 Sử dụng Enum
+                    RedemptionPoints = pointsUsed
+                };
+
+                _db.Orders.Add(order);
+                await _db.SaveChangesAsync(); // Lưu để lấy OrderID
+
+                // Tạo OrderDetails và TRỪ TỒN KHO
+                foreach (var item in cartItems)
+                {
+                    _db.OrderDetails.Add(new OrderDetail
+                    {
+                        OrderID = order.OrderID,
+                        SizeID = item.SizeID, // 💡 QUAN TRỌNG: Đã đổi thành SizeID
+                        Quantity = item.Quantity,
+                        UnitPrice = item.ProductSize.Product.Price // 💡 Lấy giá qua ProductSize
+                    });
+
+                    // 💡 BUSINESS LOGIC: Trừ số lượng tồn kho vật lý
+                    item.ProductSize.StockQuantity -= item.Quantity;
+                }
+
+                user.RewardPoints -= pointsUsed;
+                user.RewardPoints += (int)(total / 10000);
+
+                _db.CartItems.RemoveRange(cartItems);
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync(); // Chốt giao dịch
+
+                TempData["OrderCode"] = "NV-" + order.OrderID.ToString("D8");
+                TempData["OrderTotal"] = total.ToString("N0");
+                TempData["PointsEarned"] = (int)(total / 10000);
+
+                return RedirectToAction("Success");
             }
-
-            // Trừ điểm + cộng điểm mới (10.000đ = 1 điểm)
-            user.RewardPoints -= pointsUsed;
-            user.RewardPoints += (int)(total / 10000);
-
-            // Xóa giỏ hàng
-            _db.CartItems.RemoveRange(cartItems);
-            await _db.SaveChangesAsync();
-
-            TempData["OrderCode"] = "NV-" + order.OrderID.ToString("D8");
-            TempData["OrderTotal"] = total.ToString("N0");
-            TempData["PointsEarned"] = (int)(total / 10000);
-
-            return RedirectToAction("Success");
+            catch (Exception)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Có lỗi xảy ra trong quá trình xử lý đơn hàng.";
+                return RedirectToAction("Checkout");
+            }
         }
 
         // ── Đặt hàng thành công ──
@@ -163,7 +188,8 @@ namespace Clothing_Shop_Website.Controllers
 
             var orders = await _db.Orders
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.Product)
+                    .ThenInclude(d => d.ProductSize)     // 💡 Cập nhật Include
+                        .ThenInclude(s => s.Product)     // 💡 Cập nhật Include
                 .Where(o => o.UserID == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
@@ -179,7 +205,8 @@ namespace Clothing_Shop_Website.Controllers
 
             var order = await _db.Orders
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.Product)
+                    .ThenInclude(d => d.ProductSize)     // 💡 Cập nhật Include
+                        .ThenInclude(s => s.Product)     // 💡 Cập nhật Include
                 .Include(o => o.Discount)
                 .FirstOrDefaultAsync(o => o.OrderID == id && o.UserID == userId);
 
@@ -195,13 +222,24 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var order = await _db.Orders
+                .Include(o => o.OrderDetails) // 💡 Phải Include Detail để biết đường hoàn kho
                 .FirstOrDefaultAsync(o => o.OrderID == orderId && o.UserID == userId);
 
-            if (order != null && order.Status == 0) // Chỉ hủy khi Chờ duyệt
+            // 💡 Sử dụng Enum OrderStatus.Pending thay vì số 0
+            if (order != null && order.Status == (int)OrderStatus.Pending)
             {
-                order.Status = 3; // Đã hủy
+                // 💡 Sử dụng Enum thay vì số 3 (Vì số 3 thường là Hoàn thành, 4 mới là Hủy)
+                order.Status = (int)OrderStatus.Cancelled;
+
+                // 💡 BUSINESS LOGIC: Trả lại hàng về kho khi khách tự hủy đơn
+                foreach (var detail in order.OrderDetails)
+                {
+                    var size = await _db.ProductSizes.FindAsync(detail.SizeID);
+                    if (size != null) size.StockQuantity += detail.Quantity;
+                }
+
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Đã hủy đơn hàng!";
+                TempData["Success"] = "Đã hủy đơn hàng thành công!";
             }
 
             return RedirectToAction("History");

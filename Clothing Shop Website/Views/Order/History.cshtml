@@ -32,7 +32,6 @@
 }
 
 <div class="page-wrap" style="display:grid;grid-template-columns:250px 1fr;gap:16px;padding:28px 44px 60px;max-width:1280px;margin:0 auto">
-    <!-- SIDEBAR -->
     <aside>
         <div class="profile-card">
             <div class="av-wrap">
@@ -63,7 +62,6 @@
         </div>
     </aside>
 
-    <!-- MAIN -->
     <main>
         <div class="orders-toolbar">
             <div class="orders-title">Đơn hàng</div>
@@ -74,7 +72,7 @@
             <div class="empty" style="text-align:center;padding:60px 20px;color:rgba(250,248,242,.2)">
                 <p style="font-size:12px;letter-spacing:1.5px;margin-bottom:16px">Bạn chưa có đơn hàng nào</p>
                 <a asp-controller="Product" asp-action="Index"
-                       style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
+                   style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
                     Mua sắm ngay
                 </a>
             </div>
@@ -98,12 +96,16 @@
                         {
                             <div class="order-item">
                                 <div class="item-thumb">
-                                    <img src="@detail.Product?.ImageUrl" alt="@detail.Product?.ProductName"
+                                    <img src="@detail.ProductSize?.Product?.ImageUrl" alt="@detail.ProductSize?.Product?.ProductName"
                                          onerror="this.style.display='none'">
                                 </div>
                                 <div>
-                                    <div class="item-name">@detail.Product?.ProductName x@detail.Quantity</div>
-                                    <div class="item-meta">@detail.UnitPrice.ToString("N0")đ / cái</div>
+                                    <div class="item-name">@detail.ProductSize?.Product?.ProductName x@detail.Quantity</div>
+                                    <div class="item-meta">
+                                        @detail.UnitPrice.ToString("N0")đ
+                                        <span style="margin:0 4px;color:rgba(250,248,242,.2)">|</span>
+                                        <span style="color:var(--gold); font-size: 10px;">Size: @detail.ProductSize?.SizeName</span>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -118,7 +120,7 @@
                             <div class="order-total">@order.TotalAmount.ToString("N0")đ</div>
                         </div>
                         <div class="order-acts">
-                            @if (order.Status == 0)
+                            @if (order.Status == 0) // Có thể đổi thành (int)OrderStatus.Pending nếu bạn đã import Enums vào View
                             {
                                 <form method="post" asp-controller="Order" asp-action="Cancel">
                                     @Html.AntiForgeryToken()

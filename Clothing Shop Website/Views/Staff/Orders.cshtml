@@ -182,7 +182,15 @@ const ORDERS_DATA = {
             province: '@Html.Raw(o.ShippingProvince.Replace("'","\\\'"))',
             total: '@o.TotalAmount.ToString("N0")đ',
             items: [@foreach (var d in o.OrderDetails) {
-                <text>{ name:'@Html.Raw((d.Product?.ProductName??"").Replace("'","\\\'"))', qty:@d.Quantity, price:'@d.UnitPrice.ToString("N0")đ', img:'@(d.Product?.ImageUrl??"")' },</text>
+                // 💡 SỬA LỖI ĐƯỜNG DẪN: Lấy thông tin qua d.ProductSize thay vì d.Product
+                // Đồng thời thêm thuộc tính 'size' để JS có thể hiển thị
+                <text>{
+                    name: '@Html.Raw((d.ProductSize?.Product?.ProductName??"").Replace("'","\\\'"))',
+                    size: '@(d.ProductSize?.SizeName??"")',
+                    qty: @d.Quantity,
+                    price: '@d.UnitPrice.ToString("N0")đ',
+                    img: '@(d.ProductSize?.Product?.ImageUrl??"")'
+                },</text>
             }]
         },
         </text>

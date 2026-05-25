@@ -21,7 +21,8 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var items = await _db.CartItems
-                .Include(c => c.Product)
+                .Include(c => c.ProductSize)     // 💡 Đã đổi sang ProductSize
+                    .ThenInclude(s => s.Product) // 💡 Kéo ngược ra Product để lấy Tên/Ảnh
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
@@ -30,23 +31,35 @@ namespace Clothing_Shop_Website.Controllers
 
         // ── Thêm vào giỏ ──
         [HttpPost]
-        public async Task<IActionResult> Add(int productId, int quantity = 1)
+        // 💡 THAY ĐỔI QUAN TRỌNG: Nhận sizeId thay vì productId
+        public async Task<IActionResult> Add(int sizeId, int quantity = 1)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
                 return Json(new { success = false, message = "Vui lòng đăng nhập!" });
 
-            // Kiểm tra sản phẩm tồn tại
-            var product = await _db.Products.FindAsync(productId);
-            if (product == null)
-                return Json(new { success = false, message = "Sản phẩm không tồn tại!" });
+            // Kiểm tra Kích cỡ (Size) và Sản phẩm có tồn tại không
+            var size = await _db.ProductSizes
+                .Include(s => s.Product)
+                .FirstOrDefaultAsync(s => s.SizeID == sizeId);
 
-            // Đã có trong giỏ → tăng số lượng
+            if (size == null)
+                return Json(new { success = false, message = "Sản phẩm hoặc kích cỡ không tồn tại!" });
+
+            // 💡 BUSINESS LOGIC: Chặn luôn nếu kho đã hết hàng
+            if (size.StockQuantity < quantity)
+                return Json(new { success = false, message = "Số lượng tồn kho không đủ!" });
+
+            // Kiểm tra xem giỏ hàng đã có cái Size này chưa
             var existing = await _db.CartItems
-                .FirstOrDefaultAsync(c => c.UserID == userId && c.ProductID == productId);
+                .FirstOrDefaultAsync(c => c.UserID == userId && c.SizeID == sizeId); // 💡 Dùng SizeID
 
             if (existing != null)
             {
+                // Kiểm tra xem cộng dồn vào có vượt quá tồn kho không
+                if (existing.Quantity + quantity > size.StockQuantity)
+                    return Json(new { success = false, message = "Vượt quá số lượng tồn kho cho phép!" });
+
                 existing.Quantity += quantity;
             }
             else
@@ -54,14 +67,14 @@ namespace Clothing_Shop_Website.Controllers
                 _db.CartItems.Add(new CartItem
                 {
                     UserID = userId.Value,
-                    ProductID = productId,
+                    SizeID = sizeId, // 💡 Lưu SizeID vào Database
                     Quantity = quantity
                 });
             }
 
             await _db.SaveChangesAsync();
 
-            // Đếm tổng số sản phẩm trong giỏ
+            // Đếm tổng số sản phẩm trong giỏ để cập nhật icon số lượng trên Header
             var cartCount = await _db.CartItems
                 .Where(c => c.UserID == userId)
                 .SumAsync(c => c.Quantity);
@@ -69,7 +82,7 @@ namespace Clothing_Shop_Website.Controllers
             return Json(new { success = true, message = "Đã thêm vào giỏ hàng!", cartCount });
         }
 
-        // ── Cập nhật số lượng ──
+        // ── Cập nhật số lượng (ở trang Xem giỏ hàng) ──
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int cartId, int quantity)
         {
@@ -77,14 +90,27 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var item = await _db.CartItems
+                .Include(c => c.ProductSize) // 💡 Kéo theo Size để kiểm tra tồn kho
                 .FirstOrDefaultAsync(c => c.CartID == cartId && c.UserID == userId);
 
             if (item != null)
             {
                 if (quantity <= 0)
+                {
                     _db.CartItems.Remove(item);
+                }
                 else
-                    item.Quantity = quantity;
+                {
+                    // 💡 BUSINESS LOGIC: Không cho khách tăng số lượng lố số hàng đang có
+                    if (quantity > item.ProductSize.StockQuantity)
+                    {
+                        TempData["Error"] = $"Chỉ còn {item.ProductSize.StockQuantity} sản phẩm trong kho.";
+                    }
+                    else
+                    {
+                        item.Quantity = quantity;
+                    }
+                }
 
                 await _db.SaveChangesAsync();
             }
@@ -125,7 +151,8 @@ namespace Clothing_Shop_Website.Controllers
             return RedirectToAction("Index");
         }
 
-        // ── Đếm giỏ hàng (dùng cho badge) ──
+        // ── Đếm giỏ hàng (dùng cho badge trên Header) ──
+        [HttpGet]
         public async Task<IActionResult> Count()
         {
             var userId = HttpContext.Session.GetInt32("UserId");

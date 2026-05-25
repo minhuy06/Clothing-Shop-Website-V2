@@ -2,7 +2,9 @@
 @{
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    decimal subtotal = Model.Sum(c => c.Product.Price * c.Quantity);
+
+    // 💡 SỬA ĐƯỜNG DẪN: Đi qua ProductSize để lấy Price
+    decimal subtotal = Model.Sum(c => c.ProductSize.Product.Price * c.Quantity);
     decimal shipping = subtotal >= 500000 ? 0 : 30000;
     decimal total = subtotal + shipping;
 }
@@ -47,7 +49,7 @@
                     <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
                     <p>Giỏ hàng của bạn đang trống</p>
                     <a asp-controller="Product" asp-action="Index"
-                           style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
+                       style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
                         Khám phá sản phẩm
                     </a>
                 </div>
@@ -59,15 +61,22 @@
                     <div></div>
                     <div class="cart-product">
                         <div class="cart-thumb">
-                            <img src="@item.Product.ImageUrl" alt="@item.Product.ProductName"
+                            <img src="@item.ProductSize.Product.ImageUrl" alt="@item.ProductSize.Product.ProductName"
                                  onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
                         </div>
                         <div>
-                            <div class="cart-pname">@item.Product.ProductName</div>
-                            <div class="cart-pmeta">@item.Product.Category?.CategoryName</div>
+                            <div class="cart-pname">@item.ProductSize.Product.ProductName</div>
+                            <div class="cart-pmeta">
+                                @item.ProductSize.Product.Category?.CategoryName
+                                <span style="margin:0 6px;color:rgba(250,248,242,.2)">|</span>
+                                <span style="color:var(--gold); border: 1px solid rgba(201,168,76,.3); padding: 1px 6px; border-radius: 2px; font-size: 10px;">
+                                    Size: @item.ProductSize.SizeName
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <div class="cart-price">@item.Product.Price.ToString("N0")đ</div>
+                    <div class="cart-price">@item.ProductSize.Product.Price.ToString("N0")đ</div>
+
                     <div class="qty-row">
                         <form method="post" asp-controller="Cart" asp-action="UpdateQuantity" style="display:flex;gap:5px;align-items:center">
                             @Html.AntiForgeryToken()
@@ -77,7 +86,9 @@
                             <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="qbtn">+</button>
                         </form>
                     </div>
-                    <div class="cart-total">@((item.Product.Price * item.Quantity).ToString("N0"))đ</div>
+
+                    <div class="cart-total">@((item.ProductSize.Product.Price * item.Quantity).ToString("N0"))đ</div>
+
                     <form method="post" asp-controller="Cart" asp-action="Remove">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="cartId" value="@item.CartID">
@@ -90,7 +101,6 @@
         </div>
     </div>
 
-    <!-- SUMMARY -->
     <div class="summary-side">
         <div class="ship-note">
             <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>

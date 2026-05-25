@@ -28,5 +28,9 @@ namespace Clothing_Shop_Website.Models
 
         // Quan hệ 1-N: 1 Size có thể xuất hiện trong nhiều Chi tiết phiếu nhậps
         public virtual ICollection<InventoryReceiptDetail> InventoryReceiptDetails { get; set; } = new List<InventoryReceiptDetail>();
+
+        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

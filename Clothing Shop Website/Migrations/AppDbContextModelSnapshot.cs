@@ -67,9 +67,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ProductID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -80,8 +77,6 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("CartID");
-
-                    b.HasIndex("ProductID");
 
                     b.HasIndex("SizeID");
 
@@ -281,9 +276,6 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<int>("OrderID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -296,8 +288,6 @@ namespace Clothing_Shop_Website.Migrations
                     b.HasKey("OrderDetailID");
 
                     b.HasIndex("OrderID");
-
-                    b.HasIndex("ProductID");
 
                     b.HasIndex("SizeID");
 
@@ -546,12 +536,8 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
                 {
-                    b.HasOne("Clothing_Shop_Website.Models.Product", null)
-                        .WithMany("CartItems")
-                        .HasForeignKey("ProductID");
-
                     b.HasOne("Clothing_Shop_Website.Models.ProductSize", "ProductSize")
-                        .WithMany()
+                        .WithMany("CartItems")
                         .HasForeignKey("SizeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -641,12 +627,8 @@ namespace Clothing_Shop_Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Clothing_Shop_Website.Models.Product", null)
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductID");
-
                     b.HasOne("Clothing_Shop_Website.Models.ProductSize", "ProductSize")
-                        .WithMany()
+                        .WithMany("OrderDetails")
                         .HasForeignKey("SizeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -735,16 +717,16 @@ namespace Clothing_Shop_Website.Migrations
                 {
                     b.Navigation("Advertisements");
 
-                    b.Navigation("CartItems");
-
-                    b.Navigation("OrderDetails");
-
                     b.Navigation("ProductSizes");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.ProductSize", b =>
                 {
+                    b.Navigation("CartItems");
+
                     b.Navigation("InventoryReceiptDetails");
+
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.StaffDetail", b =>

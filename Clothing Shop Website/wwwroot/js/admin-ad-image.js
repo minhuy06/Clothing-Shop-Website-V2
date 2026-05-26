@@ -2,7 +2,7 @@
 (function () {
     const CROP_BY_POSITION = {
         popup: { aspectRatio: 4 / 5, width: 800, height: 1000, label: 'Popup 4:5' },
-        sidebar: { aspectRatio: 16 / 5, width: 640, height: 200, label: 'Sidebar ngang (dưới menu)' }
+        sidebar: { aspectRatio: 16 / 10, width: 480, height: 300, label: 'Sidebar 16:10 (khung góc phải)' }
     };
 
     function getPosition() {

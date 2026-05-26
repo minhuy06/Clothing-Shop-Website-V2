@@ -874,15 +874,6 @@ namespace Clothing_Shop_Website.Controllers
             if (productId.HasValue && !await _db.Products.AnyAsync(p => p.ProductID == productId))
                 productId = null;
 
-            var removedSamples = await AdvertisementHelper.RemoveSampleAdvertisementsAsync(_db);
-
-            if (pos == "popup")
-            {
-                var oldPopups = await _db.Advertisements.Where(a => a.Position == "popup").ToListAsync();
-                if (oldPopups.Count > 0)
-                    _db.Advertisements.RemoveRange(oldPopups);
-            }
-
             var imageUrl = await FileHelper.UploadImageAsync(imageFile, "ads", _env);
             if (string.IsNullOrEmpty(imageUrl))
             {
@@ -902,10 +893,7 @@ namespace Clothing_Shop_Website.Controllers
             });
             await _db.SaveChangesAsync();
 
-            var msg = "Đã thêm quảng cáo!";
-            if (removedSamples > 0)
-                msg += $" (Đã xóa {removedSamples} quảng cáo mẫu.)";
-            TempData["Success"] = msg;
+            TempData["Success"] = "Đã thêm quảng cáo!";
             return RedirectToAction("Advertisements");
         }
 

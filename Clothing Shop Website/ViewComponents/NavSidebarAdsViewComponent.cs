@@ -19,10 +19,11 @@ namespace Clothing_Shop_Website.ViewComponents
         {
             var ads = await _db.Advertisements
                 .Include(a => a.Product)
+                    .ThenInclude(p => p!.Category)
                 .Where(a => a.IsActive && a.Position == "sidebar"
                     && a.ImageUrl != null && a.ImageUrl != "")
-                .OrderByDescending(a => a.CreatedDate)
-                .Take(3)
+                .OrderBy(a => a.CreatedDate)
+                .Take(5)
                 .ToListAsync();
 
             return View(ads);

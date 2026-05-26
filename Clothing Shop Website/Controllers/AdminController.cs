@@ -839,13 +839,21 @@ namespace Clothing_Shop_Website.Controllers
         public async Task<IActionResult> Advertisements()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
-            var ads = await _db.Advertisements.OrderByDescending(a => a.CreatedDate).ToListAsync();
+            var ads = await _db.Advertisements
+                .Include(a => a.Product)
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
+            ViewBag.Products = await _db.Products
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.ProductName)
+                .ToListAsync();
             return View(ads);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddAdvertisement(string title, string position, IFormFile? imageFile)
+        public async Task<IActionResult> AddAdvertisement(
+            string title, string position, int? productId, IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
@@ -855,11 +863,25 @@ namespace Clothing_Shop_Website.Controllers
                 return RedirectToAction("Advertisements");
             }
 
-            var pos = (position ?? "banner").Trim().ToLowerInvariant();
-            if (pos is not ("banner" or "popup" or "sidebar"))
-                pos = "banner";
+            var pos = (position ?? "popup").Trim().ToLowerInvariant();
+            if (pos is not ("popup" or "sidebar"))
+            {
+                TempData["Error"] = "Chỉ hỗ trợ quảng cáo Popup hoặc Sidebar.";
+                return RedirectToAction("Advertisements");
+            }
+
+            if (productId.HasValue && !await _db.Products.AnyAsync(p => p.ProductID == productId))
+                productId = null;
 
             var removedSamples = await AdvertisementHelper.RemoveSampleAdvertisementsAsync(_db);
+
+            if (pos == "popup")
+            {
+                var oldPopups = await _db.Advertisements.Where(a => a.Position == "popup").ToListAsync();
+                if (oldPopups.Count > 0)
+                    _db.Advertisements.RemoveRange(oldPopups);
+            }
+
             var imageUrl = await FileHelper.UploadImageAsync(imageFile, "ads", _env);
             if (string.IsNullOrEmpty(imageUrl))
             {
@@ -873,6 +895,8 @@ namespace Clothing_Shop_Website.Controllers
                 ImageUrl = imageUrl,
                 LinkUrl = null,
                 Position = pos,
+                SlotIndex = null,
+                ProductID = productId,
                 IsActive = true,
                 CreatedDate = DateTime.Now
             });

@@ -1,0 +1,19 @@
+@model List<Clothing_Shop_Website.Models.Advertisement>
+@if (Model.Count > 0)
+{
+    <div class="nav-ad-strip" aria-label="Quảng cáo">
+        @foreach (var ad in Model)
+        {
+            var link = ad.ProductID.HasValue
+                ? Url.Action("Detail", "Product", new { id = ad.ProductID })
+                : Url.Action("Index", "Home");
+            <a href="@link" class="nav-ad-item" title="@ad.Title">
+                <img src="@ad.ImageUrl" alt="@ad.Title" />
+                @if (!string.IsNullOrWhiteSpace(ad.Title))
+                {
+                    <span class="nav-ad-label">@ad.Title</span>
+                }
+            </a>
+        }
+    </div>
+}

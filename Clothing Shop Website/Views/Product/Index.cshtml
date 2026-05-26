@@ -22,28 +22,9 @@
     <h1 class="page-title">Tất cả <em>sản phẩm</em></h1>
 </div>
 
-@{
-    var sidebarAds = ViewBag.SidebarAds as List<Clothing_Shop_Website.Models.Advertisement> ?? new();
-}
-
 <div class="shop-layout">
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        @if (sidebarAds.Count > 0)
-        {
-            <div class="shop-sidebar-ads">
-                @foreach (var ad in sidebarAds)
-                {
-                    <div class="shop-sidebar-ad">
-                        <img src="@ad.ImageUrl" alt="@ad.Title" />
-                        @if (!string.IsNullOrWhiteSpace(ad.Title))
-                        {
-                            <span class="shop-sidebar-ad-title">@ad.Title</span>
-                        }
-                    </div>
-                }
-            </div>
-        }
         <form method="get" asp-controller="Product" asp-action="Index" id="filterForm">
             <div class="filter-hdr">
                 <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>

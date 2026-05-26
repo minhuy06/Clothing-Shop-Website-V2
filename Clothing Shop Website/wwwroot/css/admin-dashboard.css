@@ -16,12 +16,18 @@
     gap: 14px;
 }
 
-.admin-nav-logo {
+.admin-nav-logo,
+a.admin-nav-logo {
     font-family: var(--font-d);
     font-size: 18px;
     letter-spacing: 8px;
     color: var(--white);
+    transition: color 0.2s;
 }
+
+    a.admin-nav-logo:hover {
+        color: var(--gold);
+    }
 
 .admin-nav-sep {
     color: rgba(250,248,242,.2);

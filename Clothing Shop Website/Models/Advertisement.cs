@@ -21,6 +21,9 @@ namespace Clothing_Shop_Website.Models
         [MaxLength(20)]
         public string Position { get; set; } = "banner";
 
+        /// <summary>Ô banner trên trang chủ (1–7). Chỉ dùng khi Position = banner.</summary>
+        public int? SlotIndex { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;

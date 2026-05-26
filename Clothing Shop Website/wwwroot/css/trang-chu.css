@@ -652,46 +652,22 @@
     line-height: 1.7;
 }
 
-/* ── Quảng cáo trang chủ ── */
-.hero-block {
-    position: relative;
-}
-
-.home-sidebar-ads {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 140px;
-    pointer-events: none;
-}
-
-.home-sidebar-ad {
-    border: 1px solid rgba(201,168,76,0.35);
-    background: rgba(5,4,2,0.75);
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-}
-
-    .home-sidebar-ad img {
-        display: block;
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        aspect-ratio: 3/4;
-    }
-
-.home-sidebar-ad-title {
+/* Ô quảng cáo banner — link phủ full ô */
+.ca > a,
+.cm > a,
+.cr > a,
+.sr-cell > a {
     display: block;
-    padding: 6px 8px;
-    font-size: 9px;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-align: center;
+    position: absolute;
+    inset: 0;
+    color: inherit;
+}
+
+.ca,
+.cm,
+.cr,
+.sr-cell {
+    position: relative;
 }
 
 .ad-popup {
@@ -762,8 +738,3 @@
         color: var(--gold);
     }
 
-@media (max-width: 900px) {
-    .home-sidebar-ads {
-        display: none;
-    }
-}

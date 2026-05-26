@@ -2,7 +2,13 @@
 @{
     ViewData["Title"] = "Quảng cáo";
     Layout = null;
+    var products = ViewBag.Products as List<Clothing_Shop_Website.Models.Product> ?? new();
     string PosLabel(string p) => p switch { "banner" => "Banner", "popup" => "Popup", "sidebar" => "Sidebar", _ => p };
+    string SlotLabel(int? s) => s switch {
+        1 => "Ô 1 — Đại sứ", 2 => "Ô 2 — Giữa trên", 3 => "Ô 3 — Giữa dưới",
+        4 => "Ô 4 — Cột phải", 5 => "Ô 5 — Hàng 2 trái", 6 => "Ô 6 — Hàng 2 giữa",
+        7 => "Ô 7 — Hàng 2 phải", _ => ""
+    };
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -19,7 +25,7 @@
 <body>
 <div class="toast" id="toast"></div>
 <nav class="admin-nav">
-    <span class="admin-nav-logo">NEVA</span><span class="admin-nav-sep">|</span><span class="admin-nav-badge">Admin</span>
+    <a asp-controller="Home" asp-action="Index" class="admin-nav-logo">NEVA</a><span class="admin-nav-sep">|</span><span class="admin-nav-badge">Admin</span>
 </nav>
 <div class="admin-wrap">
     <aside class="admin-sidebar">
@@ -87,8 +93,16 @@
                             <div class="ad-title" title="@ad.Title">@ad.Title</div>
                             <div class="ad-meta">
                                 <span class="ad-pos-badge">@PosLabel(ad.Position)</span>
+                                @if (ad.Position == "banner" && ad.SlotIndex.HasValue)
+                                {
+                                    <span class="ad-pos-badge">@SlotLabel(ad.SlotIndex)</span>
+                                }
                                 <span class="ad-active-badge @(ad.IsActive ? "on" : "off")">@(ad.IsActive ? "Đang hiện" : "Ẩn")</span>
                             </div>
+                            @if (ad.Product != null)
+                            {
+                                <div style="font-size:9px;color:rgba(201,168,76,.55);margin-bottom:6px;letter-spacing:.5px">SP: @ad.Product.ProductName</div>
+                            }
                             <div style="font-size:9px;color:rgba(250,248,242,.25);margin-bottom:10px;letter-spacing:.5px">
                                 Tạo: @ad.CreatedDate.ToString("dd/MM/yyyy")
                             </div>
@@ -132,16 +146,40 @@
 
                 <label>Vị trí</label>
                 <select name="position" id="adPosition" class="modal-inp" required>
-                    <option value="banner">Banner (đầu trang)</option>
+                    <option value="banner">Banner (7 ô ảnh trang chủ)</option>
                     <option value="popup">Popup (khi mở trang)</option>
-                    <option value="sidebar">Sidebar (bên cạnh)</option>
+                    <option value="sidebar">Sidebar (dưới menu)</option>
                 </select>
+
+                <div id="adBannerSlotRow" class="modal-grid" style="display:contents">
+                    <label>Ô banner</label>
+                    <select name="slotIndex" id="adBannerSlot" class="modal-inp">
+                        <option value="1">Ô 1 — Đại sứ (trái lớn)</option>
+                        <option value="2">Ô 2 — Giữa trên</option>
+                        <option value="3">Ô 3 — Giữa dưới</option>
+                        <option value="4">Ô 4 — Cột phải</option>
+                        <option value="5">Ô 5 — Hàng 2 trái</option>
+                        <option value="6">Ô 6 — Hàng 2 giữa</option>
+                        <option value="7">Ô 7 — Hàng 2 phải</option>
+                    </select>
+                </div>
+
+                <div id="adProductRow" class="modal-grid" style="display:contents">
+                    <label>Sản phẩm</label>
+                    <select name="productId" id="adProductId" class="modal-inp">
+                        <option value="">— Không liên kết —</option>
+                        @foreach (var p in products)
+                        {
+                            <option value="@p.ProductID">@p.ProductName · @string.Format("{0:N0}đ", p.Price)</option>
+                        }
+                    </select>
+                </div>
 
                 <label>Ảnh quảng cáo</label>
                 <div>
                     <div class="dropzone" id="adDropzone">
                         <input type="file" name="imageFile" id="adImageFile" accept="image/*" hidden required />
-                        <span>Kéo thả hoặc bấm để chọn ảnh · <em id="adCropRatioHint" style="font-style:normal;color:rgba(201,168,76,.7)">Banner 16:9</em></span>
+                        <span>Kéo thả hoặc bấm để chọn ảnh · <em id="adCropRatioHint" style="font-style:normal;color:rgba(201,168,76,.7)">Ô 1 — Đại sứ (dọc)</em></span>
                     </div>
                     <div id="adImgPreview" style="margin-top:8px;display:none">
                         <img id="adPreviewImg" style="max-width:100%;max-height:120px;object-fit:contain;border:1px solid var(--border)" />
@@ -152,9 +190,9 @@
             <!-- Ghi chú hiển thị -->
             <div style="padding:0 18px 14px;font-size:10px;color:rgba(250,248,242,.35);letter-spacing:1px;line-height:1.8">
                 <strong style="color:rgba(201,168,76,.6)">Ghi chú vị trí:</strong><br>
-                · <strong>Banner</strong> — Thanh banner ngang trên đầu trang chủ<br>
-                · <strong>Popup</strong> — Hộp thoại hiện khi khách hàng mở trang lần đầu<br>
-                · <strong>Sidebar</strong> — Cột quảng cáo bên cạnh danh sách sản phẩm
+                · <strong>Banner</strong> — Một trong 7 ô ảnh lưới trang chủ (chọn ô + cắt đúng tỷ lệ)<br>
+                · <strong>Popup</strong> — Hộp thoại khi mở trang chủ lần đầu<br>
+                · <strong>Sidebar</strong> — Dải nhỏ ngay dưới menu NEVA
             </div>
 
             <div class="modal-actions">

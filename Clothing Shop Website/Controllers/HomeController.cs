@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,18 +24,14 @@ namespace Clothing_Shop_Website.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var active = await _db.Advertisements
-                .Where(a => a.IsActive && a.ImageUrl != null && a.ImageUrl != "")
+            var popupAd = await _db.Advertisements
+                .Include(a => a.Product)
+                .Where(a => a.IsActive && a.Position == "popup"
+                    && a.ImageUrl != null && a.ImageUrl != "")
                 .OrderByDescending(a => a.CreatedDate)
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            var vm = new HomeIndexViewModel
-            {
-                BannerAds = active.Where(a => a.Position == "banner").ToList(),
-                PopupAd = active.FirstOrDefault(a => a.Position == "popup"),
-                SidebarAds = active.Where(a => a.Position == "sidebar").ToList()
-            };
-            return View(vm);
+            return View(new HomeIndexViewModel { PopupAd = popupAd });
         }
 
         public IActionResult Privacy()

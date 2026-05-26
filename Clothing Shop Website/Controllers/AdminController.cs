@@ -844,11 +844,40 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(a => a.Position == "popup" || a.Position == "sidebar")
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
-            ViewBag.Products = await _db.Products
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.ProductName)
-                .ToListAsync();
             return View(ads);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchProductsForAd(string? q)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            var query = _db.Products.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                if (int.TryParse(term, out var pid))
+                    query = query.Where(p => p.ProductID == pid || p.ProductName.Contains(term));
+                else
+                    query = query.Where(p => p.ProductName.Contains(term));
+            }
+
+            var items = await query
+                .OrderBy(p => p.ProductName)
+                .Take(25)
+                .Select(p => new
+                {
+                    id = p.ProductID,
+                    name = p.ProductName,
+                    price = p.Price,
+                    category = p.Category != null ? p.Category.CategoryName : "",
+                    status = p.Status,
+                    image = p.ImageUrl
+                })
+                .ToListAsync();
+
+            return Json(items);
         }
 
         [HttpPost]

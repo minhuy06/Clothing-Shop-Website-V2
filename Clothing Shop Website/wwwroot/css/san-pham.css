@@ -378,6 +378,12 @@
     transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
 }
 
+a.pcard-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
     .pcard:hover {
         transform: translateY(-5px);
         z-index: 2;

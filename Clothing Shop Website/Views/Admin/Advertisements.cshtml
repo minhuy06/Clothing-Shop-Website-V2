@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "Quảng cáo";
     Layout = null;
-    var products = ViewBag.Products as List<Clothing_Shop_Website.Models.Product> ?? new();
     string PosLabel(string p) => p switch { "popup" => "Popup", "sidebar" => "Sidebar", _ => p };
 }
 <!DOCTYPE html>
@@ -141,14 +140,16 @@
                     <option value="sidebar">Sidebar (dưới menu)</option>
                 </select>
 
-                <label>Sản phẩm</label>
-                <select name="productId" id="adProductId" class="modal-inp">
-                    <option value="">— Không liên kết —</option>
-                    @foreach (var p in products)
-                    {
-                        <option value="@p.ProductID">@p.ProductName · @string.Format("{0:N0}đ", p.Price)</option>
-                    }
-                </select>
+                <label>Sản phẩm (ProductID)</label>
+                <div class="ad-product-picker">
+                    <input type="text" id="adProductSearch" class="modal-inp" placeholder="Tìm tên hoặc mã sản phẩm..." autocomplete="off" />
+                    <input type="hidden" name="productId" id="adProductId" value="" />
+                    <div id="adProductResults" class="ad-product-results" hidden></div>
+                    <div id="adProductSelected" class="ad-product-selected" hidden>
+                        <span id="adProductSelectedText"></span>
+                        <button type="button" id="adProductClear" class="ad-product-clear">×</button>
+                    </div>
+                </div>
 
                 <label>Ảnh quảng cáo</label>
                 <div>
@@ -198,5 +199,6 @@
 <script src="~/js/neva-base.js" asp-append-version="true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="~/js/admin-ad-image.js" asp-append-version="true"></script>
+<script src="~/js/admin-ad-product.js" asp-append-version="true"></script>
 </body>
 </html>

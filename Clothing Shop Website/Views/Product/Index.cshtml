@@ -117,20 +117,24 @@
         <div class="products-grid">
             @if (!Model.Any())
             {
-                <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(250,248,242,.2)">
-                    <p>Không tìm thấy sản phẩm phù hợp</p>
+                <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(250,248,242,.35)">
+                    <p style="margin-bottom:8px">Không có sản phẩm hiển thị</p>
+                    <p style="font-size:11px;letter-spacing:1px">Đảm bảo đã nạp dữ liệu và sản phẩm có trạng thái hiển thị (Status = 1)</p>
                 </div>
             }
             @foreach (var p in Model)
             {
-                <div class="pcard">
+                var img = string.IsNullOrWhiteSpace(p.ImageUrl)
+                    ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80"
+                    : p.ImageUrl;
+                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductID" class="pcard pcard-link">
                     <div class="pthumb">
                         <div class="pimg-inner">
-                            <img src="@p.ImageUrl" alt="@p.ProductName" loading="lazy"
-                                onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
+                            <img src="@img" alt="@p.ProductName" loading="lazy"
+                                onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'">
                         </div>
 
-                        <div class="pquick" onclick="openModal(@p.ProductID)">
+                        <div class="pquick" onclick="event.preventDefault();event.stopPropagation();openModal(@p.ProductID)">
                             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
                             Xem nhanh
                         </div>
@@ -149,7 +153,7 @@
                             }
                         </div>
                     </div>
-                </div>
+                </a>
             }
         </div>
     </main>
@@ -243,7 +247,8 @@
             const sz = document.querySelector('.msz.on');
             if (!sz) { alert('Vui lòng chọn size!'); return; }
             closeMo();
-            alert('Đã thêm vào giỏ hàng!');
+            if (typeof nevaToast === 'function') nevaToast('Đã thêm vào giỏ hàng!', 'ok');
+            else alert('Đã thêm vào giỏ hàng!');
         }
 
         function doSort(val) {
@@ -273,5 +278,4 @@
             }
         }
     </script>
-    <script src="~/js/san-pham.js" asp-append-version="true"></script>
 }

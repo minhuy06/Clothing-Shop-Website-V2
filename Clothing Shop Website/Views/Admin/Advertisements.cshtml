@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true"/>
 <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true"/>
 <link rel="stylesheet" href="~/css/admin-staff.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/admin-sanpham.css" asp-append-version="true"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -87,12 +89,6 @@
                                 <span class="ad-pos-badge">@PosLabel(ad.Position)</span>
                                 <span class="ad-active-badge @(ad.IsActive ? "on" : "off")">@(ad.IsActive ? "Đang hiện" : "Ẩn")</span>
                             </div>
-                            @if (!string.IsNullOrEmpty(ad.LinkUrl))
-                            {
-                                <div style="font-size:9px;letter-spacing:1px;color:rgba(250,248,242,.3);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="@ad.LinkUrl">
-                                    🔗 @ad.LinkUrl
-                                </div>
-                            }
                             <div style="font-size:9px;color:rgba(250,248,242,.25);margin-bottom:10px;letter-spacing:.5px">
                                 Tạo: @ad.CreatedDate.ToString("dd/MM/yyyy")
                             </div>
@@ -135,20 +131,17 @@
                 <input type="text" name="title" class="modal-inp" required placeholder="VD: Sale hè 50% giảm" maxlength="200" />
 
                 <label>Vị trí</label>
-                <select name="position" class="modal-inp">
+                <select name="position" id="adPosition" class="modal-inp" required>
                     <option value="banner">Banner (đầu trang)</option>
                     <option value="popup">Popup (khi mở trang)</option>
                     <option value="sidebar">Sidebar (bên cạnh)</option>
                 </select>
 
-                <label>Link URL</label>
-                <input type="url" name="linkUrl" class="modal-inp" placeholder="https://... (tùy chọn)" />
-
                 <label>Ảnh quảng cáo</label>
                 <div>
                     <div class="dropzone" id="adDropzone">
-                        <input type="file" name="imageFile" id="adImageFile" accept="image/*" hidden />
-                        <span>Kéo thả hoặc bấm để chọn ảnh</span>
+                        <input type="file" name="imageFile" id="adImageFile" accept="image/*" hidden required />
+                        <span>Kéo thả hoặc bấm để chọn ảnh · <em id="adCropRatioHint" style="font-style:normal;color:rgba(201,168,76,.7)">Banner 16:9</em></span>
                     </div>
                     <div id="adImgPreview" style="margin-top:8px;display:none">
                         <img id="adPreviewImg" style="max-width:100%;max-height:120px;object-fit:contain;border:1px solid var(--border)" />
@@ -173,34 +166,25 @@
     </div>
 </div>
 
+<!-- MODAL CẮT ẢNH QUẢNG CÁO -->
+<div id="adCropMo" class="modal-overlay crop-overlay">
+    <div class="crop-box">
+        <div class="crop-hdr">
+            <span>Cắt ảnh quảng cáo</span>
+            <button type="button" class="modal-x" id="adCropCancel">×</button>
+        </div>
+        <div class="crop-body">
+            <img id="adCropImg" alt="" />
+        </div>
+        <div class="crop-foot">
+            <button type="button" class="btn-outline" id="adCropCancel2">Hủy</button>
+            <button type="button" class="btn-gold" id="adCropApply">Áp dụng</button>
+        </div>
+    </div>
+</div>
+
 <script src="~/js/neva-base.js" asp-append-version="true"></script>
-<script>
-// Dropzone + preview ảnh
-(function(){
-    const dz = document.getElementById('adDropzone');
-    const fi = document.getElementById('adImageFile');
-    const prev = document.getElementById('adImgPreview');
-    const img = document.getElementById('adPreviewImg');
-    if (!dz || !fi) return;
-    dz.addEventListener('click', () => fi.click());
-    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dz-over'); });
-    dz.addEventListener('dragleave', () => dz.classList.remove('dz-over'));
-    dz.addEventListener('drop', e => {
-        e.preventDefault();
-        dz.classList.remove('dz-over');
-        const f = e.dataTransfer.files?.[0];
-        if (f) { fi.files = e.dataTransfer.files; showPreview(f); }
-    });
-    fi.addEventListener('change', () => {
-        if (fi.files?.[0]) showPreview(fi.files[0]);
-    });
-    function showPreview(file) {
-        dz.querySelector('span').textContent = file.name;
-        const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; prev.style.display = 'block'; };
-        reader.readAsDataURL(file);
-    }
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="~/js/admin-ad-image.js" asp-append-version="true"></script>
 </body>
 </html>

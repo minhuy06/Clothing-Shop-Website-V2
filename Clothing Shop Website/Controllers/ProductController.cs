@@ -69,6 +69,11 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.MaxPrice = maxPrice;
             ViewBag.Sort = sort;
 
+            ViewBag.SidebarAds = await _db.Advertisements
+                .Where(a => a.IsActive && a.Position == "sidebar" && a.ImageUrl != null && a.ImageUrl != "")
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
+
             return View(products);
         }
 

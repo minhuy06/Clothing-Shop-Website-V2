@@ -651,3 +651,119 @@
     color: rgba(250,248,242,0.5);
     line-height: 1.7;
 }
+
+/* ── Quảng cáo trang chủ ── */
+.hero-block {
+    position: relative;
+}
+
+.home-sidebar-ads {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 140px;
+    pointer-events: none;
+}
+
+.home-sidebar-ad {
+    border: 1px solid rgba(201,168,76,0.35);
+    background: rgba(5,4,2,0.75);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+
+    .home-sidebar-ad img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        aspect-ratio: 3/4;
+    }
+
+.home-sidebar-ad-title {
+    display: block;
+    padding: 6px 8px;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+}
+
+.ad-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+    .ad-popup[hidden] {
+        display: none !important;
+    }
+
+.ad-popup-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,4,2,0.82);
+    backdrop-filter: blur(4px);
+}
+
+.ad-popup-box {
+    position: relative;
+    z-index: 1;
+    max-width: min(420px, 92vw);
+    border: 1px solid rgba(201,168,76,0.4);
+    background: var(--dark2);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+    .ad-popup-box img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        aspect-ratio: 4/5;
+    }
+
+.ad-popup-title {
+    margin: 0;
+    padding: 12px 16px 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--gold);
+}
+
+.ad-popup-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(250,248,242,0.25);
+    background: rgba(5,4,2,0.6);
+    color: var(--cream);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .ad-popup-close:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+
+@media (max-width: 900px) {
+    .home-sidebar-ads {
+        display: none;
+    }
+}

@@ -26,3 +26,22 @@ dots.forEach((d, i) => {
         slideTimer = setInterval(nextSlide, 5000);
     });
 });
+
+// ── Popup quảng cáo (lần đầu mở trang / quảng cáo mới) ──
+(function () {
+    const popup = document.getElementById('adPopup');
+    if (!popup) return;
+    const adId = popup.getAttribute('data-ad-id');
+    const key = 'neva_popup_dismissed_' + adId;
+    if (sessionStorage.getItem(key)) return;
+
+    popup.removeAttribute('hidden');
+
+    function closePopup() {
+        popup.setAttribute('hidden', '');
+        sessionStorage.setItem(key, '1');
+    }
+
+    popup.querySelector('.ad-popup-close')?.addEventListener('click', closePopup);
+    popup.querySelector('.ad-popup-backdrop')?.addEventListener('click', closePopup);
+})();

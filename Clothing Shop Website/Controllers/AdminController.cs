@@ -845,24 +845,43 @@ namespace Clothing_Shop_Website.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddAdvertisement(string title, string? linkUrl, string position, IFormFile? imageFile)
+        public async Task<IActionResult> AddAdvertisement(string title, string position, IFormFile? imageFile)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            // SỬ DỤNG HELPER
+            if (imageFile == null || imageFile.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn và cắt ảnh quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            var pos = (position ?? "banner").Trim().ToLowerInvariant();
+            if (pos is not ("banner" or "popup" or "sidebar"))
+                pos = "banner";
+
+            var removedSamples = await AdvertisementHelper.RemoveSampleAdvertisementsAsync(_db);
             var imageUrl = await FileHelper.UploadImageAsync(imageFile, "ads", _env);
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                TempData["Error"] = "Không thể tải ảnh lên. Vui lòng thử lại.";
+                return RedirectToAction("Advertisements");
+            }
 
             _db.Advertisements.Add(new Advertisement
             {
                 Title = (title ?? "").Trim(),
                 ImageUrl = imageUrl,
-                LinkUrl = linkUrl?.Trim(),
-                Position = position ?? "banner",
+                LinkUrl = null,
+                Position = pos,
                 IsActive = true,
                 CreatedDate = DateTime.Now
             });
             await _db.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm quảng cáo!";
+
+            var msg = "Đã thêm quảng cáo!";
+            if (removedSamples > 0)
+                msg += $" (Đã xóa {removedSamples} quảng cáo mẫu.)";
+            TempData["Success"] = msg;
             return RedirectToAction("Advertisements");
         }
 

@@ -59,7 +59,6 @@ namespace Clothing_Shop_Website.Controllers
 
             var products = await query.ToListAsync();
 
-            ViewBag.TotalInDb = await _db.Products.CountAsync();
             ViewBag.Categories = await _db.Categories.ToListAsync();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;

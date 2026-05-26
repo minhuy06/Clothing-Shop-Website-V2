@@ -1,22 +1,25 @@
 ﻿/* ── LAYOUT ── */
 .shop-layout {
     display: flex;
+    align-items: flex-start;
     min-height: calc(100vh - var(--nav-h));
 }
 
-/* ── SIDEBAR ── */
+/* ── SIDEBAR — dính theo khi cuộn trang ── */
 .sidebar {
     width: 272px;
     flex-shrink: 0;
+    align-self: flex-start;
     background: var(--dark);
     border-right: 1px solid var(--border);
     padding: 24px 18px;
     position: sticky;
     top: var(--nav-h);
-    height: calc(100vh - var(--nav-h));
+    max-height: calc(100vh - var(--nav-h));
     overflow-x: hidden;
     overflow-y: auto;
     box-sizing: border-box;
+    z-index: 10;
 }
 
     .sidebar form {

@@ -25,7 +25,7 @@ namespace Clothing_Shop_Website
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
         {
             // Kết nối Database
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -50,7 +50,9 @@ namespace Clothing_Shop_Website
                 options.Cookie.IsEssential = true;
             });
 
-            services.AddControllersWithViews();
+            var mvcBuilder = services.AddControllersWithViews();
+            if (env.IsDevelopment())
+                mvcBuilder.AddRazorRuntimeCompilation();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

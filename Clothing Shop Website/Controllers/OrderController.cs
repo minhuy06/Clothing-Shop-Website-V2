@@ -114,7 +114,21 @@ namespace Clothing_Shop_Website.Controllers
                 pointsUsed = usePoints;
             }
 
-            decimal total = subtotal + shipping - discount - pointsDiscount;
+            // Giảm theo hạng thành viên (tính theo chi tiêu trong năm, reset mỗi năm)
+            var year = MembershipTierHelper.CurrentYear;
+            var yearStart = new DateTime(year, 1, 1);
+            var nextYearStart = yearStart.AddYears(1);
+            var yearlySpend = await _db.Orders.AsNoTracking()
+                .Where(o => o.UserID == userId
+                            && o.Status != (int)OrderStatus.Cancelled
+                            && o.OrderDate >= yearStart && o.OrderDate < nextYearStart)
+                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+
+            var tierAfterThisOrder = MembershipTierHelper.GetTierFromYearlySpend(yearlySpend + subtotal);
+            var tierRate = MembershipTierHelper.GetDiscountRate(tierAfterThisOrder);
+            var tierDiscount = MembershipTierHelper.ClampDiscount((subtotal + shipping) * tierRate, subtotal + shipping);
+
+            decimal total = subtotal + shipping - discount - pointsDiscount - tierDiscount;
 
             // Bắt đầu Transaction để bảo toàn dữ liệu (tránh lỗi cấn trừ kho)
             await using var tx = await _db.Database.BeginTransactionAsync();
@@ -154,6 +168,10 @@ namespace Clothing_Shop_Website.Controllers
 
                 user.RewardPoints -= pointsUsed;
                 user.RewardPoints += (int)(total / 10000);
+
+                // Cập nhật hạng thành viên theo năm hiện tại
+                if (user.CustomerDetail != null)
+                    user.CustomerDetail.MembershipTier = tierAfterThisOrder;
 
                 _db.CartItems.RemoveRange(cartItems);
 

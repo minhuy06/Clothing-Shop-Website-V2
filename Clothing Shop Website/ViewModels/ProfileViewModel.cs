@@ -11,6 +11,8 @@ namespace Clothing_Shop_Website.ViewModels
         public DateTime? DateOfBirth { get; set; }
         public int Gender { get; set; }
         public int RewardPoints { get; set; }
+        public string MembershipTier { get; set; } = "Thường";
+        public decimal YearlySpend { get; set; }
         public int Status { get; set; }
 
         // Tạo List chứa danh sách địa chỉ

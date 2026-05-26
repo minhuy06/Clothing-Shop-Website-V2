@@ -117,6 +117,22 @@ namespace Clothing_Shop_Website.Controllers
 
             if (user == null) return NotFound();
 
+            var year = MembershipTierHelper.CurrentYear;
+            var yearStart = new DateTime(year, 1, 1);
+            var nextYearStart = yearStart.AddYears(1);
+            var yearlySpend = await _db.Orders.AsNoTracking()
+                .Where(o => o.UserID == userId
+                            && o.Status != (int)OrderStatus.Cancelled
+                            && o.OrderDate >= yearStart && o.OrderDate < nextYearStart)
+                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+
+            var computedTier = MembershipTierHelper.GetTierFromYearlySpend(yearlySpend);
+            if (user.CustomerDetail != null && user.CustomerDetail.MembershipTier != computedTier)
+            {
+                user.CustomerDetail.MembershipTier = computedTier;
+                await _db.SaveChangesAsync();
+            }
+
             var model = new ProfileViewModel
             {
                 FullName = user.FullName,
@@ -124,6 +140,8 @@ namespace Clothing_Shop_Website.Controllers
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 RewardPoints = user.RewardPoints,
+                MembershipTier = computedTier,
+                YearlySpend = yearlySpend,
                 Status = user.Status,
                 UserAddresses = user.UserAddresses
                     .OrderByDescending(a => a.IsDefault)

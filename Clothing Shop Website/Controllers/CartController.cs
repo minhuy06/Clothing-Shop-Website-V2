@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -28,10 +28,7 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
-            var rewardPoints = await RewardPointsHelper.GetPointsAsync(_db, userId.Value);
-            RewardPointsHelper.SyncSession(HttpContext.Session, rewardPoints);
-
-            ViewBag.RewardPoints = rewardPoints;
+            ViewBag.RewardPoints = RewardPointsHelper.GetPoints(HttpContext.Session);
             ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
             ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
 

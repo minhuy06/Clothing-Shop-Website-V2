@@ -40,9 +40,7 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.Total = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
             ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
             ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
-            var rewardPoints = await RewardPointsHelper.GetPointsAsync(_db, userId.Value);
-            RewardPointsHelper.SyncSession(HttpContext.Session, rewardPoints);
-            ViewBag.RewardPoints = rewardPoints;
+            ViewBag.RewardPoints = RewardPointsHelper.GetPoints(HttpContext.Session);
 
             return View();
         }

@@ -1,25 +1,23 @@
 ﻿/* ── LAYOUT ── */
 .shop-layout {
-    display: flex;
-    align-items: flex-start;
+    display: block;
     min-height: calc(100vh - var(--nav-h));
 }
 
-/* ── SIDEBAR — dính theo khi cuộn trang ── */
+/* ── SIDEBAR — cố định bên trái khi cuộn ── */
 .sidebar {
     width: 272px;
-    flex-shrink: 0;
-    align-self: flex-start;
+    position: fixed;
+    left: 0;
+    top: var(--nav-h);
+    height: calc(100vh - var(--nav-h));
     background: var(--dark);
     border-right: 1px solid var(--border);
     padding: 24px 18px;
-    position: sticky;
-    top: var(--nav-h);
-    max-height: calc(100vh - var(--nav-h));
     overflow-x: hidden;
     overflow-y: auto;
     box-sizing: border-box;
-    z-index: 10;
+    z-index: 40;
 }
 
     .sidebar form {
@@ -285,8 +283,15 @@
 
 /* ── MAIN ── */
 .shop-main {
-    flex: 1;
-    padding: 22px 34px;
+    margin-left: 272px;
+    padding: 22px 34px 48px;
+    min-width: 0;
+}
+
+.page-banner--in-shop {
+    margin: -22px -34px 28px;
+    padding-left: 34px;
+    padding-right: 34px;
 }
 
 .toolbar {
@@ -401,16 +406,16 @@
 }
 
 .pcard {
+    cursor: pointer;
     background: var(--dark2);
     position: relative;
     overflow: hidden;
     transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
 }
 
-a.pcard-link {
-    display: block;
-    color: inherit;
-    text-decoration: none;
+.pcard:focus-visible {
+    outline: 1px solid rgba(201, 168, 76, 0.5);
+    outline-offset: 2px;
 }
 
 .pstatus-badge {
@@ -904,10 +909,34 @@ a.pcard-link {
     cursor: pointer;
 }
 
-    .msz:hover, .msz.on {
+    .msz:hover:not(:disabled), .msz.on {
         background: var(--gold);
         color: var(--black);
         border-color: var(--gold);
+    }
+
+    .msz:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+.m-no-size {
+    font-size: 12px;
+    color: rgba(250, 248, 242, 0.45);
+}
+
+.m-detail-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    transition: opacity 0.2s;
+}
+
+    .m-detail-link:hover {
+        opacity: 0.75;
     }
 
 .m-colors {

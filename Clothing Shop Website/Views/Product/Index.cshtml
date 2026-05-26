@@ -1,285 +1,239 @@
-@model List<Clothing_Shop_Website.Models.Product>
-@{
-    ViewData["Title"] = "Bộ sưu tập";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    string GetSeason(int s) => s switch {
-        1 => "Xuân", 2 => "Hạ", 3 => "Thu", 4 => "Đông", _ => ""
-    };
-}
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/san-pham.css" asp-append-version="true" />
-}
-
-<!-- PAGE BANNER -->
-<div class="page-banner">
-    <div class="page-banner-bg">NEVA</div>
-    <div class="breadcrumb">
-        <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-        <span>›</span>
-        <span style="color:var(--gold)">Bộ sưu tập</span>
-    </div>
-    <h1 class="page-title">Tất cả <em>sản phẩm</em></h1>
-</div>
-
-<div class="shop-layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <form method="get" asp-controller="Product" asp-action="Index" id="filterForm">
-            <div class="filter-hdr">
-                <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
-                Bộ lọc
-            </div>
-
-            <!-- Tìm kiếm -->
-            <div class="fg">
-                <div class="fg-title">Tìm kiếm</div>
-                <input type="text" name="search" value="@ViewBag.Search"
-                    class="price-in" placeholder="Tên sản phẩm..." style="width:100%">
-            </div>
-
-            <!-- Danh mục -->
-            <div class="fg">
-                <div class="fg-title">Danh mục</div>
-                @foreach (var cat in (List<Clothing_Shop_Website.Models.Category>)ViewBag.Categories)
-                {
-                    <div class="fc-item">
-                        <input type="radio" name="categoryId" value="@cat.CategoryID"
-                            id="cat_@cat.CategoryID"
-                            @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "checked" : "")
-                            style="display:none">
-                        <div class="fc-box @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "on" : "")"
-                            onclick="toggleCat(@cat.CategoryID, this)"></div>
-                        <label class="fc-label" for="cat_@cat.CategoryID">@cat.CategoryName</label>
-                    </div>
-                }
-            </div>
-
-            <!-- Mùa -->
-            <div class="fg">
-                <div class="fg-title">Mùa</div>
-                <div class="season-grid">
-                    @foreach (var (num, name) in new[] { (1,"Xuân"),(2,"Hạ"),(3,"Thu"),(4,"Đông") })
-                    {
-                        <button type="button"
-                            class="season-btn @(ViewBag.Session?.ToString() == num.ToString() ? "on" : "")"
-                            onclick="toggleSeason(@num, this)">@name</button>
-                    }
-                </div>
-                <input type="hidden" name="session" id="sessionInput" value="@ViewBag.Session">
-            </div>
-
-            <!-- Giá -->
-            <div class="fg">
-                <div class="fg-title">Khoảng giá</div>
-                <div class="price-inputs">
-                    <input class="price-in" type="number" name="minPrice" value="@ViewBag.MinPrice" placeholder="Từ">
-                    <span class="price-sep">—</span>
-                    <input class="price-in" type="number" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="Đến">
-                </div>
-            </div>
-
-            <button type="submit" class="btn-apply">Áp dụng bộ lọc</button>
-            <a asp-controller="Product" asp-action="Index" class="btn-reset"
-                style="display:block;text-align:center;margin-top:5px">Xóa tất cả</a>
-        </form>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="shop-main">
-        <div class="toolbar">
-            <div class="result-info">
-                Hiển thị <strong>@Model.Count</strong> sản phẩm
-            </div>
-            <div class="toolbar-right">
-                <span class="sort-label">Sắp xếp</span>
-                <select class="sort-sel" onchange="doSort(this.value)">
-                    @{
-                        var sortSel = ViewBag.Sort as string;
-                    }
-                    @if (sortSel == null)
-                    { <option value="" selected>Mới nhất</option> }
-                    else
-                    { <option value="">Mới nhất</option> }
-                    @if (sortSel == "price_asc")
-                    { <option value="price_asc" selected>Giá: Thấp → Cao</option> }
-                    else
-                    { <option value="price_asc">Giá: Thấp → Cao</option> }
-                    @if (sortSel == "price_desc")
-                    { <option value="price_desc" selected>Giá: Cao → Thấp</option> }
-                    else
-                    { <option value="price_desc">Giá: Cao → Thấp</option> }
-                </select>
-            </div>
-        </div>
-
-        <!-- PRODUCT GRID -->
-        <div class="products-grid">
-            @if (!Model.Any())
-            {
-                <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(250,248,242,.35)">
-                    <p style="margin-bottom:8px">Không có sản phẩm hiển thị</p>
-                    <p style="font-size:11px;letter-spacing:1px">Đảm bảo đã nạp dữ liệu và sản phẩm có trạng thái hiển thị (Status = 1)</p>
-                </div>
-            }
-            @foreach (var p in Model)
-            {
-                var img = string.IsNullOrWhiteSpace(p.ImageUrl)
-                    ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80"
-                    : p.ImageUrl;
-                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductID" class="pcard pcard-link">
-                    <div class="pthumb">
-                        @if (p.Status != 1)
-                        {
-                            <span class="pstatus-badge">Chưa hiển thị</span>
-                        }
-                        <div class="pimg-inner">
-                            <img src="@img" alt="@p.ProductName" loading="lazy"
-                                onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'">
-                        </div>
-
-                        <div class="pquick" onclick="event.preventDefault();event.stopPropagation();openModal(@p.ProductID)">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
-                            Xem nhanh
-                        </div>
-                    </div>
-                    <div class="pinfo">
-                        <div class="pcat">@p.Category?.CategoryName · @GetSeason(p.Session)</div>
-                        <div class="pname">@p.ProductName</div>
-                        <div class="price-row">
-                            <span class="price">@p.Price.ToString("N0")đ</span>
-
-                        </div>
-                        <div class="szrow">
-                            @foreach (var sz in p.ProductSizes.Take(4))
-                            {
-                                <span class="s">@sz.SizeName</span>
-                            }
-                        </div>
-                    </div>
-                </a>
-            }
-        </div>
-    </main>
-</div>
-
-<!-- MODAL XEM NHANH -->
-<div class="mo" id="mo" onclick="if(event.target===this)closeMo()">
-    <div class="modal">
-        <div class="mgallery">
-            <img id="mImg" src="" alt="">
-            <div class="mclose" onclick="closeMo()">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </div>
-        </div>
-        <div class="minfo">
-            <div class="m-cat" id="mCat"></div>
-            <div class="m-name" id="mName"></div>
-            <div class="m-prow">
-                <span class="m-price" id="mPrice"></span>
-                <span class="m-old"   id="mOld"></span>
-            </div>
-            <hr class="m-div">
-            <div class="m-lbl">Chọn size</div>
-            <div class="m-sizes" id="mSizes"></div>
-            <div class="m-lbl">Số lượng</div>
-            <div class="m-qty">
-                <button class="qbtn" type="button" onclick="chQty(-1)">−</button>
-                <input  class="qval" type="number" value="1" min="1" id="qtyIn">
-                <button class="qbtn" type="button" onclick="chQty(1)">+</button>
-            </div>
-            <button class="btn-cart" onclick="addCart()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Thêm vào giỏ hàng
-            </button>
-            <p class="m-desc" id="mDesc"></p>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        // Data từ Razor — lấy từ database thật!
-        const ALL_PRODUCTS = [
-            @foreach (var p in Model)
-            {
-                <text>{
-                    id:    @p.ProductID,
-                    cat:   '@Html.Raw((p.Category?.CategoryName ?? "").Replace("'","\\\'"))',
-                    name:  '@Html.Raw(p.ProductName.Replace("'","\\\'"))',
-                    price: @p.Price,
-                    old:   0,
-                    img:   '@p.ImageUrl',
-                    season:'@GetSeason(p.Session)',
-                    sizes: [@Html.Raw(string.Join(",", p.ProductSizes.Select(s => $"'{s.SizeName}'")))],
-                    desc:  '@Html.Raw((p.Description ?? "").Replace("'","\\\'"))'
-                },</text>
-            }
-        ];
-
-        function openModal(id) {
-            const p = ALL_PRODUCTS.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById('mImg').src   = p.img;
-            document.getElementById('mCat').textContent  = p.cat + ' · ' + p.season;
-            document.getElementById('mName').textContent = p.name;
-            document.getElementById('mPrice').textContent = p.price.toLocaleString('vi-VN') + 'đ';
-            document.getElementById('mOld').textContent   = p.old > p.price ? p.old.toLocaleString('vi-VN') + 'đ' : '';
-            document.getElementById('mDesc').textContent  = p.desc;
-            document.getElementById('mSizes').innerHTML   = p.sizes.map((s,i) =>
-                `<div class="msz ${i===0?'on':''}" onclick="selSize(this)">${s}</div>`).join('');
-            document.getElementById('mo').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMo() {
-            document.getElementById('mo').classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        function selSize(el) {
-            document.querySelectorAll('.msz').forEach(s => s.classList.remove('on'));
-            el.classList.add('on');
-        }
-
-        function chQty(d) {
-            const i = document.getElementById('qtyIn');
-            i.value = Math.max(1, parseInt(i.value) + d);
-        }
-
-        function addCart() {
-            const sz = document.querySelector('.msz.on');
-            if (!sz) { alert('Vui lòng chọn size!'); return; }
-            closeMo();
-            if (typeof nevaToast === 'function') nevaToast('Đã thêm vào giỏ hàng!', 'ok');
-            else alert('Đã thêm vào giỏ hàng!');
-        }
-
-        function doSort(val) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort', val);
-            window.location.href = url.toString();
-        }
-
-        function toggleCat(id, box) {
-            const input = document.getElementById('cat_' + id);
-            if (box.classList.contains('on')) {
-                box.classList.remove('on'); input.checked = false;
-            } else {
-                document.querySelectorAll('.fc-box').forEach(b => b.classList.remove('on'));
-                document.querySelectorAll('input[name="categoryId"]').forEach(i => i.checked = false);
-                box.classList.add('on'); input.checked = true;
-            }
-        }
-
-        function toggleSeason(num, btn) {
-            const input = document.getElementById('sessionInput');
-            if (btn.classList.contains('on')) {
-                btn.classList.remove('on'); input.value = '';
-            } else {
-                document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('on'));
-                btn.classList.add('on'); input.value = num;
-            }
-        }
-    </script>
-}
+@model List<Clothing_Shop_Website.Models.Product>
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Bộ sưu tập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string GetSeason(int s) => s switch {
+        1 => "Xuân", 2 => "Hạ", 3 => "Thu", 4 => "Đông", _ => ""
+    };
+    var productsJson = JsonSerializer.Serialize(Model.Select(p => new {
+        id = p.ProductID,
+        cat = p.Category?.CategoryName ?? "",
+        name = p.ProductName,
+        price = p.Price,
+        old = 0,
+        img = p.ImageUrl ?? "",
+        season = GetSeason(p.Session),
+        sizes = p.ProductSizes.Select(s => new { id = s.SizeID, name = s.SizeName, stock = s.StockQuantity }).ToList(),
+        desc = p.Description ?? ""
+    }));
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/san-pham.css" asp-append-version="true" />
+}
+
+<div class="shop-layout">
+    <!-- SIDEBAR — cố định khi cuộn -->
+    <aside class="sidebar" id="shopSidebar">
+        <form method="get" asp-controller="Product" asp-action="Index" id="filterForm">
+            <div class="filter-hdr">
+                <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                Bộ lọc
+            </div>
+
+            <div class="fg">
+                <div class="fg-title">Tìm kiếm</div>
+                <input type="text" name="search" value="@ViewBag.Search"
+                    class="price-in" placeholder="Tên sản phẩm..." style="width:100%">
+            </div>
+
+            <div class="fg">
+                <div class="fg-title">Danh mục</div>
+                @foreach (var cat in (List<Clothing_Shop_Website.Models.Category>)ViewBag.Categories)
+                {
+                    <div class="fc-item">
+                        <input type="radio" name="categoryId" value="@cat.CategoryID"
+                            id="cat_@cat.CategoryID"
+                            @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "checked" : "")
+                            style="display:none">
+                        <div class="fc-box @(ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString() ? "on" : "")"
+                            onclick="toggleCat(@cat.CategoryID, this)"></div>
+                        <label class="fc-label" for="cat_@cat.CategoryID">@cat.CategoryName</label>
+                    </div>
+                }
+            </div>
+
+            <div class="fg">
+                <div class="fg-title">Mùa</div>
+                <div class="season-grid">
+                    @foreach (var (num, name) in new[] { (1,"Xuân"),(2,"Hạ"),(3,"Thu"),(4,"Đông") })
+                    {
+                        <button type="button"
+                            class="season-btn @(ViewBag.Session?.ToString() == num.ToString() ? "on" : "")"
+                            onclick="toggleSeason(@num, this)">@name</button>
+                    }
+                </div>
+                <input type="hidden" name="session" id="sessionInput" value="@ViewBag.Session">
+            </div>
+
+            <div class="fg">
+                <div class="fg-title">Khoảng giá</div>
+                <div class="price-inputs">
+                    <input class="price-in" type="number" name="minPrice" value="@ViewBag.MinPrice" placeholder="Từ">
+                    <span class="price-sep">—</span>
+                    <input class="price-in" type="number" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="Đến">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-apply">Áp dụng bộ lọc</button>
+            <a asp-controller="Product" asp-action="Index" class="btn-reset"
+                style="display:block;text-align:center;margin-top:5px">Xóa tất cả</a>
+        </form>
+    </aside>
+
+    <main class="shop-main">
+        <div class="page-banner page-banner--in-shop">
+            <div class="page-banner-bg">NEVA</div>
+            <div class="breadcrumb">
+                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <span>›</span>
+                <span style="color:var(--gold)">Bộ sưu tập</span>
+            </div>
+            <h1 class="page-title">Tất cả <em>sản phẩm</em></h1>
+        </div>
+
+        <div class="toolbar">
+            <div class="result-info">
+                Hiển thị <strong>@Model.Count</strong> sản phẩm
+            </div>
+            <div class="toolbar-right">
+                <span class="sort-label">Sắp xếp</span>
+                <select class="sort-sel" onchange="doSort(this.value)">
+                    @{
+                        var sortSel = ViewBag.Sort as string;
+                    }
+                    @if (sortSel == null)
+                    { <option value="" selected>Mới nhất</option> }
+                    else
+                    { <option value="">Mới nhất</option> }
+                    @if (sortSel == "price_asc")
+                    { <option value="price_asc" selected>Giá: Thấp → Cao</option> }
+                    else
+                    { <option value="price_asc">Giá: Thấp → Cao</option> }
+                    @if (sortSel == "price_desc")
+                    { <option value="price_desc" selected>Giá: Cao → Thấp</option> }
+                    else
+                    { <option value="price_desc">Giá: Cao → Thấp</option> }
+                </select>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            @if (!Model.Any())
+            {
+                <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(250,248,242,.35)">
+                    <p style="margin-bottom:8px">Không có sản phẩm</p>
+                    <p style="font-size:11px;letter-spacing:1px">Thử đổi bộ lọc hoặc xóa tất cả</p>
+                </div>
+            }
+            @foreach (var p in Model)
+            {
+                var img = string.IsNullOrWhiteSpace(p.ImageUrl)
+                    ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80"
+                    : p.ImageUrl;
+                <article class="pcard" data-product-id="@p.ProductID" role="button" tabindex="0" aria-label="Xem @p.ProductName">
+                    <div class="pthumb">
+                        @if (p.Status != 1)
+                        {
+                            <span class="pstatus-badge">Chưa hiển thị</span>
+                        }
+                        <div class="pimg-inner">
+                            <img src="@img" alt="@p.ProductName" loading="lazy"
+                                onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'">
+                        </div>
+                        <div class="pquick" data-id="@p.ProductID" type="button">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+                            Xem nhanh
+                        </div>
+                    </div>
+                    <div class="pinfo">
+                        <div class="pcat">@p.Category?.CategoryName · @GetSeason(p.Session)</div>
+                        <div class="pname">@p.ProductName</div>
+                        <div class="price-row">
+                            <span class="price">@p.Price.ToString("N0")đ</span>
+                        </div>
+                        <div class="szrow">
+                            @foreach (var sz in p.ProductSizes.Take(4))
+                            {
+                                <span class="s">@sz.SizeName</span>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </main>
+</div>
+
+<!-- MODAL XEM NHANH -->
+<div class="mo" id="mo" onclick="if(event.target===this)closeMo()">
+    <div class="modal">
+        <div class="mgallery">
+            <img id="mImg" src="" alt="">
+            <div class="mclose" onclick="closeMo()" role="button" tabindex="0" aria-label="Đóng">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+        </div>
+        <div class="minfo">
+            <div class="m-cat" id="mCat"></div>
+            <div class="m-name" id="mName"></div>
+            <div class="m-prow">
+                <span class="m-price" id="mPrice"></span>
+                <span class="m-old" id="mOld"></span>
+            </div>
+            <hr class="m-div">
+            <div class="m-lbl">Chọn size</div>
+            <div class="m-sizes" id="mSizes"></div>
+            <div class="m-lbl">Số lượng</div>
+            <div class="m-qty">
+                <button class="qbtn" type="button" onclick="chQty(-1)">−</button>
+                <input class="qval" type="number" value="1" min="1" id="qtyIn">
+                <button class="qbtn" type="button" onclick="chQty(1)">+</button>
+            </div>
+            <button class="btn-cart" type="button" onclick="addCart()">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                Thêm vào giỏ hàng
+            </button>
+            <a id="mDetailLink" class="m-detail-link" href="#">Xem trang chi tiết →</a>
+            <p class="m-desc" id="mDesc"></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.ALL_PRODUCTS = @Html.Raw(productsJson);
+    </script>
+    <script src="~/js/san-pham-page.js" asp-append-version="true"></script>
+    <script>
+        function doSort(val) {
+            const url = new URL(window.location.href);
+            if (val) url.searchParams.set('sort', val);
+            else url.searchParams.delete('sort');
+            window.location.href = url.toString();
+        }
+
+        function toggleCat(id, box) {
+            const input = document.getElementById('cat_' + id);
+            if (box.classList.contains('on')) {
+                box.classList.remove('on'); input.checked = false;
+            } else {
+                document.querySelectorAll('.fc-box').forEach(b => b.classList.remove('on'));
+                document.querySelectorAll('input[name="categoryId"]').forEach(i => i.checked = false);
+                box.classList.add('on'); input.checked = true;
+            }
+        }
+
+        function toggleSeason(num, btn) {
+            const input = document.getElementById('sessionInput');
+            if (btn.classList.contains('on')) {
+                btn.classList.remove('on'); input.value = '';
+            } else {
+                document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('on'));
+                btn.classList.add('on'); input.value = num;
+            }
+        }
+    </script>
+}
+

@@ -21,8 +21,9 @@ namespace Clothing_Shop_Website.Controllers
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var items = await _db.CartItems
-                .Include(c => c.ProductSize)     // 💡 Đã đổi sang ProductSize
-                    .ThenInclude(s => s.Product) // 💡 Kéo ngược ra Product để lấy Tên/Ảnh
+                .Include(c => c.ProductSize)
+                    .ThenInclude(s => s.Product)
+                        .ThenInclude(p => p.Category)
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 

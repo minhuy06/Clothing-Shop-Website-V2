@@ -1,0 +1,135 @@
+// Trang bộ sưu tập — xem nhanh & thêm giỏ (dữ liệu từ ALL_PRODUCTS do Razor inject)
+(function () {
+    let currentProductId = null;
+
+    function imgFallback(url) {
+        if (!url || !String(url).trim()) {
+            return 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80';
+        }
+        return url;
+    }
+
+    window.openModal = function (id) {
+        const p = (window.ALL_PRODUCTS || []).find(x => x.id === id);
+        if (!p) return;
+
+        currentProductId = id;
+        document.getElementById('mImg').src = imgFallback(p.img);
+        document.getElementById('mImg').alt = p.name;
+        document.getElementById('mCat').textContent = (p.cat || '') + (p.season ? ' · ' + p.season : '');
+        document.getElementById('mName').textContent = p.name;
+        document.getElementById('mPrice').textContent = (p.price || 0).toLocaleString('vi-VN') + 'đ';
+        document.getElementById('mOld').textContent = p.old > p.price ? p.old.toLocaleString('vi-VN') + 'đ' : '';
+        document.getElementById('mDesc').textContent = p.desc || '';
+
+        const sizes = p.sizes || [];
+        const sizesEl = document.getElementById('mSizes');
+        if (!sizes.length) {
+            sizesEl.innerHTML = '<span class="m-no-size">Chưa có size</span>';
+        } else {
+            sizesEl.innerHTML = sizes.map(s => {
+                const out = s.stock <= 0;
+                return `<button type="button" class="msz" data-size-id="${s.id}" data-stock="${s.stock}" onclick="selSize(this)"${out ? ' disabled' : ''}>${s.name}</button>`;
+            }).join('');
+            const first = sizesEl.querySelector('.msz:not([disabled])');
+            if (first) first.classList.add('on');
+        }
+
+        document.getElementById('qtyIn').value = '1';
+        const link = document.getElementById('mDetailLink');
+        if (link) link.href = '/Product/Detail/' + id;
+
+        document.getElementById('mo').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeMo = function () {
+        document.getElementById('mo').classList.remove('open');
+        document.body.style.overflow = '';
+        currentProductId = null;
+    };
+
+    window.selSize = function (el) {
+        if (el.disabled || el.classList.contains('disabled')) return;
+        document.querySelectorAll('.msz').forEach(s => s.classList.remove('on'));
+        el.classList.add('on');
+    };
+
+    window.chQty = function (d) {
+        const i = document.getElementById('qtyIn');
+        i.value = Math.max(1, parseInt(i.value, 10) + d || 1);
+    };
+
+    window.addCart = async function () {
+        const sz = document.querySelector('.msz.on');
+        if (!sz) {
+            if (typeof nevaToast === 'function') nevaToast('Vui lòng chọn size!', 'err');
+            else alert('Vui lòng chọn size!');
+            return;
+        }
+
+        const sizeId = parseInt(sz.getAttribute('data-size-id'), 10);
+        const qty = parseInt(document.getElementById('qtyIn').value, 10) || 1;
+        const stock = parseInt(sz.getAttribute('data-stock'), 10) || 0;
+        if (qty > stock) {
+            if (typeof nevaToast === 'function') nevaToast('Chỉ còn ' + stock + ' sản phẩm trong kho!', 'err');
+            else alert('Không đủ tồn kho!');
+            return;
+        }
+
+        try {
+            const body = new URLSearchParams();
+            body.append('sizeId', String(sizeId));
+            body.append('quantity', String(qty));
+
+            const res = await fetch('/Cart/Add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+                body: body.toString()
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                if (data.message && data.message.includes('đăng nhập')) {
+                    if (confirm(data.message + '\n\nChuyển đến trang đăng nhập?')) {
+                        window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                    }
+                    return;
+                }
+                if (typeof nevaToast === 'function') nevaToast(data.message || 'Không thêm được', 'err');
+                else alert(data.message || 'Lỗi');
+                return;
+            }
+
+            closeMo();
+            if (typeof nevaToast === 'function') nevaToast(data.message || 'Đã thêm vào giỏ hàng!', 'ok');
+            else alert('Đã thêm vào giỏ hàng!');
+        } catch (e) {
+            if (typeof nevaToast === 'function') nevaToast('Lỗi kết nối máy chủ', 'err');
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.pcard[data-product-id]').forEach(card => {
+            const id = parseInt(card.getAttribute('data-product-id'), 10);
+            card.addEventListener('click', function (e) {
+                if (e.target.closest('.pquick')) return;
+                openModal(id);
+            });
+            card.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal(id);
+                }
+            });
+        });
+
+        document.querySelectorAll('.pquick').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const id = parseInt(this.getAttribute('data-id'), 10);
+                openModal(id);
+            });
+        });
+    });
+})();

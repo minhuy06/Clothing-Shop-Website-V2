@@ -21,20 +21,19 @@
 
     function selectProduct(item) {
         hidden.value = item.id;
-        search.value = '';
-        search.style.display = 'none';
+        search.value = item.name;
         selected.hidden = false;
-        const statusNote = item.status !== 1 ? ' · chưa hiển thị' : '';
-        selectedText.textContent = `#${item.id} · ${item.name} · ${fmtPrice(item.price)}${statusNote}`;
+        const statusNote = item.status !== 1 ? ' · Chưa hiển thị trên shop' : '';
+        selectedText.textContent = `${item.name} · ${fmtPrice(item.price)}${statusNote}`;
         hideResults();
     }
 
     function clearSelection() {
         hidden.value = '';
         search.value = '';
-        search.style.display = '';
         selected.hidden = true;
         hideResults();
+        search.focus();
     }
 
     function renderResults(items) {
@@ -45,8 +44,8 @@
         }
         results.innerHTML = items.map(p => `
             <button type="button" class="ad-product-opt" data-id="${p.id}">
-                <span class="ad-product-opt-name">#${p.id} · ${escapeHtml(p.name)}</span>
-                <span class="ad-product-opt-meta">${escapeHtml(p.category || '')} · ${fmtPrice(p.price)}${p.status !== 1 ? ' · ẩn' : ''}</span>
+                <span class="ad-product-opt-name">${escapeHtml(p.name)}</span>
+                <span class="ad-product-opt-meta">Mã ${p.id} · ${escapeHtml(p.category || '')} · ${fmtPrice(p.price)}${p.status !== 1 ? ' · chưa hiển thị' : ''}</span>
             </button>`).join('');
         results.hidden = false;
         results.querySelectorAll('.ad-product-opt').forEach(btn => {

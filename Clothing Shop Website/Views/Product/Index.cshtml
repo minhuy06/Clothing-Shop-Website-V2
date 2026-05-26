@@ -90,6 +90,10 @@
         <div class="toolbar">
             <div class="result-info">
                 Hiển thị <strong>@Model.Count</strong> sản phẩm
+                @if (ViewBag.TotalInDb != null)
+                {
+                    <span style="opacity:.55"> / @ViewBag.TotalInDb trong cơ sở dữ liệu</span>
+                }
             </div>
             <div class="toolbar-right">
                 <span class="sort-label">Sắp xếp</span>
@@ -129,6 +133,10 @@
                     : p.ImageUrl;
                 <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductID" class="pcard pcard-link">
                     <div class="pthumb">
+                        @if (p.Status != 1)
+                        {
+                            <span class="pstatus-badge">Chưa hiển thị</span>
+                        }
                         <div class="pimg-inner">
                             <img src="@img" alt="@p.ProductName" loading="lazy"
                                 onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'">

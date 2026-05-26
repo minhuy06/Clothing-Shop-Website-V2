@@ -140,14 +140,16 @@
                     <option value="sidebar">Sidebar (dưới menu)</option>
                 </select>
 
-                <label>Sản phẩm (ProductID)</label>
+                <label>Sản phẩm</label>
                 <div class="ad-product-picker">
-                    <input type="text" id="adProductSearch" class="modal-inp" placeholder="Tìm tên hoặc mã sản phẩm..." autocomplete="off" />
+                    <input type="text" id="adProductSearch" class="modal-inp ad-product-search" placeholder="Gõ tên sản phẩm để tìm..." autocomplete="off" />
                     <input type="hidden" name="productId" id="adProductId" value="" />
                     <div id="adProductResults" class="ad-product-results" hidden></div>
                     <div id="adProductSelected" class="ad-product-selected" hidden>
-                        <span id="adProductSelectedText"></span>
-                        <button type="button" id="adProductClear" class="ad-product-clear">×</button>
+                        <div class="ad-product-selected-inner">
+                            <span id="adProductSelectedText"></span>
+                            <button type="button" id="adProductClear" class="ad-product-clear" title="Bỏ chọn">×</button>
+                        </div>
                     </div>
                 </div>
 

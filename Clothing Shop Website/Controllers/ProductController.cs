@@ -25,11 +25,10 @@ namespace Clothing_Shop_Website.Controllers
             decimal? maxPrice,
             string? sort)
         {
-            // Lấy sản phẩm kèm Category
+            // Lấy toàn bộ sản phẩm từ database (lọc tiếp theo bộ lọc form)
             var query = _db.Products
                 .Include(p => p.Category)
                 .Include(p => p.ProductSizes)
-                .Where(p => p.Status == 1)
                 .AsQueryable();
 
             // Lọc theo tên
@@ -60,7 +59,7 @@ namespace Clothing_Shop_Website.Controllers
 
             var products = await query.ToListAsync();
 
-            // Truyền danh mục cho sidebar filter
+            ViewBag.TotalInDb = await _db.Products.CountAsync();
             ViewBag.Categories = await _db.Categories.ToListAsync();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;

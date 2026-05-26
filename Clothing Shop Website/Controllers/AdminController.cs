@@ -841,6 +841,7 @@ namespace Clothing_Shop_Website.Controllers
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
             var ads = await _db.Advertisements
                 .Include(a => a.Product)
+                .Where(a => a.Position == "popup" || a.Position == "sidebar")
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
             ViewBag.Products = await _db.Products
@@ -895,7 +896,6 @@ namespace Clothing_Shop_Website.Controllers
                 ImageUrl = imageUrl,
                 LinkUrl = null,
                 Position = pos,
-                SlotIndex = null,
                 ProductID = productId,
                 IsActive = true,
                 CreatedDate = DateTime.Now

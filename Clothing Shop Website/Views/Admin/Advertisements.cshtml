@@ -3,12 +3,7 @@
     ViewData["Title"] = "Quảng cáo";
     Layout = null;
     var products = ViewBag.Products as List<Clothing_Shop_Website.Models.Product> ?? new();
-    string PosLabel(string p) => p switch { "banner" => "Banner", "popup" => "Popup", "sidebar" => "Sidebar", _ => p };
-    string SlotLabel(int? s) => s switch {
-        1 => "Ô 1 — Đại sứ", 2 => "Ô 2 — Giữa trên", 3 => "Ô 3 — Giữa dưới",
-        4 => "Ô 4 — Cột phải", 5 => "Ô 5 — Hàng 2 trái", 6 => "Ô 6 — Hàng 2 giữa",
-        7 => "Ô 7 — Hàng 2 phải", _ => ""
-    };
+    string PosLabel(string p) => p switch { "popup" => "Popup", "sidebar" => "Sidebar", _ => p };
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -93,10 +88,6 @@
                             <div class="ad-title" title="@ad.Title">@ad.Title</div>
                             <div class="ad-meta">
                                 <span class="ad-pos-badge">@PosLabel(ad.Position)</span>
-                                @if (ad.Position == "banner" && ad.SlotIndex.HasValue)
-                                {
-                                    <span class="ad-pos-badge">@SlotLabel(ad.SlotIndex)</span>
-                                }
                                 <span class="ad-active-badge @(ad.IsActive ? "on" : "off")">@(ad.IsActive ? "Đang hiện" : "Ẩn")</span>
                             </div>
                             @if (ad.Product != null)
@@ -146,40 +137,24 @@
 
                 <label>Vị trí</label>
                 <select name="position" id="adPosition" class="modal-inp" required>
-                    <option value="banner">Banner (7 ô ảnh trang chủ)</option>
-                    <option value="popup">Popup (khi mở trang)</option>
+                    <option value="popup">Popup (khi mở trang chủ)</option>
                     <option value="sidebar">Sidebar (dưới menu)</option>
                 </select>
 
-                <div id="adBannerSlotRow" class="modal-grid" style="display:contents">
-                    <label>Ô banner</label>
-                    <select name="slotIndex" id="adBannerSlot" class="modal-inp">
-                        <option value="1">Ô 1 — Đại sứ (trái lớn)</option>
-                        <option value="2">Ô 2 — Giữa trên</option>
-                        <option value="3">Ô 3 — Giữa dưới</option>
-                        <option value="4">Ô 4 — Cột phải</option>
-                        <option value="5">Ô 5 — Hàng 2 trái</option>
-                        <option value="6">Ô 6 — Hàng 2 giữa</option>
-                        <option value="7">Ô 7 — Hàng 2 phải</option>
-                    </select>
-                </div>
-
-                <div id="adProductRow" class="modal-grid" style="display:contents">
-                    <label>Sản phẩm</label>
-                    <select name="productId" id="adProductId" class="modal-inp">
-                        <option value="">— Không liên kết —</option>
-                        @foreach (var p in products)
-                        {
-                            <option value="@p.ProductID">@p.ProductName · @string.Format("{0:N0}đ", p.Price)</option>
-                        }
-                    </select>
-                </div>
+                <label>Sản phẩm</label>
+                <select name="productId" id="adProductId" class="modal-inp">
+                    <option value="">— Không liên kết —</option>
+                    @foreach (var p in products)
+                    {
+                        <option value="@p.ProductID">@p.ProductName · @string.Format("{0:N0}đ", p.Price)</option>
+                    }
+                </select>
 
                 <label>Ảnh quảng cáo</label>
                 <div>
                     <div class="dropzone" id="adDropzone">
                         <input type="file" name="imageFile" id="adImageFile" accept="image/*" hidden required />
-                        <span>Kéo thả hoặc bấm để chọn ảnh · <em id="adCropRatioHint" style="font-style:normal;color:rgba(201,168,76,.7)">Ô 1 — Đại sứ (dọc)</em></span>
+                        <span>Kéo thả hoặc bấm để chọn ảnh · <em id="adCropRatioHint" style="font-style:normal;color:rgba(201,168,76,.7)">Popup 4:5</em></span>
                     </div>
                     <div id="adImgPreview" style="margin-top:8px;display:none">
                         <img id="adPreviewImg" style="max-width:100%;max-height:120px;object-fit:contain;border:1px solid var(--border)" />
@@ -190,8 +165,7 @@
             <!-- Ghi chú hiển thị -->
             <div style="padding:0 18px 14px;font-size:10px;color:rgba(250,248,242,.35);letter-spacing:1px;line-height:1.8">
                 <strong style="color:rgba(201,168,76,.6)">Ghi chú vị trí:</strong><br>
-                · <strong>Banner</strong> — Một trong 7 ô ảnh lưới trang chủ (chọn ô + cắt đúng tỷ lệ)<br>
-                · <strong>Popup</strong> — Hộp thoại khi mở trang chủ lần đầu<br>
+                · <strong>Popup</strong> — Hộp thoại khi mở trang chủ lần đầu (mỗi lần thêm sẽ thay popup cũ)<br>
                 · <strong>Sidebar</strong> — Dải nhỏ ngay dưới menu NEVA
             </div>
 

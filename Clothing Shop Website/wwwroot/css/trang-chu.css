@@ -652,24 +652,6 @@
     line-height: 1.7;
 }
 
-/* Ô quảng cáo banner — link phủ full ô */
-.ca > a,
-.cm > a,
-.cr > a,
-.sr-cell > a {
-    display: block;
-    position: absolute;
-    inset: 0;
-    color: inherit;
-}
-
-.ca,
-.cm,
-.cr,
-.sr-cell {
-    position: relative;
-}
-
 .ad-popup {
     position: fixed;
     inset: 0;

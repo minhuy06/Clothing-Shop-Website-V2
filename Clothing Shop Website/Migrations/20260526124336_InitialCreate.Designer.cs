@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Clothing_Shop_Website.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260526113503_InitialCreate")]
+    [Migration("20260526124336_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

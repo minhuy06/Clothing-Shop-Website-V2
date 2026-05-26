@@ -1,15 +1,5 @@
-// NEVA Admin — crop ảnh QC theo vị trí + ô banner (1–7)
+// NEVA Admin — crop ảnh QC: popup + sidebar
 (function () {
-    const BANNER_SLOTS = {
-        1: { aspectRatio: 3 / 4, width: 600, height: 800, label: 'Ô 1 — Đại sứ (dọc)' },
-        2: { aspectRatio: 4 / 3, width: 800, height: 600, label: 'Ô 2 — Giữa trên' },
-        3: { aspectRatio: 4 / 3, width: 800, height: 600, label: 'Ô 3 — Giữa dưới' },
-        4: { aspectRatio: 3 / 4, width: 600, height: 800, label: 'Ô 4 — Cột phải (dọc)' },
-        5: { aspectRatio: 3 / 4, width: 450, height: 600, label: 'Ô 5 — Hàng 2 trái' },
-        6: { aspectRatio: 3 / 4, width: 450, height: 600, label: 'Ô 6 — Hàng 2 giữa' },
-        7: { aspectRatio: 3 / 4, width: 450, height: 600, label: 'Ô 7 — Hàng 2 phải' }
-    };
-
     const CROP_BY_POSITION = {
         popup: { aspectRatio: 4 / 5, width: 800, height: 1000, label: 'Popup 4:5' },
         sidebar: { aspectRatio: 16 / 5, width: 640, height: 200, label: 'Sidebar ngang (dưới menu)' }
@@ -17,31 +7,12 @@
 
     function getPosition() {
         const sel = document.getElementById('adPosition');
-        return (sel?.value || 'banner').toLowerCase();
-    }
-
-    function getBannerSlot() {
-        const sel = document.getElementById('adBannerSlot');
-        const n = parseInt(sel?.value || '1', 10);
-        return BANNER_SLOTS[n] ? n : 1;
+        const v = (sel?.value || 'popup').toLowerCase();
+        return CROP_BY_POSITION[v] ? v : 'popup';
     }
 
     function getCropOpts() {
-        const pos = getPosition();
-        if (pos === 'banner') {
-            return BANNER_SLOTS[getBannerSlot()] || BANNER_SLOTS[1];
-        }
-        return CROP_BY_POSITION[pos] || CROP_BY_POSITION.popup;
-    }
-
-    function toggleBannerSlotRow() {
-        const pos = getPosition();
-        const row = document.getElementById('adBannerSlotRow');
-        const prodRow = document.getElementById('adProductRow');
-        if (row) row.style.display = pos === 'banner' ? '' : 'none';
-        if (prodRow) prodRow.style.display = '';
-        const slotSel = document.getElementById('adBannerSlot');
-        if (slotSel) slotSel.required = pos === 'banner';
+        return CROP_BY_POSITION[getPosition()] || CROP_BY_POSITION.popup;
     }
 
     function init() {
@@ -54,7 +25,6 @@
         const cropCancel2 = document.getElementById('adCropCancel2');
         const ratioHint = document.getElementById('adCropRatioHint');
         const posSel = document.getElementById('adPosition');
-        const slotSel = document.getElementById('adBannerSlot');
         if (!fileEl || !zone) return;
 
         let cropper = null;
@@ -143,8 +113,7 @@
             if (fileEl.files?.[0]) pickFile(fileEl.files[0]);
         });
 
-        posSel?.addEventListener('change', () => { toggleBannerSlotRow(); updateRatioHint(); });
-        slotSel?.addEventListener('change', updateRatioHint);
+        posSel?.addEventListener('change', updateRatioHint);
 
         function applyCrop() {
             if (!cropper) return;
@@ -158,7 +127,7 @@
                 if (!blob) return;
                 const url = URL.createObjectURL(blob);
                 showPreview(url, 'Đã cắt · ' + opts.label);
-                setFileFromBlob(blob, 'ad.jpg');
+                setFileFromBlob(blob, 'ad-' + getPosition() + '.jpg');
                 closeCrop();
             }, 'image/jpeg', 0.92);
         }
@@ -168,7 +137,6 @@
         cropCancel2?.addEventListener('click', closeCrop);
         cropMo?.addEventListener('click', e => { if (e.target === cropMo) closeCrop(); });
 
-        toggleBannerSlotRow();
         updateRatioHint();
     }
 

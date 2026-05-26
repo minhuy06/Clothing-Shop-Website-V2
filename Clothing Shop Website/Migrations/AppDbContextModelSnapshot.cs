@@ -48,9 +48,6 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<int?>("ProductID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SlotIndex")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)

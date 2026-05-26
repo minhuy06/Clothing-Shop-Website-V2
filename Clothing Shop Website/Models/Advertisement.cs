@@ -17,12 +17,9 @@ namespace Clothing_Shop_Website.Models
         [MaxLength(500)]
         public string? LinkUrl { get; set; }
 
-        /// <summary>"banner" | "popup" | "sidebar"</summary>
+        /// <summary>"popup" | "sidebar"</summary>
         [MaxLength(20)]
-        public string Position { get; set; } = "banner";
-
-        /// <summary>Ô banner trên trang chủ (1–7). Chỉ dùng khi Position = banner.</summary>
-        public int? SlotIndex { get; set; }
+        public string Position { get; set; } = "popup";
 
         public bool IsActive { get; set; } = true;
 

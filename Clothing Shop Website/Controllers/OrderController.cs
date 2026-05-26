@@ -36,9 +36,9 @@ namespace Clothing_Shop_Website.Controllers
 
             ViewBag.CartItems = cartItems;
             ViewBag.Addresses = addresses;
-
-            // 💡 Thay đổi cách tính tổng tiền (phải đi qua ProductSize)
             ViewBag.Total = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
+            ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
+            ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
 
             return View();
         }
@@ -156,7 +156,11 @@ namespace Clothing_Shop_Website.Controllers
                 _db.CartItems.RemoveRange(cartItems);
 
                 await _db.SaveChangesAsync();
-                await tx.CommitAsync(); // Chốt giao dịch
+                await tx.CommitAsync();
+
+                HttpContext.Session.SetInt32("Points", user.RewardPoints);
+                HttpContext.Session.Remove("CheckoutCoupon");
+                HttpContext.Session.Remove("CheckoutUsePoints");
 
                 TempData["OrderCode"] = "NV-" + order.OrderID.ToString("D8");
                 TempData["OrderTotal"] = total.ToString("N0");

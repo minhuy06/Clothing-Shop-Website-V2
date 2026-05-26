@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
-using Clothing_Shop_Website.Enums; // 💡 Đừng quên using Enum nhé
+using Clothing_Shop_Website.Enums;
+using Clothing_Shop_Website.Helper;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -39,6 +40,9 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.Total = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
             ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
             ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
+            var rewardPoints = await RewardPointsHelper.GetPointsAsync(_db, userId.Value);
+            RewardPointsHelper.SyncSession(HttpContext.Session, rewardPoints);
+            ViewBag.RewardPoints = rewardPoints;
 
             return View();
         }
@@ -158,7 +162,7 @@ namespace Clothing_Shop_Website.Controllers
                 await _db.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                HttpContext.Session.SetInt32("Points", user.RewardPoints);
+                RewardPointsHelper.SyncSession(HttpContext.Session, user.RewardPoints);
                 HttpContext.Session.Remove("CheckoutCoupon");
                 HttpContext.Session.Remove("CheckoutUsePoints");
 

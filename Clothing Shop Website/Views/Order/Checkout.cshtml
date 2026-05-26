@@ -7,6 +7,7 @@
     decimal shipping = total >= 500000 ? 0 : 30000;
     string savedCoupon = ViewBag.SavedCoupon as string ?? "";
     int savedUsePoints = (int)(ViewBag.SavedUsePoints ?? 0);
+    int rewardPoints = (int)(ViewBag.RewardPoints ?? Context.Session.GetInt32("Points") ?? 0);
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/thanh-toan.css" asp-append-version="true" />
@@ -112,9 +113,9 @@
                                value="@savedCoupon">
                     </div>
                     <div class="fgroup">
-                        <label class="flabel">Dùng điểm thưởng (có @Context.Session.GetInt32("Points") điểm)</label>
+                        <label class="flabel">Dùng điểm thưởng (có @rewardPoints.ToString("N0") điểm)</label>
                         <input class="finput" type="number" name="usePoints" min="0"
-                               max="@Context.Session.GetInt32("Points")" placeholder="0" value="@savedUsePoints">
+                               max="@rewardPoints" placeholder="0" value="@savedUsePoints">
                     </div>
                 </div>
             </div>

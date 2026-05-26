@@ -106,6 +106,16 @@
     </div>
 
     <div class="summary-side">
+        <div class="points-box points-box--nav">
+            <div class="points-header">
+                <div>
+                    <div class="points-label">Điểm thưởng của bạn</div>
+                    <div class="points-amount" id="pointsDisplay">@rewardPoints.ToString("N0") điểm</div>
+                </div>
+                <span class="points-badge">NEVA Rewards</span>
+            </div>
+        </div>
+
         @if (Model.Any())
         {
             <div id="cartConfig" hidden
@@ -125,13 +135,6 @@
             </div>
 
             <div class="points-box">
-                <div class="points-header">
-                    <div>
-                        <div class="points-label">Điểm thưởng của bạn</div>
-                        <div class="points-amount" id="pointsDisplay">@rewardPoints.ToString("N0") điểm</div>
-                    </div>
-                    <span class="points-badge">NEVA Rewards</span>
-                </div>
                 <div class="points-rate">Quy đổi: <span>100 điểm = 10.000đ</span> · Tối đa 30% giá trị đơn</div>
                 <div class="points-input-wrap">
                     <input type="number" id="pointsInput" class="points-in" min="0" max="@rewardPoints" placeholder="Số điểm muốn dùng" value="@(savedUsePoints > 0 ? savedUsePoints : "")">

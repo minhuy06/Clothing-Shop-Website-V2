@@ -28,12 +28,10 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
-            var user = await _db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserID == userId);
-            if (user != null)
-                HttpContext.Session.SetInt32("Points", user.RewardPoints);
+            var rewardPoints = await RewardPointsHelper.GetPointsAsync(_db, userId.Value);
+            RewardPointsHelper.SyncSession(HttpContext.Session, rewardPoints);
 
-            ViewBag.RewardPoints = user?.RewardPoints ?? 0;
+            ViewBag.RewardPoints = rewardPoints;
             ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
             ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
 

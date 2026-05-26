@@ -85,14 +85,19 @@ namespace Clothing_Shop_Website.Controllers
                 Password = SecurityHelper.HashPassword(password),
                 Role = (int)UserRole.Customer,
                 Status = (int)UserStatus.Active,
-                RewardPoints = 0,
                 Gender = 0,
-                DateOfBirth = null
+                DateOfBirth = null,
+                CustomerDetail = new CustomerDetail
+                {
+                    RewardPoints = 0,
+                    MembershipTier = "Đồng"
+                }
             };
 
             _db.Users.Add(newUser);
             await _db.SaveChangesAsync();
             HttpContext.Session.SetUserSession(newUser);
+            RewardPointsHelper.SyncSession(HttpContext.Session, 0);
 
             TempData["Success"] = "Tạo tài khoản thành công!";
             return RedirectToAction("Profile");

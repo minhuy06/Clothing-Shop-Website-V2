@@ -407,6 +407,10 @@
         flex-shrink: 0;
     }
 
+.points-box--nav {
+    margin-bottom: 10px;
+}
+
 /* Points box */
 .points-header {
     display: flex;

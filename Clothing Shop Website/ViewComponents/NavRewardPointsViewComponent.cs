@@ -23,12 +23,8 @@ namespace Clothing_Shop_Website.ViewComponents
             if (userId == null)
                 return View(0);
 
-            var points = await _db.Users.AsNoTracking()
-                .Where(u => u.UserID == userId)
-                .Select(u => u.RewardPoints)
-                .FirstOrDefaultAsync();
-
-            HttpContext.Session.SetInt32("Points", points);
+            var points = await RewardPointsHelper.GetPointsAsync(_db, userId.Value);
+            RewardPointsHelper.SyncSession(HttpContext.Session, points);
             return View(points);
         }
     }

@@ -1,0 +1,11 @@
+@model int
+@{
+    var loggedIn = Context.Session.GetInt32("UserId") != null;
+}
+@if (loggedIn)
+{
+    <a asp-controller="Account" asp-action="Profile" class="nav-points" title="Điểm thưởng NEVA">
+        <span class="nav-points-star">✦</span>
+        <span class="nav-points-val">@Model.ToString("N0")</span>
+    </a>
+}

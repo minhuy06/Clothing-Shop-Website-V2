@@ -283,6 +283,34 @@ img {
     align-items: center;
 }
 
+.nav-points {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border: 1px solid rgba(201, 168, 76, 0.35);
+    background: rgba(201, 168, 76, 0.06);
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+    .nav-points:hover {
+        border-color: rgba(201, 168, 76, 0.6);
+        background: rgba(201, 168, 76, 0.12);
+    }
+
+.nav-points-star {
+    font-size: 10px;
+    line-height: 1;
+}
+
+.nav-points-val {
+    font-family: var(--font-b);
+    font-weight: 300;
+}
+
 .nav-icon {
     color: rgba(250, 248, 242, 0.55);
     transition: color 0.2s;

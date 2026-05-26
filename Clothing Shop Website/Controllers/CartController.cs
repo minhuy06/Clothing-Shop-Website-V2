@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
+using Clothing_Shop_Website.Helper;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -27,7 +28,67 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
+            var user = await _db.Users.AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user != null)
+                HttpContext.Session.SetInt32("Points", user.RewardPoints);
+
+            ViewBag.RewardPoints = user?.RewardPoints ?? 0;
+            ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
+            ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
+
             return View(items);
+        }
+
+        /// <summary>Kiểm tra mã giảm giá (AJAX từ trang giỏ hàng).</summary>
+        [HttpGet]
+        public async Task<IActionResult> ValidateCoupon(string code)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+
+            if (string.IsNullOrWhiteSpace(code))
+                return Json(new { success = false, message = "Vui lòng nhập mã giảm giá." });
+
+            var subtotal = await _db.CartItems
+                .Where(c => c.UserID == userId)
+                .Include(c => c.ProductSize)
+                    .ThenInclude(s => s.Product)
+                .SumAsync(c => c.ProductSize.Product.Price * c.Quantity);
+
+            var disc = await _db.Discounts.AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Code == code.Trim().ToUpper()
+                    && d.ExpirationDate >= DateTime.Now
+                    && d.UsedCount < d.Quantity);
+
+            if (disc == null)
+                return Json(new { success = false, message = "Mã không hợp lệ hoặc đã hết hạn." });
+
+            decimal amount = disc.DiscountType == 1
+                ? subtotal * disc.DiscountValue / 100m
+                : disc.DiscountValue;
+
+            if (amount > subtotal) amount = subtotal;
+
+            string label = disc.DiscountType == 1
+                ? $"Giảm {disc.DiscountValue:0.##}%"
+                : $"Giảm {disc.DiscountValue:N0}đ";
+
+            return Json(new { success = true, discount = amount, code = disc.Code, label });
+        }
+
+        /// <summary>Lưu mã & điểm đã chọn trước khi sang trang thanh toán.</summary>
+        [HttpPost]
+        public IActionResult SetCheckoutPromo(string? coupon, int usePoints = 0)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+
+            HttpContext.Session.SetString("CheckoutCoupon", (coupon ?? "").Trim().ToUpper());
+            HttpContext.Session.SetInt32("CheckoutUsePoints", Math.Max(0, usePoints));
+            return Json(new { success = true });
         }
 
         // ── Thêm vào giỏ ──

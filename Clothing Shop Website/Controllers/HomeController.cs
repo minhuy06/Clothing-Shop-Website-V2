@@ -24,14 +24,17 @@ namespace Clothing_Shop_Website.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var popupAd = await _db.Advertisements
+            var now = DateTime.Now;
+            var popupAds = await _db.Advertisements
                 .Include(a => a.Product)
                 .Where(a => a.IsActive && a.Position == "popup"
-                    && a.ImageUrl != null && a.ImageUrl != "")
+                    && a.ImageUrl != null && a.ImageUrl != ""
+                    && (!a.StartDate.HasValue || a.StartDate <= now)
+                    && (!a.EndDate.HasValue || a.EndDate >= now))
                 .OrderByDescending(a => a.CreatedDate)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            return View(new HomeIndexViewModel { PopupAd = popupAd });
+            return View(new HomeIndexViewModel { PopupAds = popupAds });
         }
 
         public IActionResult Privacy()

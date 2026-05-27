@@ -190,25 +190,37 @@
     </div>
 </div>
 
-@if (Model.PopupAd != null)
+@if (Model.PopupAds.Count > 0)
 {
-    <div id="adPopup" class="ad-popup" data-ad-id="@Model.PopupAd.AdID" hidden>
+    <div id="adPopupStack" class="ad-popup" data-count="@Model.PopupAds.Count" hidden>
         <div class="ad-popup-backdrop"></div>
-        <div class="ad-popup-box">
-            <button type="button" class="ad-popup-close" aria-label="Đóng">×</button>
-            @if (Model.PopupAd.ProductID.HasValue)
+        <div class="ad-popup-stack" data-stack-count="@Model.PopupAds.Count">
+            @for (var i = 0; i < Model.PopupAds.Count; i++)
             {
-                <a href="@Url.Action("Detail", "Product", new { id = Model.PopupAd.ProductID })">
-                    <img src="@Model.PopupAd.ImageUrl" alt="@Model.PopupAd.Title" />
-                </a>
-            }
-            else
-            {
-                <img src="@Model.PopupAd.ImageUrl" alt="@Model.PopupAd.Title" />
-            }
-            @if (!string.IsNullOrWhiteSpace(Model.PopupAd.Title))
-            {
-                <p class="ad-popup-title">@Model.PopupAd.Title</p>
+                var ad = Model.PopupAds[i];
+                <article class="ad-popup-card" data-ad-id="@ad.AdID" style="--stack-index: @i">
+                    <div class="ad-popup-box">
+                        <button type="button" class="ad-popup-close" aria-label="Đóng quảng cáo">×</button>
+                        @if (Model.PopupAds.Count > 1)
+                        {
+                            <span class="ad-popup-stack-badge">@(i + 1)/@Model.PopupAds.Count</span>
+                        }
+                        @if (ad.ProductID.HasValue)
+                        {
+                            <a href="@Url.Action("Detail", "Product", new { id = ad.ProductID })">
+                                <img src="@ad.ImageUrl" alt="@ad.Title" />
+                            </a>
+                        }
+                        else
+                        {
+                            <img src="@ad.ImageUrl" alt="@ad.Title" />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ad.Title))
+                        {
+                            <p class="ad-popup-title">@ad.Title</p>
+                        }
+                    </div>
+                </article>
             }
         </div>
     </div>

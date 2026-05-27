@@ -105,7 +105,7 @@ namespace Clothing_Shop_Website.Controllers
 
         // QUẢN LÝ HỒ SƠ
         [HttpGet]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile(string? tab)
         {
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
@@ -144,6 +144,10 @@ namespace Clothing_Shop_Website.Controllers
                     .ThenByDescending(a => a.AddressID)
                     .ToList()
             };
+
+            ViewData["ProfileTab"] = !string.IsNullOrWhiteSpace(tab)
+                ? tab.Trim().ToLowerInvariant()
+                : TempData["Tab"]?.ToString() ?? "";
 
             return View(model);
         }

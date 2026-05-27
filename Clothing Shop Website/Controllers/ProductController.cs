@@ -29,6 +29,7 @@ namespace Clothing_Shop_Website.Controllers
             var query = _db.Products
                 .Include(p => p.Category)
                 .Include(p => p.ProductSizes)
+                .Where(p => p.Status == 1)
                 .AsQueryable();
 
             // Lọc theo tên
@@ -81,6 +82,26 @@ namespace Clothing_Shop_Website.Controllers
             if (product == null || product.Status != 1) return NotFound();
 
             return View(product);
+        }
+
+        /// <summary>Trả về danh sách size + tồn kho từ bảng ProductSizes (cho FE).</summary>
+        [HttpGet]
+        public async Task<IActionResult> GetSizes(int productId)
+        {
+            var sizes = await _db.ProductSizes
+                .AsNoTracking()
+                .Where(s => s.ProductID == productId)
+                .OrderBy(s => s.SizeName)
+                .Select(s => new
+                {
+                    id = s.SizeID,
+                    name = s.SizeName,
+                    stock = s.StockQuantity,
+                    inStock = s.StockQuantity > 0
+                })
+                .ToListAsync();
+
+            return Json(sizes);
         }
     }
 }

@@ -20,7 +20,7 @@
     <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Error"]</div>
 }
 
-<div class="page-wrap" data-profile-tab="@(TempData["Tab"]?.ToString() ?? "")">
+<div class="page-wrap" data-profile-tab="@(ViewData["ProfileTab"]?.ToString() ?? "")">
     <aside>
         <div class="profile-card">
             <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">@initials</div></div>

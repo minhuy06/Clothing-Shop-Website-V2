@@ -24,20 +24,37 @@
 
         const sizes = p.sizes || [];
         const sizesEl = document.getElementById('mSizes');
+        const stockHint = document.getElementById('mStockHint');
         if (!sizes.length) {
             sizesEl.innerHTML = '<span class="m-no-size">Chưa có size</span>';
+            if (stockHint) stockHint.textContent = '';
         } else {
             sizesEl.innerHTML = sizes.map(s => {
-                const out = s.stock <= 0;
-                return `<button type="button" class="msz" data-size-id="${s.id}" data-stock="${s.stock}" onclick="selSize(this)"${out ? ' disabled' : ''}>${s.name}</button>`;
+                const stock = Number(s.stock) || 0;
+                const out = s.inStock === false || stock <= 0;
+                const cls = out ? 'msz out-of-stock' : 'msz';
+                return `<button type="button" class="${cls}" data-size-id="${s.id}" data-stock="${stock}" onclick="selSize(this)"${out ? ' disabled aria-disabled="true"' : ''}>${s.name}</button>`;
             }).join('');
             const first = sizesEl.querySelector('.msz:not([disabled])');
-            if (first) first.classList.add('on');
+            if (first) {
+                first.classList.add('on');
+                updateQtyForSize(first);
+            } else if (stockHint) {
+                stockHint.textContent = 'Tất cả size đã hết hàng';
+            }
         }
 
         document.getElementById('qtyIn').value = '1';
         const link = document.getElementById('mDetailLink');
         if (link) link.href = '/Product/Detail/' + id;
+
+        const btnCart = document.querySelector('.btn-cart');
+        const anyInStock = sizes.some(s => s.inStock !== false && (Number(s.stock) || 0) > 0);
+        if (btnCart) {
+            btnCart.disabled = !anyInStock;
+            btnCart.style.opacity = anyInStock ? '' : '0.45';
+            btnCart.style.pointerEvents = anyInStock ? '' : 'none';
+        }
 
         document.getElementById('mo').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -49,15 +66,30 @@
         currentProductId = null;
     };
 
+    function updateQtyForSize(el) {
+        const stock = parseInt(el.getAttribute('data-stock'), 10) || 0;
+        const qtyIn = document.getElementById('qtyIn');
+        const hint = document.getElementById('mStockHint');
+        qtyIn.max = stock > 0 ? stock : 1;
+        const cur = parseInt(qtyIn.value, 10) || 1;
+        if (cur > stock) qtyIn.value = Math.max(1, stock);
+        if (hint) {
+            hint.textContent = stock > 0 ? `Còn ${stock} sản phẩm size này` : '';
+        }
+    }
+
     window.selSize = function (el) {
-        if (el.disabled || el.classList.contains('disabled')) return;
+        if (el.disabled || el.classList.contains('out-of-stock')) return;
         document.querySelectorAll('.msz').forEach(s => s.classList.remove('on'));
         el.classList.add('on');
+        updateQtyForSize(el);
     };
 
     window.chQty = function (d) {
         const i = document.getElementById('qtyIn');
-        i.value = Math.max(1, parseInt(i.value, 10) + d || 1);
+        const max = parseInt(i.max, 10) || 999;
+        const next = Math.max(1, (parseInt(i.value, 10) || 1) + (d || 0));
+        i.value = Math.min(next, max);
     };
 
     window.addCart = async function () {

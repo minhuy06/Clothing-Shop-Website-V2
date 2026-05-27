@@ -615,6 +615,14 @@
     color: rgba(250,248,242,0.5);
 }
 
+.s.s-out {
+    opacity: 0.35;
+    color: rgba(250,248,242,0.28);
+    border-color: rgba(250,248,242,0.12);
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
 /* Empty state */
 .empty-state {
     grid-column: 1/-1;
@@ -915,10 +923,23 @@
         border-color: var(--gold);
     }
 
-    .msz:disabled {
-        opacity: 0.35;
+    .msz:disabled,
+    .msz.out-of-stock {
+        opacity: 0.32;
+        color: rgba(250,248,242,0.35);
+        border-color: rgba(250,248,242,0.12);
+        text-decoration: line-through;
         cursor: not-allowed;
+        pointer-events: none;
     }
+
+.m-stock-hint {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: rgba(201,168,76,0.75);
+    margin: -10px 0 14px;
+    min-height: 16px;
+}
 
 .m-no-size {
     font-size: 12px;

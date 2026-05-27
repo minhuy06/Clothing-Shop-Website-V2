@@ -5,20 +5,20 @@
 
     string GetStatusLabel(int s) => s switch
     {
-        0 => "Chờ duyệt",
-        1 => "Đang giao",
-        2 => "Đã giao",
-        3 => "Đã hủy",
-        4 => "Đang hoàn chuyển",
+        0 => "Chờ xử lý",
+        1 => "Đã xác nhận",
+        2 => "Đang giao",
+        3 => "Hoàn thành",
+        4 => "Đã hủy",
         _ => "Không rõ"
     };
     string GetStatusCss(int s) => s switch
     {
         0 => "sb-pending",
         1 => "sb-shipping",
-        2 => "sb-done",
-        3 => "sb-cancel",
-        4 => "sb-returning",
+        2 => "sb-shipping",
+        3 => "sb-done",
+        4 => "sb-cancel",
         _ => ""
     };
 }

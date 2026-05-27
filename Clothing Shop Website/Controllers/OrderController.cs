@@ -8,6 +8,7 @@ using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
 using Clothing_Shop_Website.Enums;
 using Clothing_Shop_Website.Helper;
+using Clothing_Shop_Website.ViewModels;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -16,37 +17,58 @@ namespace Clothing_Shop_Website.Controllers
         private readonly AppDbContext _db;
         public OrderController(AppDbContext db) { _db = db; }
 
-        // ── Trang thanh toán ──
         public async Task<IActionResult> Checkout()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
+            var user = await _db.Users
+                .Include(u => u.CustomerDetail)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return RedirectToAction("Login", "Account");
+
             var cartItems = await _db.CartItems
-                .Include(c => c.ProductSize)     // 💡 Thay đổi: Kéo ProductSize
-                    .ThenInclude(s => s.Product) // 💡 Thay đổi: Từ Size kéo ngược ra Product
+                .Include(c => c.ProductSize)
+                    .ThenInclude(s => s.Product)
+                        .ThenInclude(p => p.Category)
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
             if (!cartItems.Any())
                 return RedirectToAction("Index", "Cart");
 
-            var addresses = await _db.UserAddresses
-                .Where(a => a.UserID == userId)
-                .ToListAsync();
+            var savedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
+            var savedPoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
 
-            ViewBag.CartItems = cartItems;
-            ViewBag.Addresses = addresses;
-            ViewBag.Total = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
-            ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
-            ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
-            ViewBag.RewardPoints = RewardPointsHelper.GetPoints(HttpContext.Session);
+            var pricing = await OrderPricingHelper.CalculateForCheckoutAsync(
+                _db, cartItems, user, savedCoupon, savedPoints);
 
-            return View();
+            RewardPointsHelper.SyncSession(HttpContext.Session, user.RewardPoints);
+
+            var model = new CheckoutViewModel
+            {
+                CartItems = cartItems,
+                Addresses = await _db.UserAddresses.Where(a => a.UserID == userId).ToListAsync(),
+                Subtotal = pricing.Subtotal,
+                Shipping = pricing.Shipping,
+                CouponDiscount = pricing.CouponDiscount,
+                PointsDiscount = pricing.PointsDiscount,
+                TierDiscount = pricing.TierDiscount,
+                Total = pricing.Total,
+                MembershipTier = pricing.MembershipTier,
+                TierCssClass = MembershipTierHelper.GetTierCssClass(pricing.MembershipTier),
+                TierDiscountPercent = pricing.TierDiscountPercent,
+                RewardPoints = user.RewardPoints,
+                UsePoints = pricing.PointsUsed,
+                CouponCode = savedCoupon,
+                CouponMessage = pricing.CouponMessage
+            };
+
+            return View(model);
         }
 
-        // ── Đặt hàng ──
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(
             string receiverName,
             string receiverPhone,
@@ -58,123 +80,101 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
+            if (string.IsNullOrWhiteSpace(receiverName) || string.IsNullOrWhiteSpace(receiverPhone)
+                || string.IsNullOrWhiteSpace(shippingAddress) || string.IsNullOrWhiteSpace(shippingProvince))
+            {
+                TempData["Error"] = "Vui lòng điền đầy đủ thông tin giao hàng.";
+                return RedirectToAction("Checkout");
+            }
+
             var user = await _db.Users
                 .Include(u => u.CustomerDetail)
                 .FirstOrDefaultAsync(u => u.UserID == userId.Value);
             if (user == null) return RedirectToAction("Login", "Account");
 
+            if (user.CustomerDetail == null)
+            {
+                user.CustomerDetail = new CustomerDetail
+                {
+                    UserID = user.UserID,
+                    RewardPoints = 0,
+                    MembershipTier = "Thường"
+                };
+                _db.CustomerDetails.Add(user.CustomerDetail);
+            }
+
             var cartItems = await _db.CartItems
-                .Include(c => c.ProductSize)     // 💡 Cập nhật Include
-                    .ThenInclude(s => s.Product) // 💡 Cập nhật Include
+                .Include(c => c.ProductSize)
+                    .ThenInclude(s => s.Product)
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
             if (!cartItems.Any())
                 return RedirectToAction("Index", "Cart");
 
-            // BUSINESS LOGIC: Kiểm tra tồn kho trước khi cho phép đặt hàng
             foreach (var item in cartItems)
             {
                 if (item.ProductSize.StockQuantity < item.Quantity)
                 {
-                    TempData["Error"] = $"Sản phẩm {item.ProductSize.Product.ProductName} (Size {item.ProductSize.SizeName}) không đủ số lượng trong kho.";
-                    return RedirectToAction("Checkout"); // Trả về trang thanh toán báo lỗi
+                    TempData["Error"] = $"Sản phẩm {item.ProductSize.Product.ProductName} (Size {item.ProductSize.SizeName}) không đủ tồn kho.";
+                    return RedirectToAction("Checkout");
                 }
             }
 
-            // Tính toán tiền bạc
-            decimal subtotal = cartItems.Sum(c => c.ProductSize.Product.Price * c.Quantity);
-            decimal shipping = subtotal >= 500000 ? 0 : 30000;
-            decimal discount = 0;
+            var pricing = await OrderPricingHelper.CalculateForCheckoutAsync(
+                _db, cartItems, user, discountCode, usePoints);
 
-            int? discountId = null;
-            if (!string.IsNullOrEmpty(discountCode))
+            if (usePoints > 0 && pricing.PointsUsed == 0)
             {
-                var disc = await _db.Discounts
-                    .FirstOrDefaultAsync(d => d.Code == discountCode
-                        && d.ExpirationDate >= DateTime.Now
-                        && d.UsedCount < d.Quantity);
-                if (disc != null)
-                {
-                    discount = disc.DiscountType == 1
-                        ? subtotal * disc.DiscountValue / 100m
-                        : disc.DiscountValue;
-                    discountId = disc.DiscountID;
-                    disc.UsedCount++;
-                }
+                TempData["Error"] = "Số điểm không hợp lệ hoặc vượt quá giới hạn (tối đa 30% đơn hàng).";
+                return RedirectToAction("Checkout");
             }
 
-            decimal pointsDiscount = 0;
-            int pointsUsed = 0;
-            if (usePoints > 0 && user.RewardPoints >= usePoints)
-            {
-                pointsDiscount = Math.Floor(usePoints / 100m) * 10000;
-                decimal maxDiscount = subtotal * 0.3m;
-                if (pointsDiscount > maxDiscount) pointsDiscount = maxDiscount;
-                pointsUsed = usePoints;
-            }
-
-            // Giảm theo hạng thành viên (tính theo chi tiêu trong năm, reset mỗi năm)
-            var year = MembershipTierHelper.CurrentYear;
-            var yearStart = new DateTime(year, 1, 1);
-            var nextYearStart = yearStart.AddYears(1);
-            var yearlySpend = await _db.Orders.AsNoTracking()
-                .Where(o => o.UserID == userId
-                            && o.Status != (int)OrderStatus.Cancelled
-                            && o.OrderDate >= yearStart && o.OrderDate < nextYearStart)
-                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
-            var tierAfterThisOrder = MembershipTierHelper.GetTierFromYearlySpend(yearlySpend + subtotal);
-            var tierRate = MembershipTierHelper.GetDiscountRate(tierAfterThisOrder);
-            var tierDiscount = MembershipTierHelper.ClampDiscount((subtotal + shipping) * tierRate, subtotal + shipping);
-
-            decimal total = subtotal + shipping - discount - pointsDiscount - tierDiscount;
-
-            // Bắt đầu Transaction để bảo toàn dữ liệu (tránh lỗi cấn trừ kho)
             await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
+                if (pricing.DiscountId.HasValue)
+                {
+                    var disc = await _db.Discounts.FindAsync(pricing.DiscountId.Value);
+                    if (disc != null && disc.UsedCount < disc.Quantity)
+                        disc.UsedCount++;
+                }
+
                 var order = new Order
                 {
                     UserID = userId.Value,
-                    DiscountID = discountId,
+                    DiscountID = pricing.DiscountId,
                     OrderDate = DateTime.Now,
-                    ShippingAddress = shippingAddress,
-                    ShippingProvince = shippingProvince,
-                    ReceiverName = receiverName,
-                    ReceiverPhone = receiverPhone,
-                    TotalAmount = total,
-                    Status = (int)OrderStatus.Pending, // 💡 Sử dụng Enum
-                    RedemptionPoints = pointsUsed
+                    ShippingAddress = shippingAddress.Trim(),
+                    ShippingProvince = shippingProvince.Trim(),
+                    Country = "Việt Nam",
+                    ReceiverName = receiverName.Trim(),
+                    ReceiverPhone = receiverPhone.Trim(),
+                    TotalAmount = pricing.Total,
+                    Status = (int)OrderStatus.Pending,
+                    RedemptionPoints = pricing.PointsUsed
                 };
 
                 _db.Orders.Add(order);
-                await _db.SaveChangesAsync(); // Lưu để lấy OrderID
+                await _db.SaveChangesAsync();
 
-                // Tạo OrderDetails và TRỪ TỒN KHO
                 foreach (var item in cartItems)
                 {
                     _db.OrderDetails.Add(new OrderDetail
                     {
                         OrderID = order.OrderID,
-                        SizeID = item.SizeID, // 💡 QUAN TRỌNG: Đã đổi thành SizeID
+                        SizeID = item.SizeID,
                         Quantity = item.Quantity,
-                        UnitPrice = item.ProductSize.Product.Price // 💡 Lấy giá qua ProductSize
+                        UnitPrice = item.ProductSize.Product.Price
                     });
-
-                    // 💡 BUSINESS LOGIC: Trừ số lượng tồn kho vật lý
                     item.ProductSize.StockQuantity -= item.Quantity;
                 }
 
-                user.RewardPoints -= pointsUsed;
-                user.RewardPoints += (int)(total / 10000);
-
-                // Cập nhật hạng thành viên theo năm hiện tại
-                if (user.CustomerDetail != null)
-                    user.CustomerDetail.MembershipTier = tierAfterThisOrder;
+                user.CustomerDetail.RewardPoints -= pricing.PointsUsed;
+                user.CustomerDetail.RewardPoints += (int)(pricing.Total / 10000);
+                user.CustomerDetail.MembershipTier = pricing.TierAfterOrder;
 
                 _db.CartItems.RemoveRange(cartItems);
-
                 await _db.SaveChangesAsync();
                 await tx.CommitAsync();
 
@@ -183,20 +183,20 @@ namespace Clothing_Shop_Website.Controllers
                 HttpContext.Session.Remove("CheckoutUsePoints");
 
                 TempData["OrderCode"] = "NV-" + order.OrderID.ToString("D8");
-                TempData["OrderTotal"] = total.ToString("N0");
-                TempData["PointsEarned"] = (int)(total / 10000);
+                TempData["OrderTotal"] = pricing.Total.ToString("N0");
+                TempData["PointsEarned"] = (int)(pricing.Total / 10000);
+                TempData["TierDiscount"] = pricing.TierDiscount.ToString("N0");
 
                 return RedirectToAction("Success");
             }
             catch (Exception)
             {
                 await tx.RollbackAsync();
-                TempData["Error"] = "Có lỗi xảy ra trong quá trình xử lý đơn hàng.";
+                TempData["Error"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
                 return RedirectToAction("Checkout");
             }
         }
 
-        // ── Đặt hàng thành công ──
         public IActionResult Success()
         {
             if (TempData["OrderCode"] == null)
@@ -204,7 +204,6 @@ namespace Clothing_Shop_Website.Controllers
             return View();
         }
 
-        // ── Lịch sử đơn hàng ──
         public async Task<IActionResult> History()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -212,8 +211,8 @@ namespace Clothing_Shop_Website.Controllers
 
             var orders = await _db.Orders
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.ProductSize)     // 💡 Cập nhật Include
-                        .ThenInclude(s => s.Product)     // 💡 Cập nhật Include
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
                 .Where(o => o.UserID == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
@@ -221,7 +220,6 @@ namespace Clothing_Shop_Website.Controllers
             return View(orders);
         }
 
-        // ── Chi tiết đơn hàng ──
         public async Task<IActionResult> Detail(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -229,8 +227,8 @@ namespace Clothing_Shop_Website.Controllers
 
             var order = await _db.Orders
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.ProductSize)     // 💡 Cập nhật Include
-                        .ThenInclude(s => s.Product)     // 💡 Cập nhật Include
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
                 .Include(o => o.Discount)
                 .FirstOrDefaultAsync(o => o.OrderID == id && o.UserID == userId);
 
@@ -238,24 +236,21 @@ namespace Clothing_Shop_Website.Controllers
             return View(order);
         }
 
-        // ── Hủy đơn hàng ──
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int orderId)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var order = await _db.Orders
-                .Include(o => o.OrderDetails) // 💡 Phải Include Detail để biết đường hoàn kho
+                .Include(o => o.OrderDetails)
                 .FirstOrDefaultAsync(o => o.OrderID == orderId && o.UserID == userId);
 
-            // 💡 Sử dụng Enum OrderStatus.Pending thay vì số 0
             if (order != null && order.Status == (int)OrderStatus.Pending)
             {
-                // 💡 Sử dụng Enum thay vì số 3 (Vì số 3 thường là Hoàn thành, 4 mới là Hủy)
                 order.Status = (int)OrderStatus.Cancelled;
 
-                // 💡 BUSINESS LOGIC: Trả lại hàng về kho khi khách tự hủy đơn
                 foreach (var detail in order.OrderDetails)
                 {
                     var size = await _db.ProductSizes.FindAsync(detail.SizeID);

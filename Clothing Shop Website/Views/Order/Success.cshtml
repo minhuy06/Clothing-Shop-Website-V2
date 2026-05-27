@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var orderCode = TempData["OrderCode"] as string ?? "";
+    var orderTotal = TempData["OrderTotal"] as string ?? "0";
+    var pointsEarned = TempData["PointsEarned"] as int? ?? 0;
+    var tierDiscount = TempData["TierDiscount"] as string;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/thanh-toan.css" asp-append-version="true" />
+}
+
+<div class="checkout-layout" style="max-width:720px;margin:0 auto;padding:60px 24px">
+    <div class="summary-box" style="text-align:center;padding:48px 32px">
+        <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:rgba(122,186,122,.15);display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#7aba7a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h1 style="font-family:var(--font-d);font-size:28px;font-weight:400;margin-bottom:8px">Đặt hàng <em style="color:var(--gold)">thành công</em></h1>
+        <p style="font-size:12px;letter-spacing:1px;color:rgba(250,248,242,.55);margin-bottom:24px">Cảm ơn bạn đã mua sắm tại NEVA</p>
+
+        <div style="border:1px solid var(--border);padding:20px;margin-bottom:24px;text-align:left">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px">
+                <span style="opacity:.65">Mã đơn hàng</span>
+                <strong style="color:var(--gold);letter-spacing:1px">@orderCode</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px">
+                <span style="opacity:.65">Tổng thanh toán (COD)</span>
+                <strong>@orderTotal đ</strong>
+            </div>
+            @if (pointsEarned > 0)
+            {
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                    <span style="opacity:.65">Điểm tích lũy thêm</span>
+                    <strong style="color:var(--gold)">+@pointsEarned điểm</strong>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(tierDiscount) && tierDiscount != "0")
+            {
+                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:13px">
+                    <span style="opacity:.65">Đã giảm theo hạng thành viên</span>
+                    <strong style="color:#7aba7a">@tierDiscount đ</strong>
+                </div>
+            }
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a asp-controller="Order" asp-action="History" class="btn-order" style="display:inline-flex;text-decoration:none;max-width:220px">
+                Xem đơn hàng
+            </a>
+            <a asp-controller="Product" asp-action="Index"
+               style="display:inline-flex;align-items:center;padding:14px 24px;border:1px solid var(--border);color:rgba(250,248,242,.7);font-size:11px;letter-spacing:2px;text-transform:uppercase;text-decoration:none">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+</div>

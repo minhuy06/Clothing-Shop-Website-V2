@@ -46,7 +46,7 @@
 
         document.getElementById('qtyIn').value = '1';
         const link = document.getElementById('mDetailLink');
-        if (link) link.href = '/Product/Detail/' + id;
+        if (link) link.href = '/Product?highlight=' + id;
 
         const btnCart = document.querySelector('.btn-cart');
         const anyInStock = sizes.some(s => s.inStock !== false && (Number(s.stock) || 0) > 0);

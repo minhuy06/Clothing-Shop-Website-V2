@@ -10,7 +10,7 @@
             @foreach (var ad in Model)
             {
                 var link = ad.ProductID.HasValue
-                    ? Url.Action("Detail", "Product", new { id = ad.ProductID })
+                    ? Url.Action("Index", "Product", new { highlight = ad.ProductID })
                     : Url.Action("Index", "Product");
                 <a href="@link" class="sidebar-ad-item" title="@ad.Title">
                     <img src="@ad.ImageUrl" alt="@ad.Title" />

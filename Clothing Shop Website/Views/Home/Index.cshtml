@@ -207,7 +207,7 @@
                         }
                         @if (ad.ProductID.HasValue)
                         {
-                            <a href="@Url.Action("Detail", "Product", new { id = ad.ProductID })">
+                            <a href="@Url.Action("Index", "Product", new { highlight = ad.ProductID })">
                                 <img src="@ad.ImageUrl" alt="@ad.Title" />
                             </a>
                         }

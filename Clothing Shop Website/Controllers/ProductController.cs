@@ -23,7 +23,8 @@ namespace Clothing_Shop_Website.Controllers
             int? session,
             decimal? minPrice,
             decimal? maxPrice,
-            string? sort)
+            string? sort,
+            int? highlight)
         {
             // Lấy toàn bộ sản phẩm từ database (lọc tiếp theo bộ lọc form)
             var query = _db.Products
@@ -50,15 +51,22 @@ namespace Clothing_Shop_Website.Controllers
             if (maxPrice.HasValue)
                 query = query.Where(p => p.Price <= maxPrice);
 
-            // Sắp xếp
-            query = sort switch
+            var products = await query.ToListAsync();
+
+            // Sắp xếp (in-memory) để ưu tiên highlight lên đầu nhưng vẫn giữ sort cho phần còn lại
+            products = sort switch
             {
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
-                _ => query.OrderByDescending(p => p.ProductID)
+                "price_asc" => products.OrderBy(p => p.Price).ToList(),
+                "price_desc" => products.OrderByDescending(p => p.Price).ToList(),
+                _ => products.OrderByDescending(p => p.ProductID).ToList()
             };
 
-            var products = await query.ToListAsync();
+            if (highlight.HasValue)
+            {
+                products = products
+                    .OrderByDescending(p => p.ProductID == highlight.Value)
+                    .ToList();
+            }
 
             ViewBag.Categories = await _db.Categories.ToListAsync();
             ViewBag.Search = search;
@@ -67,6 +75,7 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
             ViewBag.Sort = sort;
+            ViewBag.Highlight = highlight;
 
             return View(products);
         }

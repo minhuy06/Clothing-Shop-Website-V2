@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Clothing_Shop_Website.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260526124336_InitialCreate")]
+    [Migration("20260527073129_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,6 +29,15 @@ namespace Clothing_Shop_Website.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DiscountType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
@@ -50,6 +59,9 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<int?>("ProductID")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -69,16 +81,24 @@ namespace Clothing_Shop_Website.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("AdID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int>("SizeID")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("CartID");
+
+                    b.HasIndex("AdID");
 
                     b.HasIndex("SizeID");
 
@@ -538,6 +558,11 @@ namespace Clothing_Shop_Website.Migrations
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.CartItem", b =>
                 {
+                    b.HasOne("Clothing_Shop_Website.Models.Advertisement", "Advertisement")
+                        .WithMany("CartItems")
+                        .HasForeignKey("AdID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Clothing_Shop_Website.Models.ProductSize", "ProductSize")
                         .WithMany("CartItems")
                         .HasForeignKey("SizeID")
@@ -549,6 +574,8 @@ namespace Clothing_Shop_Website.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Advertisement");
 
                     b.Navigation("ProductSize");
 
@@ -693,6 +720,11 @@ namespace Clothing_Shop_Website.Migrations
                         .IsRequired();
 
                     b.Navigation("user");
+                });
+
+            modelBuilder.Entity("Clothing_Shop_Website.Models.Advertisement", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("Clothing_Shop_Website.Models.Category", b =>

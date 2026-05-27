@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Clothing_Shop_Website.Models
 {
@@ -25,9 +27,23 @@ namespace Clothing_Shop_Website.Models
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        // Khóa ngoại trỏ tới bảng Products (Có thể null nếu quảng cáo không thuộc sản phẩm nào)
+        /// <summary>Sản phẩm được quảng cáo (nullable nếu QC không gắn SP).</summary>
         public int? ProductID { get; set; }
-        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("ProductID")]
+
+        /// <summary>0 = giảm theo tiền (VNĐ), 1 = giảm theo % (giống bảng Discounts).</summary>
+        public int DiscountType { get; set; }
+
+        /// <summary>Giá trị giảm: VNĐ hoặc % tùy DiscountType. 0 = không giảm.</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal DiscountValue { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
+        [ForeignKey("ProductID")]
         public virtual Product? Product { get; set; }
+
+        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }

@@ -239,7 +239,11 @@ namespace Clothing_Shop_Website.Migrations
                     Position = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ProductID = table.Column<int>(type: "int", nullable: true)
+                    ProductID = table.Column<int>(type: "int", nullable: true),
+                    DiscountType = table.Column<int>(type: "int", nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -303,11 +307,19 @@ namespace Clothing_Shop_Website.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     SizeID = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    AdID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CartItems", x => x.CartID);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Advertisements_AdID",
+                        column: x => x.AdID,
+                        principalTable: "Advertisements",
+                        principalColumn: "AdID",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_CartItems_ProductSizes_SizeID",
                         column: x => x.SizeID,
@@ -384,6 +396,11 @@ namespace Clothing_Shop_Website.Migrations
                 column: "ProductID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CartItems_AdID",
+                table: "CartItems",
+                column: "AdID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CartItems_SizeID",
                 table: "CartItems",
                 column: "SizeID");
@@ -457,9 +474,6 @@ namespace Clothing_Shop_Website.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Advertisements");
-
-            migrationBuilder.DropTable(
                 name: "CartItems");
 
             migrationBuilder.DropTable(
@@ -476,6 +490,9 @@ namespace Clothing_Shop_Website.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserAddresses");
+
+            migrationBuilder.DropTable(
+                name: "Advertisements");
 
             migrationBuilder.DropTable(
                 name: "InventoryReceipts");

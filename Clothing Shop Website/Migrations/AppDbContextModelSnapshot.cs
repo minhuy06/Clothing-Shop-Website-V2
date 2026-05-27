@@ -45,10 +45,6 @@ namespace Clothing_Shop_Website.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LinkUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<string>("Position")
                         .IsRequired()
                         .HasMaxLength(20)

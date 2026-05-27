@@ -914,7 +914,6 @@ namespace Clothing_Shop_Website.Controllers
             {
                 Title = (title ?? "").Trim(),
                 ImageUrl = imageUrl,
-                LinkUrl = null,
                 Position = pos,
                 ProductID = productId,
                 IsActive = true,

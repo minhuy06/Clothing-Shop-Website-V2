@@ -16,9 +16,6 @@ namespace Clothing_Shop_Website.Models
         [MaxLength(500)]
         public string? ImageUrl { get; set; }
 
-        [MaxLength(500)]
-        public string? LinkUrl { get; set; }
-
         /// <summary>"popup" | "sidebar"</summary>
         [MaxLength(20)]
         public string Position { get; set; } = "popup";

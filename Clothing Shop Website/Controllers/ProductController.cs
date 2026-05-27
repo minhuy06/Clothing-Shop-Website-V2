@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Clothing_Shop_Website.Data;
 using Clothing_Shop_Website.Models;
+using Clothing_Shop_Website.Helper;
 
 namespace Clothing_Shop_Website.Controllers
 {
@@ -68,6 +69,25 @@ namespace Clothing_Shop_Website.Controllers
                     .ToList();
             }
 
+            // Quảng cáo giảm giá theo sản phẩm (để hiển thị giá sale + gạch giá gốc)
+            var now = DateTime.Now;
+            var productIds = products.Select(p => p.ProductID).ToList();
+            var activeAds = await _db.Advertisements
+                .AsNoTracking()
+                .Where(a => a.IsActive
+                    && a.ProductID.HasValue
+                    && productIds.Contains(a.ProductID.Value)
+                    && a.DiscountValue > 0
+                    && (!a.StartDate.HasValue || a.StartDate <= now)
+                    && (!a.EndDate.HasValue || a.EndDate >= now))
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
+
+            // 1 SP chỉ lấy 1 QC mới nhất
+            var adMap = activeAds
+                .GroupBy(a => a.ProductID!.Value)
+                .ToDictionary(g => g.Key, g => g.First());
+
             ViewBag.Categories = await _db.Categories.ToListAsync();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
@@ -76,6 +96,7 @@ namespace Clothing_Shop_Website.Controllers
             ViewBag.MaxPrice = maxPrice;
             ViewBag.Sort = sort;
             ViewBag.Highlight = highlight;
+            ViewBag.ActiveAdMap = adMap;
 
             return View(products);
         }

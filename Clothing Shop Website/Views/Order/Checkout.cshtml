@@ -144,7 +144,7 @@
                                 Size: @item.ProductSize.SizeName
                             </div>
                         </div>
-                        <div class="oitem-price">@((item.ProductSize.Product.Price * item.Quantity).ToString("N0"))đ</div>
+                        <div class="oitem-price">@(((item.UnitPrice ?? item.ProductSize.Product.Price) * item.Quantity).ToString("N0"))đ</div>
                     </div>
                 }
             </div>

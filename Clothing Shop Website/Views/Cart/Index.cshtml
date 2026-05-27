@@ -3,7 +3,7 @@
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    decimal subtotal = Model.Sum(c => c.ProductSize.Product.Price * c.Quantity);
+    decimal subtotal = Model.Sum(c => (c.UnitPrice ?? c.ProductSize.Product.Price) * c.Quantity);
     decimal shipping = subtotal >= 500000 ? 0 : 30000;
     int rewardPoints = (int)(ViewBag.RewardPoints ?? 0);
     string savedCoupon = ViewBag.SavedCoupon as string ?? "";
@@ -61,6 +61,7 @@
                 var cartImg = string.IsNullOrWhiteSpace(item.ProductSize.Product.ImageUrl)
                     ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80"
                     : item.ProductSize.Product.ImageUrl;
+                var unit = item.UnitPrice ?? item.ProductSize.Product.Price;
                 <div class="cart-row">
                     <div></div>
                     <div class="cart-product">
@@ -79,7 +80,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cart-price">@item.ProductSize.Product.Price.ToString("N0")đ</div>
+                    <div class="cart-price">@unit.ToString("N0")đ</div>
 
                     <div class="qty-row">
                         <form method="post" asp-controller="Cart" asp-action="UpdateQuantity" style="display:flex;gap:5px;align-items:center">
@@ -91,7 +92,7 @@
                         </form>
                     </div>
 
-                    <div class="cart-total">@((item.ProductSize.Product.Price * item.Quantity).ToString("N0"))đ</div>
+                    <div class="cart-total">@((unit * item.Quantity).ToString("N0"))đ</div>
 
                     <form method="post" asp-controller="Cart" asp-action="Remove">
                         @Html.AntiForgeryToken()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +28,47 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(c => c.UserID == userId)
                 .ToListAsync();
 
+            // Backfill UnitPrice cho dữ liệu cũ (để giỏ hàng luôn dùng giá sau giảm nếu có QC active)
+            if (items.Any(i => !i.UnitPrice.HasValue || i.UnitPrice <= 0))
+            {
+                var now = DateTime.Now;
+                var productIds = items.Select(i => i.ProductSize.ProductID).Distinct().ToList();
+                var ads = await _db.Advertisements
+                    .AsNoTracking()
+                    .Where(a => a.IsActive
+                        && a.ProductID.HasValue
+                        && productIds.Contains(a.ProductID.Value)
+                        && a.DiscountValue > 0
+                        && (!a.StartDate.HasValue || a.StartDate <= now)
+                        && (!a.EndDate.HasValue || a.EndDate >= now))
+                    .OrderByDescending(a => a.CreatedDate)
+                    .ToListAsync();
+
+                var adMap = ads
+                    .GroupBy(a => a.ProductID!.Value)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                var changed = false;
+                foreach (var it in items)
+                {
+                    if (it.UnitPrice.HasValue && it.UnitPrice > 0) continue;
+                    if (adMap.TryGetValue(it.ProductSize.ProductID, out var ad))
+                    {
+                        it.UnitPrice = AdPromotionHelper.GetSalePrice(it.ProductSize.Product.Price, ad);
+                        it.AdID = ad.AdID;
+                        changed = true;
+                    }
+                    else
+                    {
+                        it.UnitPrice = it.ProductSize.Product.Price;
+                        it.AdID = null;
+                        changed = true;
+                    }
+                }
+
+                if (changed) await _db.SaveChangesAsync();
+            }
+
             ViewBag.RewardPoints = RewardPointsHelper.GetPoints(HttpContext.Session);
             ViewBag.SavedCoupon = HttpContext.Session.GetString("CheckoutCoupon") ?? "";
             ViewBag.SavedUsePoints = HttpContext.Session.GetInt32("CheckoutUsePoints") ?? 0;
@@ -50,7 +91,7 @@ namespace Clothing_Shop_Website.Controllers
                 .Where(c => c.UserID == userId)
                 .Include(c => c.ProductSize)
                     .ThenInclude(s => s.Product)
-                .SumAsync(c => c.ProductSize.Product.Price * c.Quantity);
+                .SumAsync(c => (c.UnitPrice ?? c.ProductSize.Product.Price) * c.Quantity);
 
             var disc = await _db.Discounts.AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Code == code.Trim().ToUpper()
@@ -103,6 +144,20 @@ namespace Clothing_Shop_Website.Controllers
             if (size == null)
                 return Json(new { success = false, message = "Sản phẩm hoặc kích cỡ không tồn tại!" });
 
+            // Tính giá sau giảm (nếu có quảng cáo theo sản phẩm đang active)
+            var now = DateTime.Now;
+            var ad = await _db.Advertisements
+                .AsNoTracking()
+                .Where(a => a.IsActive
+                    && a.ProductID == size.ProductID
+                    && a.DiscountValue > 0
+                    && (!a.StartDate.HasValue || a.StartDate <= now)
+                    && (!a.EndDate.HasValue || a.EndDate >= now))
+                .OrderByDescending(a => a.CreatedDate)
+                .FirstOrDefaultAsync();
+
+            var unitPrice = AdPromotionHelper.GetSalePrice(size.Product.Price, ad);
+
             // 💡 BUSINESS LOGIC: Chặn luôn nếu kho đã hết hàng
             if (size.StockQuantity < quantity)
                 return Json(new { success = false, message = "Số lượng tồn kho không đủ!" });
@@ -118,6 +173,13 @@ namespace Clothing_Shop_Website.Controllers
                     return Json(new { success = false, message = "Vượt quá số lượng tồn kho cho phép!" });
 
                 existing.Quantity += quantity;
+
+                // Nếu item cũ chưa có UnitPrice thì set theo giá hiện tại (giữ snapshot về sau)
+                if (!existing.UnitPrice.HasValue || existing.UnitPrice <= 0)
+                {
+                    existing.UnitPrice = unitPrice;
+                    existing.AdID = ad?.AdID;
+                }
             }
             else
             {
@@ -125,7 +187,9 @@ namespace Clothing_Shop_Website.Controllers
                 {
                     UserID = userId.Value,
                     SizeID = sizeId, // 💡 Lưu SizeID vào Database
-                    Quantity = quantity
+                    Quantity = quantity,
+                    UnitPrice = unitPrice,
+                    AdID = ad?.AdID
                 });
             }
 

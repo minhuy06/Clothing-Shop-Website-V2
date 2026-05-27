@@ -31,7 +31,7 @@ namespace Clothing_Shop_Website.Helper
         public const decimal ShippingFee = 30_000m;
 
         public static decimal CalcSubtotal(IEnumerable<CartItem> items)
-            => items.Sum(c => c.ProductSize.Product.Price * c.Quantity);
+            => items.Sum(c => (c.UnitPrice ?? c.ProductSize.Product.Price) * c.Quantity);
 
         public static decimal CalcShipping(decimal subtotal)
             => subtotal >= FreeShippingThreshold ? 0 : ShippingFee;

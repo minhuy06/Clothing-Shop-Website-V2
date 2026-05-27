@@ -165,7 +165,7 @@ namespace Clothing_Shop_Website.Controllers
                         OrderID = order.OrderID,
                         SizeID = item.SizeID,
                         Quantity = item.Quantity,
-                        UnitPrice = item.ProductSize.Product.Price
+                        UnitPrice = item.UnitPrice ?? item.ProductSize.Product.Price
                     });
                     item.ProductSize.StockQuantity -= item.Quantity;
                 }

@@ -1,6 +1,8 @@
 @model List<Clothing_Shop_Website.Models.Product>
 
 @using System.Text.Json
+@using Clothing_Shop_Website.Helper
+@using Clothing_Shop_Website.Models
 
 @{
 
@@ -14,6 +16,8 @@
 
     };
 
+    var adMap = ViewBag.ActiveAdMap as Dictionary<int, Advertisement> ?? new Dictionary<int, Advertisement>();
+
     var productsJson = JsonSerializer.Serialize(Model.Select(p => new {
 
         id = p.ProductID,
@@ -22,9 +26,9 @@
 
         name = p.ProductName,
 
-        price = p.Price,
+        price = (adMap.ContainsKey(p.ProductID) ? AdPromotionHelper.GetSalePrice(p.Price, adMap[p.ProductID]) : p.Price),
 
-        old = 0,
+        old = (adMap.ContainsKey(p.ProductID) ? (AdPromotionHelper.GetSalePrice(p.Price, adMap[p.ProductID]) < p.Price ? p.Price : 0) : 0),
 
         img = p.ImageUrl ?? "",
 
@@ -273,6 +277,10 @@
 
                     : p.ImageUrl;
 
+                Advertisement? ad = adMap.ContainsKey(p.ProductID) ? adMap[p.ProductID] : null;
+                var salePrice = AdPromotionHelper.GetSalePrice(p.Price, ad);
+                var hasSale = salePrice < p.Price;
+
                 <article class="pcard" data-product-id="@p.ProductID" role="button" tabindex="0" aria-label="Xem @p.ProductName">
 
                     <div class="pthumb">
@@ -311,7 +319,11 @@
 
                         <div class="price-row">
 
-                            <span class="price">@p.Price.ToString("N0")đ</span>
+                            <span class="price">@salePrice.ToString("N0")đ</span>
+                            @if (hasSale)
+                            {
+                                <span class="price-old">@p.Price.ToString("N0")đ</span>
+                            }
 
                         </div>
 

@@ -2,18 +2,25 @@
    NEVA Admin — Dashboard CSS
    ========================================== */
 
-/* NAV */
+/* Trang admin: nav trong document flow — không cộng padding-top của neva-base */
+body:has(.admin-nav) {
+    padding-top: 0;
+}
+
+/* NAV — cùng chiều cao với .neva-nav trang chủ */
 .admin-nav {
     display: flex;
     align-items: center;
     padding: 0 44px;
-    height: 52px;
-    background: rgba(5,4,2,.97);
+    height: var(--nav-h, 52px);
+    min-height: var(--nav-h, 52px);
+    background: rgba(5, 4, 2, 0.97);
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 50;
     gap: 14px;
+    backdrop-filter: blur(14px);
 }
 
 .admin-nav-logo,
@@ -48,7 +55,7 @@ a.admin-nav-logo {
 .admin-wrap {
     display: flex;
     flex: 1;
-    min-height: calc(100vh - 52px);
+    min-height: calc(100vh - var(--nav-h, 52px));
 }
 
 /* SIDEBAR */
@@ -59,8 +66,8 @@ a.admin-nav-logo {
     border-right: 1px solid var(--border);
     padding: 20px 0;
     position: sticky;
-    top: 52px;
-    height: calc(100vh - 52px);
+    top: var(--nav-h, 52px);
+    height: calc(100vh - var(--nav-h, 52px));
     overflow-y: auto;
 }
 

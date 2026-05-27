@@ -24,6 +24,7 @@
         const cropCancel = document.getElementById('adCropCancel');
         const cropCancel2 = document.getElementById('adCropCancel2');
         const ratioHint = document.getElementById('adCropRatioHint');
+        const cropModalHint = document.getElementById('adCropModalHint');
         const posSel = document.getElementById('adPosition');
         if (!fileEl || !zone) return;
 
@@ -32,6 +33,7 @@
         function updateRatioHint() {
             const o = getCropOpts();
             if (ratioHint) ratioHint.textContent = o.label;
+            if (cropModalHint) cropModalHint.textContent = o.label;
         }
 
         function destroyCropper() {
@@ -55,6 +57,8 @@
             const img = document.getElementById('adPreviewImg');
             if (prev && img) {
                 img.src = src;
+                prev.style.display = 'block';
+            } else if (prev) {
                 prev.style.display = 'block';
             }
         }
@@ -83,13 +87,18 @@
                 cropMo.classList.add('open');
                 destroyCropper();
                 cropImg.onload = () => {
+                    cropImg.style.maxWidth = '100%';
+                    cropImg.style.maxHeight = '100%';
                     cropper = new Cropper(cropImg, {
                         aspectRatio: opts.aspectRatio,
                         viewMode: 1,
                         dragMode: 'move',
-                        autoCropArea: 0.92,
+                        autoCropArea: 0.9,
                         responsive: true,
-                        background: false
+                        background: false,
+                        ready() {
+                            cropper?.resize();
+                        }
                     });
                 };
             };

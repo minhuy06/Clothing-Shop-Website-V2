@@ -883,7 +883,14 @@ namespace Clothing_Shop_Website.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddAdvertisement(
-            string title, string position, int? productId, IFormFile? imageFile)
+            string title,
+            string position,
+            int? productId,
+            int discountType = 0,
+            decimal discountValue = 0,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            IFormFile? imageFile = null)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
@@ -900,8 +907,21 @@ namespace Clothing_Shop_Website.Controllers
                 return RedirectToAction("Advertisements");
             }
 
-            if (productId.HasValue && !await _db.Products.AnyAsync(p => p.ProductID == productId))
-                productId = null;
+            if (!productId.HasValue)
+            {
+                TempData["Error"] = "Vui lòng chọn sản phẩm được quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            if (!await _db.Products.AnyAsync(p => p.ProductID == productId))
+            {
+                TempData["Error"] = "Sản phẩm không tồn tại.";
+                return RedirectToAction("Advertisements");
+            }
+
+            discountType = discountType == 1 ? 1 : 0;
+            if (discountValue < 0) discountValue = 0;
+            if (discountType == 1 && discountValue > 100) discountValue = 100;
 
             var imageUrl = await FileHelper.UploadImageAsync(imageFile, "ads", _env);
             if (string.IsNullOrEmpty(imageUrl))
@@ -916,6 +936,10 @@ namespace Clothing_Shop_Website.Controllers
                 ImageUrl = imageUrl,
                 Position = pos,
                 ProductID = productId,
+                DiscountType = discountType,
+                DiscountValue = discountValue,
+                StartDate = startDate,
+                EndDate = endDate.HasValue ? endDate.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59) : null,
                 IsActive = true,
                 CreatedDate = DateTime.Now
             });

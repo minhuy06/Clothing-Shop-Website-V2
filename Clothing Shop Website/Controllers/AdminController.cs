@@ -852,7 +852,8 @@ namespace Clothing_Shop_Website.Controllers
         {
             if (!IsAdmin()) return Unauthorized();
 
-            var query = _db.Products.AsQueryable();
+            // Chỉ cho phép chọn sản phẩm đang hiển thị trên shop
+            var query = _db.Products.Where(p => p.Status == 1).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -872,7 +873,6 @@ namespace Clothing_Shop_Website.Controllers
                     name = p.ProductName,
                     price = p.Price,
                     category = p.Category != null ? p.Category.CategoryName : "",
-                    status = p.Status,
                     image = p.ImageUrl
                 })
                 .ToListAsync();
@@ -913,9 +913,9 @@ namespace Clothing_Shop_Website.Controllers
                 return RedirectToAction("Advertisements");
             }
 
-            if (!await _db.Products.AnyAsync(p => p.ProductID == productId))
+            if (!await _db.Products.AnyAsync(p => p.ProductID == productId && p.Status == 1))
             {
-                TempData["Error"] = "Sản phẩm không tồn tại.";
+                TempData["Error"] = "Chỉ được chọn sản phẩm đang hiển thị trên shop.";
                 return RedirectToAction("Advertisements");
             }
 

@@ -23,8 +23,7 @@
         hidden.value = item.id;
         search.value = item.name;
         selected.hidden = false;
-        const statusNote = item.status !== 1 ? ' · Chưa hiển thị trên shop' : '';
-        selectedText.textContent = `${item.name} · ${fmtPrice(item.price)}${statusNote}`;
+        selectedText.textContent = `${item.name} · ${fmtPrice(item.price)}`;
         hideResults();
     }
 
@@ -45,7 +44,7 @@
         results.innerHTML = items.map(p => `
             <button type="button" class="ad-product-opt" data-id="${p.id}">
                 <span class="ad-product-opt-name">${escapeHtml(p.name)}</span>
-                <span class="ad-product-opt-meta">Mã ${p.id} · ${escapeHtml(p.category || '')} · ${fmtPrice(p.price)}${p.status !== 1 ? ' · chưa hiển thị' : ''}</span>
+                <span class="ad-product-opt-meta">Mã ${p.id} · ${escapeHtml(p.category || '')} · ${fmtPrice(p.price)}</span>
             </button>`).join('');
         results.hidden = false;
         results.querySelectorAll('.ad-product-opt').forEach(btn => {

@@ -182,12 +182,9 @@ namespace Clothing_Shop_Website.Controllers
                 HttpContext.Session.Remove("CheckoutCoupon");
                 HttpContext.Session.Remove("CheckoutUsePoints");
 
-                TempData["OrderCode"] = "NV-" + order.OrderID.ToString("D8");
-                TempData["OrderTotal"] = pricing.Total.ToString("N0");
-                TempData["PointsEarned"] = (int)(pricing.Total / 10000);
-                TempData["TierDiscount"] = pricing.TierDiscount.ToString("N0");
+                TempData["Success"] = $"Đặt hàng thành công! Mã đơn: NV-{order.OrderID:D8} · Tổng: {pricing.Total:N0}đ · Tích thêm {(int)(pricing.Total / 10000)} điểm.";
 
-                return RedirectToAction("Success");
+                return RedirectToAction("History");
             }
             catch (Exception)
             {
@@ -195,13 +192,6 @@ namespace Clothing_Shop_Website.Controllers
                 TempData["Error"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
                 return RedirectToAction("Checkout");
             }
-        }
-
-        public IActionResult Success()
-        {
-            if (TempData["OrderCode"] == null)
-                return RedirectToAction("Index", "Home");
-            return View();
         }
 
         public async Task<IActionResult> History()

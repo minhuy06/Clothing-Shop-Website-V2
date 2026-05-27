@@ -126,12 +126,8 @@ namespace Clothing_Shop_Website.Controllers
                             && o.OrderDate >= yearStart && o.OrderDate < nextYearStart)
                 .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
 
-            var computedTier = MembershipTierHelper.GetTierFromYearlySpend(yearlySpend);
-            if (user.CustomerDetail != null && user.CustomerDetail.MembershipTier != computedTier)
-            {
-                user.CustomerDetail.MembershipTier = computedTier;
-                await _db.SaveChangesAsync();
-            }
+            // Hạng hiển thị lấy từ database (CustomerDetails.MembershipTier)
+            var membershipTier = MembershipTierHelper.NormalizeTier(user.CustomerDetail?.MembershipTier);
 
             var model = new ProfileViewModel
             {
@@ -140,7 +136,7 @@ namespace Clothing_Shop_Website.Controllers
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 RewardPoints = user.RewardPoints,
-                MembershipTier = computedTier,
+                MembershipTier = membershipTier,
                 YearlySpend = yearlySpend,
                 Status = user.Status,
                 UserAddresses = user.UserAddresses

@@ -36,6 +36,24 @@ namespace Clothing_Shop_Website.Helper
         }
 
         public static int CurrentYear => DateTime.Now.Year;
+
+        public static string NormalizeTier(string? tier)
+        {
+            if (string.IsNullOrWhiteSpace(tier)) return "Thường";
+            return tier.Trim();
+        }
+
+        /// <summary>Class CSS theo hạng (màu khác nhau).</summary>
+        public static string GetTierCssClass(string? tier)
+        {
+            return NormalizeTier(tier) switch
+            {
+                "Vàng" => "tier-vang",
+                "Bạc" => "tier-bac",
+                "Đồng" => "tier-dong",
+                _ => "tier-thuong"
+            };
+        }
     }
 }
 

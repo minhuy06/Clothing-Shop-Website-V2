@@ -1,4 +1,5 @@
-﻿@{
+﻿@model Clothing_Shop_Website.ViewModels.HomeIndexViewModel
+@{
     ViewData["Title"] = "Trang chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -188,6 +189,42 @@
         </div>
     </div>
 </div>
+
+@if (Model.PopupAds.Count > 0)
+{
+    <div id="adPopupStack" class="ad-popup" data-count="@Model.PopupAds.Count" hidden>
+        <div class="ad-popup-backdrop"></div>
+        <div class="ad-popup-stack" data-stack-count="@Model.PopupAds.Count">
+            @for (var i = 0; i < Model.PopupAds.Count; i++)
+            {
+                var ad = Model.PopupAds[i];
+                <article class="ad-popup-card" data-ad-id="@ad.AdID" style="--stack-index: @i">
+                    <div class="ad-popup-box">
+                        <button type="button" class="ad-popup-close" aria-label="Đóng quảng cáo">×</button>
+                        @if (Model.PopupAds.Count > 1)
+                        {
+                            <span class="ad-popup-stack-badge">@(i + 1)/@Model.PopupAds.Count</span>
+                        }
+                        @if (ad.ProductID.HasValue)
+                        {
+                            <a href="@Url.Action("Index", "Product", new { highlight = ad.ProductID })">
+                                <img src="@ad.ImageUrl" alt="@ad.Title" />
+                            </a>
+                        }
+                        else
+                        {
+                            <img src="@ad.ImageUrl" alt="@ad.Title" />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ad.Title))
+                        {
+                            <p class="ad-popup-title">@ad.Title</p>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script src="~/js/trang-chu.js" asp-append-version="true"></script>

@@ -338,6 +338,21 @@
         opacity: .85;
     }
 
+.promo-msg {
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    min-height: 16px;
+}
+
+    .promo-msg.ok {
+        color: #7aba7a;
+    }
+
+    .promo-msg.err {
+        color: #d47a76;
+    }
+
 /* Summary rows */
 .summary-title {
     font-family: var(--font-d);
@@ -391,6 +406,10 @@
         stroke-linecap: round;
         flex-shrink: 0;
     }
+
+.points-box--nav {
+    margin-bottom: 10px;
+}
 
 /* Points box */
 .points-header {

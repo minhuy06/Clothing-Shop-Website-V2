@@ -474,7 +474,7 @@ SET IDENTITY_INSERT [Orders] OFF;
 GO
 
 -- ==================================================================================
--- CHÈN DỮ LIỆU BẢNG 11: [OrderDetails] (Chi tiết đơn hàng - Khớp đúng theo mã sản phẩm và tổng tiền)
+-- CHÈN DỮ LIỆU BẢNG 11: [OrderDetails] (SizeID = size M của sản phẩm: (ProductID-1)*3+2)
 -- ==================================================================================
 SET IDENTITY_INSERT [OrderDetails] ON;
 INSERT INTO [OrderDetails] ([OrderDetailID], [OrderID], [SizeID], [Quantity], [UnitPrice]) VALUES
@@ -591,7 +591,7 @@ SET IDENTITY_INSERT [OrderDetails] OFF;
 GO
 
 -- ==================================================================================
--- CHÈN DỮ LIỆU BẢNG 12: [CartItems] (Giỏ hàng hoạt động - 15 sản phẩm trong giỏ)
+-- CHÈN DỮ LIỆU BẢNG 12: [CartItems] (Giỏ hàng — SizeID + UnitPrice)
 -- ==================================================================================
 SET IDENTITY_INSERT [CartItems] ON;
 INSERT INTO [CartItems] ([CartID], [UserID], [SizeID], [Quantity]) VALUES
@@ -635,10 +635,10 @@ GO
 -- CHÈN DỮ LIỆU BẢNG 13: [Advertisements] (Quảng cáo)
 -- ==================================================================================
 SET IDENTITY_INSERT [Advertisements] ON;
-INSERT INTO [Advertisements] ([AdID], [Title], [ImageUrl], [LinkUrl], [Position], [IsActive], [CreatedDate], [ProductID]) VALUES
-(1, N'Sale Hè Rực Rỡ', '/images/ads/summer-sale.jpg', NULL, 'banner', 1, '2026-05-01 00:00:00', 1),
-(2, N'Bộ Sưu Tập Công Sở', '/images/ads/office-collection.jpg', NULL, 'sidebar', 1, '2026-05-10 00:00:00', 3),
-(3, N'Đầm Dạ Hội Cao Cấp', '/images/ads/evening-dress.jpg', NULL, 'popup', 1, '2026-05-15 00:00:00', 6);
+INSERT INTO [Advertisements] ([AdID], [Title], [ImageUrl], [Position], [IsActive], [CreatedDate], [ProductID], [DiscountType], [DiscountValue], [StartDate], [EndDate]) VALUES
+(1, N'Sale Hè Rực Rỡ - Giảm 20%', '/images/ads/summer-sale.jpg', 'popup', 1, '2026-05-01 00:00:00', 1, 1, 20.00, '2026-05-01 00:00:00', '2026-12-31 23:59:59'),
+(2, N'Bộ Sưu Tập Công Sở - Giảm 15%', '/images/ads/office-collection.jpg', 'sidebar', 1, '2026-05-10 00:00:00', 3, 1, 15.00, '2026-05-10 00:00:00', '2026-12-31 23:59:59'),
+(3, N'Đầm Dạ Hội Cao Cấp - Giảm 10%', '/images/ads/evening-dress.jpg', 'popup', 1, '2026-05-15 00:00:00', 6, 1, 10.00, '2026-05-15 00:00:00', '2026-12-31 23:59:59');
 SET IDENTITY_INSERT [Advertisements] OFF;
 GO
 

@@ -1,0 +1,29 @@
+@model List<Clothing_Shop_Website.Models.Advertisement>
+@if (Model.Count > 0)
+{
+    <div id="sidebarAdPanel" class="sidebar-ad-panel" aria-label="Quảng cáo">
+        <div class="sidebar-ad-panel-hdr">
+            <span class="sidebar-ad-panel-title">Ưu đãi · NEVA</span>
+            <button type="button" class="sidebar-ad-panel-close" aria-label="Thu gọn">×</button>
+        </div>
+        <div class="sidebar-ad-panel-body">
+            @foreach (var ad in Model)
+            {
+                var link = ad.ProductID.HasValue
+                    ? Url.Action("Index", "Product", new { highlight = ad.ProductID })
+                    : Url.Action("Index", "Product");
+                <a href="@link" class="sidebar-ad-item" title="@ad.Title">
+                    <img src="@ad.ImageUrl" alt="@ad.Title" />
+                    @if (!string.IsNullOrWhiteSpace(ad.Title))
+                    {
+                        <span class="sidebar-ad-item-label">@ad.Title</span>
+                    }
+                </a>
+            }
+        </div>
+    </div>
+    <button type="button" id="sidebarAdTab" class="sidebar-ad-tab" hidden aria-label="Mở quảng cáo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </button>
+    <script src="~/js/sidebar-ads.js" asp-append-version="true"></script>
+}

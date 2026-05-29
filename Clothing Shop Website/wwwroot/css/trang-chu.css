@@ -651,3 +651,148 @@
     color: rgba(250,248,242,0.5);
     line-height: 1.7;
 }
+
+.ad-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+    .ad-popup[hidden] {
+        display: none !important;
+    }
+
+.ad-popup-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,4,2,0.82);
+    backdrop-filter: blur(4px);
+}
+
+/* Nhiều popup — xếp chồng lệch góc */
+.ad-popup-stack {
+    position: relative;
+    z-index: 1;
+    width: min(420px, 92vw);
+}
+
+.ad-popup-stack[data-stack-count="1"] {
+    padding: 0;
+}
+
+.ad-popup-stack[data-stack-count]:not([data-stack-count="1"]) {
+    padding: 0 28px 28px 0;
+}
+
+.ad-popup-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    --stack-index: 0;
+    --stack-offset: calc(var(--stack-index) * 14px);
+    --stack-scale: calc(1 - var(--stack-index) * 0.028);
+    transform: translate(var(--stack-offset), var(--stack-offset)) scale(var(--stack-scale));
+    transform-origin: top left;
+    z-index: calc(80 - var(--stack-index));
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    opacity: calc(1 - var(--stack-index) * 0.06);
+}
+
+.ad-popup-stack[data-stack-count="1"] .ad-popup-card {
+    position: relative;
+    transform: none;
+    opacity: 1;
+}
+
+.ad-popup-card.is-top {
+    z-index: 90;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ad-popup-card:not(.is-top) {
+    pointer-events: none;
+}
+
+.ad-popup-card.is-removing {
+    opacity: 0;
+    transform: translate(-12px, -24px) scale(0.92);
+}
+
+.ad-popup-stack::after {
+    content: '';
+    display: block;
+    width: 100%;
+    aspect-ratio: 4/5;
+    pointer-events: none;
+}
+
+.ad-popup-stack[data-stack-count="1"]::after {
+    display: none;
+}
+
+.ad-popup-box {
+    position: relative;
+    width: 100%;
+    border: 1px solid rgba(201,168,76,0.4);
+    background: var(--dark2);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+.ad-popup-stack-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    padding: 4px 10px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(5,4,2,0.75);
+    border: 1px solid rgba(201,168,76,0.45);
+    color: var(--gold);
+}
+
+    .ad-popup-box img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        aspect-ratio: 4/5;
+    }
+
+.ad-popup-title {
+    margin: 0;
+    padding: 12px 16px 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--gold);
+}
+
+.ad-popup-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(250,248,242,0.25);
+    background: rgba(5,4,2,0.6);
+    color: var(--cream);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .ad-popup-close:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+

@@ -37,6 +37,7 @@
         </div>
 
         <div class="nav-right">
+            @await Component.InvokeAsync("NavRewardPoints")
             <a asp-controller="Cart" asp-action="Index"
                class="nav-icon @(ViewContext.RouteData.Values["controller"]?.ToString() == "Cart" ? "active" : "")"
                data-page="cart">
@@ -60,6 +61,8 @@
     <main>
         @RenderBody()
     </main>
+
+    @await Component.InvokeAsync("NavSidebarAds")
 
     <footer class="neva-footer">
         <div class="footer-line"></div>

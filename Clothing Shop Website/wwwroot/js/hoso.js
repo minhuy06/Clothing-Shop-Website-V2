@@ -85,9 +85,9 @@ function closeAddrMo() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const tab = document.body.dataset.profileTab;
-    if (tab) {
-        const item = document.querySelector(`.smenu-item[onclick*="'${tab}'"]`);
-        sw(tab, item);
-    }
+    const wrap = document.querySelector('.page-wrap[data-profile-tab]');
+    const tab = wrap?.dataset.profileTab?.trim();
+    if (!tab) return;
+    const item = document.querySelector(`.smenu-item[onclick*="'${tab}'"]`);
+    sw(tab, item);
 });

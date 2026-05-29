@@ -50,7 +50,8 @@ namespace Clothing_Shop_Website
                 options.Cookie.IsEssential = true;
             });
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                    .AddRazorRuntimeCompilation();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -839,29 +839,112 @@ namespace Clothing_Shop_Website.Controllers
         public async Task<IActionResult> Advertisements()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
-            var ads = await _db.Advertisements.OrderByDescending(a => a.CreatedDate).ToListAsync();
+            var ads = await _db.Advertisements
+                .Include(a => a.Product)
+                .Where(a => a.Position == "popup" || a.Position == "sidebar")
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
             return View(ads);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchProductsForAd(string? q)
+        {
+            if (!IsAdmin()) return Unauthorized();
+
+            // Chỉ cho phép chọn sản phẩm đang hiển thị trên shop
+            var query = _db.Products.Where(p => p.Status == 1).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                if (int.TryParse(term, out var pid))
+                    query = query.Where(p => p.ProductID == pid || p.ProductName.Contains(term));
+                else
+                    query = query.Where(p => p.ProductName.Contains(term));
+            }
+
+            var items = await query
+                .OrderBy(p => p.ProductName)
+                .Take(25)
+                .Select(p => new
+                {
+                    id = p.ProductID,
+                    name = p.ProductName,
+                    price = p.Price,
+                    category = p.Category != null ? p.Category.CategoryName : "",
+                    image = p.ImageUrl
+                })
+                .ToListAsync();
+
+            return Json(items);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddAdvertisement(string title, string? linkUrl, string position, IFormFile? imageFile)
+        public async Task<IActionResult> AddAdvertisement(
+            string title,
+            string position,
+            int? productId,
+            int discountType = 0,
+            decimal discountValue = 0,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            IFormFile? imageFile = null)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
-            // SỬ DỤNG HELPER
+            if (imageFile == null || imageFile.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn và cắt ảnh quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            var pos = (position ?? "popup").Trim().ToLowerInvariant();
+            if (pos is not ("popup" or "sidebar"))
+            {
+                TempData["Error"] = "Chỉ hỗ trợ quảng cáo Popup hoặc Sidebar.";
+                return RedirectToAction("Advertisements");
+            }
+
+            if (!productId.HasValue)
+            {
+                TempData["Error"] = "Vui lòng chọn sản phẩm được quảng cáo.";
+                return RedirectToAction("Advertisements");
+            }
+
+            if (!await _db.Products.AnyAsync(p => p.ProductID == productId && p.Status == 1))
+            {
+                TempData["Error"] = "Chỉ được chọn sản phẩm đang hiển thị trên shop.";
+                return RedirectToAction("Advertisements");
+            }
+
+            discountType = discountType == 1 ? 1 : 0;
+            if (discountValue < 0) discountValue = 0;
+            if (discountType == 1 && discountValue > 100) discountValue = 100;
+
             var imageUrl = await FileHelper.UploadImageAsync(imageFile, "ads", _env);
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                TempData["Error"] = "Không thể tải ảnh lên. Vui lòng thử lại.";
+                return RedirectToAction("Advertisements");
+            }
 
             _db.Advertisements.Add(new Advertisement
             {
                 Title = (title ?? "").Trim(),
                 ImageUrl = imageUrl,
-                LinkUrl = linkUrl?.Trim(),
-                Position = position ?? "banner",
+                Position = pos,
+                ProductID = productId,
+                DiscountType = discountType,
+                DiscountValue = discountValue,
+                StartDate = startDate,
+                EndDate = endDate.HasValue ? endDate.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59) : null,
                 IsActive = true,
                 CreatedDate = DateTime.Now
             });
             await _db.SaveChangesAsync();
+
             TempData["Success"] = "Đã thêm quảng cáo!";
             return RedirectToAction("Advertisements");
         }

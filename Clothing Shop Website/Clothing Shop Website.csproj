@@ -8,7 +8,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Content Update="Views\**\*.cshtml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.95.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.17" />
 		<PackageReference Include="Microsoft.AnalysisServices.AdomdClient" Version="19.113.11" />
 		<PackageReference Include="Microsoft.AnalysisServices.AdomdClient.NetCore.retail.amd64" Version="19.52.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.17">

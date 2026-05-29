@@ -180,7 +180,7 @@
 
         summary.innerText = `Danh mục ${categoryName}: AI đề xuất nhập tổng ${predictedQty} sản phẩm trong ${months || 3} tháng tới, phân bổ theo tỉ trọng bán hàng lịch sử.`;
         list.innerHTML = '<div style="text-align:center; padding:20px; color: var(--gold);">Đang tìm sản phẩm gánh team...</div>';
-        modal.classList.add('active');
+        modal.classList.add('open');
 
         fetch(`/Admin/GetImportSuggestionsForCategory?categoryName=${encodeURIComponent(categoryName)}&aiPredictedQuantity=${predictedQty}`)
             .then(res => res.json())
@@ -213,7 +213,7 @@
     document.addEventListener('click', function (e) {
         if (e.target.id === 'aiDetailClose' || e.target.id === 'aiDetailCancel') {
             const mod = document.getElementById('aiDetailMo');
-            if (mod) mod.classList.remove('active');
+            if (mod) mod.classList.remove('open');
         }
     });
 
@@ -225,10 +225,10 @@
             const qty = btn.getAttribute('data-qty');
 
             const detailMo = document.getElementById('aiDetailMo');
-            if (detailMo) detailMo.classList.remove('active');
+            if (detailMo) detailMo.classList.remove('open');
 
             const importModal = document.getElementById('importMo');
-            if (importModal) importModal.classList.add('active');
+            if (importModal) importModal.classList.add('open');
 
             const impPid = document.getElementById('impProductId');
             const impPname = document.getElementById('impProductName');

@@ -28,6 +28,18 @@ namespace Clothing_Shop_Website.Controllers
         public int StockL { get; set; }
     }
 
+    public class SetShiftsInput
+    {
+        public int UserId { get; set; }
+        public List<ShiftInput> Shifts { get; set; } = new List<ShiftInput>();
+    }
+
+    public class ShiftInput
+    {
+        public int ShiftType { get; set; }
+        public string DayOfWeek { get; set; }
+    }
+
     public class AdminController : Controller
     {
         private readonly AppDbContext _db;
@@ -139,7 +151,7 @@ namespace Clothing_Shop_Website.Controllers
 
         #region 2. QUẢN LÝ NHÂN SỰ
 
-        public async Task<IActionResult> StaffMembers(string? search)
+        public async Task<IActionResult> Staff(string? search)
         {
             if (!IsAdmin())
                 return RedirectToAction("Login", "Account");
@@ -165,7 +177,7 @@ namespace Clothing_Shop_Website.Controllers
             if (await _db.Users.AnyAsync(u => u.Phone == phone))
             {
                 TempData["Error"] = "Số điện thoại này đã được sử dụng!";
-                return RedirectToAction("StaffMembers");
+                return RedirectToAction("Staff");
             }
 
             await using var tx = await _db.Database.BeginTransactionAsync();
@@ -218,7 +230,7 @@ namespace Clothing_Shop_Website.Controllers
                 TempData["Error"] = "Lỗi khi thêm nhân viên: " + ex.Message;
             }
 
-            return RedirectToAction("StaffMembers");
+            return RedirectToAction("Staff");
         }
 
         [HttpPost]
@@ -237,7 +249,7 @@ namespace Clothing_Shop_Website.Controllers
             if (await _db.Users.AnyAsync(u => u.Phone == phone && u.UserID != userId))
             {
                 TempData["Error"] = "Thất bại: Số điện thoại bị trùng với người khác!";
-                return RedirectToAction("StaffMembers");
+                return RedirectToAction("Staff");
             }
 
             await using var tx = await _db.Database.BeginTransactionAsync();
@@ -285,7 +297,7 @@ namespace Clothing_Shop_Website.Controllers
                 TempData["Error"] = "Lỗi khi cập nhật dữ liệu: " + ex.Message;
             }
 
-            return RedirectToAction("StaffMembers");
+            return RedirectToAction("Staff");
         }
 
         [HttpPost]
@@ -302,7 +314,7 @@ namespace Clothing_Shop_Website.Controllers
             if (user == null)
             {
                 TempData["Error"] = "Không tìm thấy nhân viên!";
-                return RedirectToAction("StaffMembers");
+                return RedirectToAction("Staff");
             }
 
             user.Status = (int)UserStatus.Inactive; // Enum & Soft Delete
@@ -313,7 +325,58 @@ namespace Clothing_Shop_Website.Controllers
             await _db.SaveChangesAsync();
 
             TempData["Success"] = $"Đã chuyển nhân viên {user.FullName} sang trạng thái Nghỉ việc (Bảo lưu dữ liệu lịch sử thành công).";
-            return RedirectToAction("StaffMembers");
+            return RedirectToAction("Staff");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStaffShifts(int userId)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            var shifts = await _db.StaffShifts
+                .Where(s => s.UserID == userId)
+                .Select(s => new { shiftType = s.ShiftType, dayOfWeek = s.DayOfWeek })
+                .ToListAsync();
+            return Json(shifts);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetShifts([FromBody] SetShiftsInput input)
+        {
+            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền" });
+            if (input == null || input.UserId < 1) return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var existingShifts = await _db.StaffShifts.Where(s => s.UserID == input.UserId).ToListAsync();
+                if (existingShifts.Any())
+                {
+                    _db.StaffShifts.RemoveRange(existingShifts);
+                }
+
+                if (input.Shifts != null && input.Shifts.Any())
+                {
+                    foreach (var s in input.Shifts)
+                    {
+                        if (string.IsNullOrEmpty(s.DayOfWeek)) continue;
+                        _db.StaffShifts.Add(new StaffShift
+                        {
+                            UserID = input.UserId,
+                            DayOfWeek = s.DayOfWeek,
+                            ShiftType = s.ShiftType
+                        });
+                    }
+                }
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return Json(new { success = false, message = ex.Message });
+            }
         }
         #endregion
 
@@ -601,7 +664,7 @@ namespace Clothing_Shop_Website.Controllers
             await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
-                var receipt = new InventoryReceipt { SupplierID = supplierId, ImportDate = DateTime.Now };
+                var receipt = new InventoryReceipt { SupplierID = supplierId, ImportDate = DateTime.Now, CreatedBy = HttpContext.Session.GetUserId() ?? 1 };
                 _db.InventoryReceipts.Add(receipt);
                 await _db.SaveChangesAsync();
 

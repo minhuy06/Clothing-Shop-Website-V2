@@ -1,4 +1,4 @@
-﻿@model Clothing_Shop_Website.ViewModels.ProfileViewModel
+@model Clothing_Shop_Website.ViewModels.ProfileViewModel
 @{
     ViewData["Title"] = "Hồ sơ";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div id="infoEdit" style="display:none">
-                    <form method="post" asp-controller="Account" asp-action="UpdateProfile">
+                    <form method="post" asp-controller="Account" asp-action="EditProfile">
                         @Html.AntiForgeryToken()
                         <div class="frow">
                             <div class="fgroup">

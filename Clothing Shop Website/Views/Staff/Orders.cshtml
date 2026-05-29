@@ -65,7 +65,7 @@
                 <a asp-controller="Staff" asp-action="Orders"
                     asp-route-status="@val"
                     asp-route-search="@ViewBag.Search"
-                    class="ftab @(ViewBag.Status == val || (val == "" && ViewBag.Status == null) ? "active" : "")">
+                    class="ftab @(ViewBag.Status?.ToString() == val || (val == "" && ViewBag.Status == null) ? "active" : "")">
                     @label
                 </a>
             }

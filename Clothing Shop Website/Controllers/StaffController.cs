@@ -249,6 +249,51 @@ namespace Clothing_Shop_Website.Controllers
             return RedirectToAction("Orders");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteOrder(int orderId)
+        {
+            if (!IsStaff()) return RedirectToAction("Login", "Account");
+
+            var donHang = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (donHang == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Orders");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Hoàn lại tồn kho nếu đơn chưa hủy
+                if (donHang.Status != 3)
+                {
+                    foreach(var chiTiet in donHang.OrderDetails)
+                    {
+                        var kichCo = await _db.ProductSizes.FindAsync(chiTiet.SizeID);
+                        if (kichCo != null)
+                            kichCo.StockQuantity += chiTiet.Quantity;
+                    }
+                }
+
+                _db.OrderDetails.RemoveRange(donHang.OrderDetails);
+                _db.Orders.Remove(donHang);
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Đã xóa đơn hàng và cập nhật lại tồn kho!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi khi xóa đơn hàng: " + ex.Message;
+            }
+            return RedirectToAction("Orders");
+        }
+
         // ═══════════════════════════════
         //   THỐNG KÊ
         // ═══════════════════════════════

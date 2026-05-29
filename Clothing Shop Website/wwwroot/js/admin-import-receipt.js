@@ -152,8 +152,10 @@
             window.showToast?.('✓ ' + (data.message || 'Đã tạo phiếu.'), 'ok');
             if (exportXlsx && data.receiptId) {
                 window.location.href = '/Admin/ExportReceipt?receiptId=' + encodeURIComponent(data.receiptId);
+                setTimeout(() => window.location.reload(), 1500);
             } else {
                 window.location.href = '/Admin/Products#imports';
+                window.location.reload();
             }
         } catch {
             window.showToast?.('Lỗi kết nối.', 'err');

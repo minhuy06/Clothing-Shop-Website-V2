@@ -178,7 +178,11 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid) 
+            {
+                TempData["Error"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+                return RedirectToAction("Profile");
+            }
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return NotFound();
@@ -229,6 +233,8 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login");
 
+            ModelState.Remove("user");
+            
             if (!ModelState.IsValid)
             {
                 var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;

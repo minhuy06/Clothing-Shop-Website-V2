@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.IO;
@@ -14,7 +14,7 @@ namespace Clothing_Shop_Website.Helper
 
             var ext = Path.GetExtension(file.FileName);
             if (ext.Length > 10) ext = "";
-            var safeName = $"{Guid.NewGuid():N}{ext}";
+            var safeName = $"{Guid.NewGuid().ToString("N").Substring(0, 16)}{ext}";
 
             var dir = Path.Combine(env.WebRootPath, "uploads", folderName);
             Directory.CreateDirectory(dir);

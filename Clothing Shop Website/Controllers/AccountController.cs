@@ -85,14 +85,19 @@ namespace Clothing_Shop_Website.Controllers
                 Password = SecurityHelper.HashPassword(password),
                 Role = (int)UserRole.Customer,
                 Status = (int)UserStatus.Active,
-                RewardPoints = 0,
                 Gender = 0,
-                DateOfBirth = null
+                DateOfBirth = null,
+                CustomerDetail = new CustomerDetail
+                {
+                    RewardPoints = 0,
+                    MembershipTier = "Đồng"
+                }
             };
 
             _db.Users.Add(newUser);
             await _db.SaveChangesAsync();
             HttpContext.Session.SetUserSession(newUser);
+            RewardPointsHelper.SyncSession(HttpContext.Session, 0);
 
             TempData["Success"] = "Tạo tài khoản thành công!";
             return RedirectToAction("Profile");
@@ -100,7 +105,7 @@ namespace Clothing_Shop_Website.Controllers
 
         // QUẢN LÝ HỒ SƠ
         [HttpGet]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile(string? tab)
         {
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
@@ -112,6 +117,18 @@ namespace Clothing_Shop_Website.Controllers
 
             if (user == null) return NotFound();
 
+            var year = MembershipTierHelper.CurrentYear;
+            var yearStart = new DateTime(year, 1, 1);
+            var nextYearStart = yearStart.AddYears(1);
+            var yearlySpend = await _db.Orders.AsNoTracking()
+                .Where(o => o.UserID == userId
+                            && o.Status != (int)OrderStatus.Cancelled
+                            && o.OrderDate >= yearStart && o.OrderDate < nextYearStart)
+                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+
+            // Hạng hiển thị lấy từ database (CustomerDetails.MembershipTier)
+            var membershipTier = MembershipTierHelper.NormalizeTier(user.CustomerDetail?.MembershipTier);
+
             var model = new ProfileViewModel
             {
                 FullName = user.FullName,
@@ -119,12 +136,18 @@ namespace Clothing_Shop_Website.Controllers
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 RewardPoints = user.RewardPoints,
+                MembershipTier = membershipTier,
+                YearlySpend = yearlySpend,
                 Status = user.Status,
                 UserAddresses = user.UserAddresses
                     .OrderByDescending(a => a.IsDefault)
                     .ThenByDescending(a => a.AddressID)
                     .ToList()
             };
+
+            ViewData["ProfileTab"] = !string.IsNullOrWhiteSpace(tab)
+                ? tab.Trim().ToLowerInvariant()
+                : TempData["Tab"]?.ToString() ?? "";
 
             return View(model);
         }
@@ -155,7 +178,11 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid) 
+            {
+                TempData["Error"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+                return RedirectToAction("Profile");
+            }
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return NotFound();
@@ -206,6 +233,8 @@ namespace Clothing_Shop_Website.Controllers
             var userId = HttpContext.Session.GetUserId();
             if (userId == null) return RedirectToAction("Login");
 
+            ModelState.Remove("user");
+            
             if (!ModelState.IsValid)
             {
                 var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;

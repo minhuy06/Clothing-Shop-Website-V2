@@ -24,5 +24,14 @@ namespace Clothing_Shop_Website.Data
         public DbSet<InventoryReceipt> InventoryReceipts { get; set; } = null!;
         public DbSet<InventoryReceiptDetail> InventoryReceiptDetails { get; set; } = null!;
         public DbSet<Advertisement> Advertisements { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Advertisement)
+                .WithMany(a => a.CartItems)
+                .HasForeignKey(c => c.AdID)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
     }
 }

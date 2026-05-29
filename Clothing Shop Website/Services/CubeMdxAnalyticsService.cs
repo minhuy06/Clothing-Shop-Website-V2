@@ -41,13 +41,9 @@ namespace Clothing_Shop_Website.Services
                     {limit}, 
                     [Measures].[Quantity]
                 ) ON ROWS
-                FROM (
-                    -- Sub-query: Chỉ lấy dữ liệu của 3 tháng gần nhất
-                    SELECT TAIL([Dim Time].[Month].[Month].Members, 3) ON COLUMNS
-                    FROM [{MdxEscapeName(_opt.CubeName)}]
-                )
+                FROM [{MdxEscapeName(_opt.CubeName)}]
                 -- Điều kiện: Chỉ lấy các sản phẩm thuộc Danh mục này
-                WHERE ( [Dim Product].[Category Name].&[{escapedCategory}] )";
+                WHERE ( [Dim Product].[Category Name].[{escapedCategory}] )";
 
             try
             {
@@ -68,7 +64,11 @@ namespace Clothing_Shop_Website.Services
                                 int qty = ToInt(Cell(cs, 0, r));
                                 if (qty > 0)
                                 {
-                                    productsList.Add(new TopSellerCubeRow { SourceProductId = pid, QuantitySold = qty });
+                                    productsList.Add(new TopSellerCubeRow { 
+                                        SourceProductId = pid, 
+                                        QuantitySold = qty,
+                                        ProductName = m.Caption 
+                                    });
                                 }
                             }
                         }
@@ -98,7 +98,7 @@ namespace Clothing_Shop_Website.Services
                 _log.LogError(ex, $"Lỗi khi lấy Top sản phẩm cho danh mục {categoryName}");
             }
 
-            return productsList.Where(x => x.ProductName != null).ToList();
+            return productsList.Where(x => !string.IsNullOrEmpty(x.ProductName) && !x.ProductName.Equals("All", StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public async Task<List<TopSellerCubeRow>> GetForecastNext3MonthsAsync(CancellationToken ct = default)
@@ -179,19 +179,21 @@ namespace Clothing_Shop_Website.Services
 
             try
             {
-                using var conn = new AdomdConnection(_opt.ConnectionString);
-                conn.Open();   // gọi đồng bộ — exception nằm gọn trong try này, VS không break giữa chừng
+                using (var conn = new AdomdConnection(_opt.ConnectionString))
+                {
+                    await Task.Run(() => conn.Open(), cancellationToken);
 
-                await FillKpisAsync(conn, vm, cancellationToken);
-                await FillRevenueByMonthAsync(conn, vm, cancellationToken);
-                await FillRevenueByCategoryAsync(conn, vm, cancellationToken);
-                await FillRevenueByAgeGroupAsync(conn, vm, cancellationToken);
-                await FillTopSellersAsync(conn, vm, seasonFilter, ageGroupFilter, cancellationToken);
+                    await FillKpisAsync(conn, vm, cancellationToken);
+                    await FillRevenueByMonthAsync(conn, vm, cancellationToken);
+                    await FillRevenueByCategoryAsync(conn, vm, cancellationToken);
+                    await FillRevenueByAgeGroupAsync(conn, vm, cancellationToken);
+                    await FillTopSellersAsync(conn, vm, seasonFilter, ageGroupFilter, cancellationToken);
+                }
             }
             catch (Exception ex)
             {
                 _log.LogWarning(ex, "MDX / Analysis Services không khả dụng.");
-                vm.CubeError = "Không kết nối được SSAS cube. Các tính năng AI và thống kê sẽ tạm thời không khả dụng.";
+                vm.CubeError = "Không truy vấn được cube (kiểm tra SSAS đã deploy ClothingShop_Cube và chuỗi kết nối). Chi tiết: " + ex.Message;
             }
 
             return vm;
@@ -338,7 +340,7 @@ namespace Clothing_Shop_Website.Services
                 if (!TryParseIntKey(m.Caption, out var pid) && !TryParseIntKey(m.Name, out pid)) continue;
                 var qty = ToInt(Cell(cs, 0, r));
                 if (qty <= 0) continue;
-                vm.TopSellers.Add(new TopSellerCubeRow { SourceProductId = pid, QuantitySold = qty });
+                vm.TopSellers.Add(new TopSellerCubeRow { SourceProductId = pid, QuantitySold = qty, ProductName = m.Caption });
             }
 
             if (vm.TopSellers.Count == 0) return;

@@ -5,20 +5,20 @@
 
     string GetStatusLabel(int s) => s switch
     {
-        0 => "Chờ duyệt",
-        1 => "Đang giao",
-        2 => "Đã giao",
-        3 => "Đã hủy",
-        4 => "Đang hoàn chuyển",
+        0 => "Chờ xử lý",
+        1 => "Đã xác nhận",
+        2 => "Đang giao",
+        3 => "Hoàn thành",
+        4 => "Đã hủy",
         _ => "Không rõ"
     };
     string GetStatusCss(int s) => s switch
     {
         0 => "sb-pending",
         1 => "sb-shipping",
-        2 => "sb-done",
-        3 => "sb-cancel",
-        4 => "sb-returning",
+        2 => "sb-shipping",
+        3 => "sb-done",
+        4 => "sb-cancel",
         _ => ""
     };
 }
@@ -47,13 +47,17 @@
                 <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 Hồ sơ của tôi
             </a>
-            <a asp-controller="Account" asp-action="Profile" class="smenu-item">
+            <a asp-controller="Account" asp-action="Profile" asp-route-tab="address" class="smenu-item">
                 <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
                 Địa chỉ giao hàng
             </a>
             <a asp-controller="Order" asp-action="History" class="smenu-item active">
                 <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
                 Lịch sử đơn hàng
+            </a>
+            <a asp-controller="Account" asp-action="Profile" asp-route-tab="settings" class="smenu-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                Cài đặt tài khoản
             </a>
             <a asp-controller="Account" asp-action="Logout" class="smenu-item danger">
                 <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
@@ -96,8 +100,14 @@
                         {
                             <div class="order-item">
                                 <div class="item-thumb">
-                                    <img src="@detail.ProductSize?.Product?.ImageUrl" alt="@detail.ProductSize?.Product?.ProductName"
-                                         onerror="this.style.display='none'">
+                                    @{
+                                        var pid = detail.ProductSize?.Product?.ProductID ?? 0;
+                                        var histImg = detail.ProductSize?.Product != null
+                                            ? ProductImageHelper.Resolve(detail.ProductSize.Product.ImageUrl, pid)
+                                            : ProductImageHelper.PlaceholderPath;
+                                    }
+                                    <img src="@histImg" alt="@detail.ProductSize?.Product?.ProductName"
+                                         onerror="this.src='@ProductImageHelper.PlaceholderPath'">
                                 </div>
                                 <div>
                                     <div class="item-name">@detail.ProductSize?.Product?.ProductName x@detail.Quantity</div>

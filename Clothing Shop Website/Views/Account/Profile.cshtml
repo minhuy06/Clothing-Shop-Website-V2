@@ -1,9 +1,10 @@
-﻿@model Clothing_Shop_Website.ViewModels.ProfileViewModel
+@model Clothing_Shop_Website.ViewModels.ProfileViewModel
 @{
     ViewData["Title"] = "Hồ sơ";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var initials = Model.FullName.Length >= 2 ? Model.FullName.Substring(0, 2).ToUpper() : Model.FullName.ToUpper();
     string GenderLabel(int g) => g switch { 1 => "Nữ", 2 => "Nam", 3 => "Khác", _ => "Chưa cập nhật" };
+    var tierClass = Clothing_Shop_Website.Helper.MembershipTierHelper.GetTierCssClass(Model.MembershipTier);
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/hoso.css" asp-append-version="true" />
@@ -19,13 +20,17 @@
     <div style="background:rgba(212,122,118,.1);border-bottom:1px solid rgba(212,122,118,.25);color:#d47a76;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Error"]</div>
 }
 
-<div class="page-wrap" data-profile-tab="@(TempData["Tab"]?.ToString() ?? "")">
+<div class="page-wrap" data-profile-tab="@(ViewData["ProfileTab"]?.ToString() ?? "")">
     <aside>
         <div class="profile-card">
             <div class="av-wrap"><div class="av-ring"></div><div class="av-ring2"></div><div class="av-circle">@initials</div></div>
             <div class="p-name">@Model.FullName</div>
             <div class="p-email">@Model.Phone</div>
             <div class="p-pts">✦ @Model.RewardPoints.ToString("N0") điểm tích lũy</div>
+            <div class="p-tier">
+                <span class="p-tier-lbl">Hạng thành viên</span>
+                <span class="tier-badge @tierClass">@Model.MembershipTier</span>
+            </div>
         </div>
         <div class="side-menu">
             <div class="smenu-item active" onclick="sw('profile',this)">
@@ -66,11 +71,27 @@
                         <div><div class="info-lbl">Ngày sinh</div><div class="info-val">@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd/MM/yyyy") : "—")</div></div>
                         <div><div class="info-lbl">Giới tính</div><div class="info-val">@GenderLabel(Model.Gender)</div></div>
                         <div><div class="info-lbl">Điểm thưởng</div><div class="info-val" style="color:var(--gold)">@Model.RewardPoints.ToString("N0") điểm</div></div>
+                        <div><div class="info-lbl">Hạng thành viên</div><div class="info-val"><span class="tier-badge @tierClass">@Model.MembershipTier</span></div></div>
+                        <div><div class="info-lbl">Chi tiêu trong năm</div><div class="info-val">@Model.YearlySpend.ToString("N0")đ</div></div>
                         <div><div class="info-lbl">Trạng thái</div><div class="info-val" style="color:#7aba7a">@(Model.Status == 1 ? "Hoạt động" : "Đã khóa")</div></div>
                     </div>
                 </div>
+
+                <div class="sbox" style="margin-top:14px">
+                    <div class="sbox-hdr">
+                        <div class="sbox-title">Quy đổi hạng & Ưu đãi</div>
+                    </div>
+                    <div style="padding:14px 18px;font-size:12px;letter-spacing:.5px;color:rgba(250,248,242,.7);line-height:1.75">
+                        <div style="margin-bottom:10px;opacity:.8">Tổng chi tiêu được tính theo <strong>năm hiện tại</strong>.</div>
+                        <div style="border:1px solid var(--border);background:rgba(201,168,76,.03);padding:12px 14px">
+                            <div style="display:flex;justify-content:space-between;gap:12px"><span>Trên 500.000đ</span><span style="color:var(--gold)">Hạng Đồng · Giảm 5%</span></div>
+                            <div style="display:flex;justify-content:space-between;gap:12px;margin-top:6px"><span>Trên 2.000.000đ</span><span style="color:var(--gold)">Hạng Bạc · Giảm 10%</span></div>
+                            <div style="display:flex;justify-content:space-between;gap:12px;margin-top:6px"><span>Trên 10.000.000đ</span><span style="color:var(--gold)">Hạng Vàng · Giảm 15%</span></div>
+                        </div>
+                    </div>
+                </div>
                 <div id="infoEdit" style="display:none">
-                    <form method="post" asp-controller="Account" asp-action="UpdateProfile">
+                    <form method="post" asp-controller="Account" asp-action="EditProfile">
                         @Html.AntiForgeryToken()
                         <div class="frow">
                             <div class="fgroup">

@@ -46,8 +46,8 @@ namespace Clothing_Shop_Website.Controllers
             if (!string.IsNullOrEmpty(search))
                 querry = querry.Where(p => p.ProductName.Contains(search.Trim()));
 
-            if (!categoryId.HasValue)
-                querry = querry.Where(p => p.CategoryID == categoryId);
+            if (categoryId.HasValue)
+                querry = querry.Where(p => p.CategoryID == categoryId.Value);
 
             // Gửi danh sách sang View
             ViewBag.Categories = await _db.Categories.AsNoTracking().OrderBy(c => c.CategoryName).ToListAsync();
@@ -61,41 +61,58 @@ namespace Clothing_Shop_Website.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStock(Dictionary<int, int> duLieuTonKho)
+        public async Task<IActionResult> UpdateStock(List<StockUpdateRow> rows)
         {
             if (!IsStaff())
                 return RedirectToAction("Login", "Account");
 
-            if(duLieuTonKho == null || !duLieuTonKho.Any())
+            if (rows == null || !rows.Any())
             {
-                TempData["Error"] = "Khong co du lieu ton kho nao duoc gui len";
+                TempData["Error"] = "Không có dữ liệu tồn kho nào được gửi lên";
                 return RedirectToAction("Inventory");
             }
 
             int updated = 0;
+            int failed = 0;
             await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
-                foreach(var item in duLieuTonKho)
+                foreach (var row in rows)
                 {
-                    int maKichCo = item.Key;
-                    int soLuongMoi = item.Value;
+                    if (row.NewQty <= 0) continue;
 
-                    if (soLuongMoi <= 0)
-                        throw new Exception("Ton kho khong duoc nho hon 0");
-
-                    var size = await _db.ProductSizes.FindAsync(maKichCo);
-                    if(size != null)
+                    // Nếu file có tên sản phẩm và size, tiến hành khớp (matching) tự động
+                    if (!string.IsNullOrEmpty(row.ProductName) && !string.IsNullOrEmpty(row.SizeName))
                     {
-                        size.StockQuantity += soLuongMoi;
-                        updated++;
+                        var tenSp = row.ProductName.ToLower().Trim();
+                        var tenSize = row.SizeName.ToLower().Trim();
+
+                        var productSize = await _db.ProductSizes
+                            .Include(ps => ps.Product)
+                            .FirstOrDefaultAsync(ps => ps.Product.ProductName.ToLower() == tenSp && ps.SizeName.ToLower() == tenSize);
+
+                        if (productSize != null)
+                        {
+                            productSize.StockQuantity += row.NewQty;
+                            updated++;
+                        }
+                        else
+                        {
+                            failed++;
+                        }
                     }
                 }
                 await _db.SaveChangesAsync();
                 await tx.CommitAsync();
 
                 if (updated > 0)
-                    TempData["Success"] = $"Da cap nhat thanh cong {updated} dong ton kho";
+                {
+                    TempData["Success"] = $"Đã cộng thêm thành công {updated} dòng tồn kho" + (failed > 0 ? $" (Bỏ qua {failed} dòng không khớp dữ liệu)" : "");
+                }
+                else if (failed > 0)
+                {
+                    TempData["Error"] = $"Không thể cập nhật: {failed} dòng đều không khớp tên sản phẩm/size với hệ thống.";
+                }
             }
             catch (Exception ex)
             {
@@ -141,10 +158,141 @@ namespace Clothing_Shop_Website.Controllers
             return RedirectToAction("Customers");
         }
 
-        // ═══════════════════════════════
         //   ĐƠN HÀNG
-        // ═══════════════════════════════
-        
+        [HttpGet]
+        public async Task<IActionResult> Orders(int? status, string? search)
+        {
+            var query = _db.Orders
+                .AsNoTracking()
+                .Include(o => o.User)
+                .Include(o => o.Discount)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.ProductSize)
+                        .ThenInclude(s => s.Product)
+                .AsQueryable();
+
+            if (status.HasValue)
+                query = query.Where(o => o.Status == status.Value);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var tuKhoa = search.Trim();
+                query = query.Where(o =>
+                o.ReceiverName.Contains(tuKhoa) ||
+                o.ReceiverPhone.Contains(tuKhoa) ||
+                o.OrderID.ToString().Contains(tuKhoa));
+            }
+
+            ViewBag.Status = status;
+            ViewBag.Search = search;
+            var danhSachDonHang = await query.OrderByDescending(o => o.OrderDate).ToListAsync();
+            return View(danhSachDonHang);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, int status)
+        {
+            if (!IsStaff()) return RedirectToAction("Login", "Account");
+
+            var donHang = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (donHang == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Orders");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Hủy đơn
+                if(status == 3 && donHang.Status != 3)
+                {
+                    foreach(var chiTiet in donHang.OrderDetails)
+                    {
+                        var kichCo = await _db.ProductSizes.FindAsync(chiTiet.SizeID);
+                        if (kichCo != null)
+                            kichCo.StockQuantity += chiTiet.Quantity;
+                    }
+                }
+
+                else if (donHang.Status == 3 && status != 3)
+                {
+                    foreach(var chiTiet in donHang.OrderDetails)
+                    {
+                        var kichCo = await _db.ProductSizes.FindAsync(chiTiet.SizeID);
+                        if(kichCo != null)
+                        {
+                            if (kichCo.StockQuantity < chiTiet.Quantity)
+                                throw new Exception($"Size {kichCo.SizeName} không đủ tồn kho để khôi phục.");
+
+                            kichCo.StockQuantity -= chiTiet.Quantity;
+                        }
+                    }
+                }
+
+                donHang.Status = status;
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Cập nhật trạng thái và tồn kho thành công!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi xử lý: " + ex.Message;
+            }
+            return RedirectToAction("Orders");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteOrder(int orderId)
+        {
+            if (!IsStaff()) return RedirectToAction("Login", "Account");
+
+            var donHang = await _db.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (donHang == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Orders");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Hoàn lại tồn kho nếu đơn chưa hủy
+                if (donHang.Status != 3)
+                {
+                    foreach(var chiTiet in donHang.OrderDetails)
+                    {
+                        var kichCo = await _db.ProductSizes.FindAsync(chiTiet.SizeID);
+                        if (kichCo != null)
+                            kichCo.StockQuantity += chiTiet.Quantity;
+                    }
+                }
+
+                _db.OrderDetails.RemoveRange(donHang.OrderDetails);
+                _db.Orders.Remove(donHang);
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Đã xóa đơn hàng và cập nhật lại tồn kho!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi khi xóa đơn hàng: " + ex.Message;
+            }
+            return RedirectToAction("Orders");
+        }
 
         // ═══════════════════════════════
         //   THỐNG KÊ
@@ -211,5 +359,7 @@ namespace Clothing_Shop_Website.Controllers
     {
         public int SizeId { get; set; }
         public int NewQty { get; set; }
+        public string? ProductName { get; set; }
+        public string? SizeName { get; set; }
     }
 }

@@ -1,174 +1,207 @@
-﻿const FREE_SHIP = 500000;
-const TOTAL_POINTS = 1250;
-const POINTS_RATE = 100; // 100 điểm = 10.000đ
-const MAX_POINTS_PCT = 0.3;
+﻿// Giỏ hàng — quy đổi điểm & mã giảm giá (dữ liệu từ #cartConfig)
+(function () {
+    const FREE_SHIP = 500000;
+    const POINTS_PER_10K = 100; // 100 điểm = 10.000đ
+    const MAX_POINTS_PCT = 0.3;
 
-let cartItems = [
-    { id: 1, name: 'Áo blouse lụa cổ V', meta: 'Kem · Size M', price: 980000, qty: 2, img: 'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=200&q=80', selected: true },
-    { id: 2, name: 'Quần wide-leg linen', meta: 'Đen · Size S', price: 1350000, qty: 1, img: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=200&q=80', selected: true },
-    { id: 3, name: 'Váy midi dáng A-line', meta: 'Kem · Size M', price: 1650000, qty: 1, img: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200&q=80', selected: false },
-];
+    let subtotal = 0;
+    let shipping = 0;
+    let totalPoints = 0;
+    let discountAmount = 0;
+    let pointsDiscount = 0;
+    let appliedCoupon = '';
+    let appliedPoints = 0;
 
-let discount = 0;
-let pointsDiscount = 0;
+    function fmt(n) {
+        return Math.max(0, Math.round(n)).toLocaleString('vi-VN') + 'đ';
+    }
 
-function fmt(n) { return n.toLocaleString('vi-VN') + 'đ'; }
+    function calcPointsSaving(pts) {
+        return Math.floor(pts / POINTS_PER_10K) * 10000;
+    }
 
-// ── Tính subtotal ──
-function calcSubtotal() {
-    return cartItems.filter(i => i.selected).reduce((s, i) => s + i.price * i.qty, 0);
-}
+    function maxUsablePoints() {
+        const maxByOrder = Math.floor(subtotal * MAX_POINTS_PCT / 10000) * POINTS_PER_10K;
+        return Math.min(totalPoints, maxByOrder);
+    }
 
-// ── Update summary ──
-function updateSummary() {
-    const sub = calcSubtotal();
-    const ship = sub >= FREE_SHIP ? 0 : 30000;
-    const total = sub + ship - discount - pointsDiscount;
-    const remain = FREE_SHIP - sub;
+    function updateSummary() {
+        const total = Math.max(0, subtotal + shipping - discountAmount - pointsDiscount);
 
-    document.getElementById('sumSubtotal').textContent = fmt(sub);
-    document.getElementById('sumShip').textContent = ship === 0 ? 'Miễn phí' : fmt(ship);
-    document.getElementById('sumDiscount').textContent = '— ' + fmt(discount);
-    document.getElementById('sumPoints').textContent = '— ' + fmt(pointsDiscount);
-    document.getElementById('sumTotal').textContent = fmt(Math.max(0, total));
-    document.getElementById('shipRemain').textContent = remain > 0 ? fmt(remain) : 'đã đủ!';
-    if (remain <= 0) document.getElementById('shipRemain').style.color = '#7aba7a';
+        const elSub = document.getElementById('sumSubtotal');
+        const elShip = document.getElementById('sumShip');
+        const elTotal = document.getElementById('sumTotal');
+        const rowDisc = document.getElementById('rowDiscount');
+        const rowPts = document.getElementById('rowPoints');
 
-    const selectedCount = cartItems.filter(i => i.selected).length;
-    document.getElementById('cartSubtitle').textContent = selectedCount + ' sản phẩm được chọn · ' + cartItems.length + ' sản phẩm trong giỏ';
+        if (elSub) elSub.textContent = fmt(subtotal);
+        if (elShip) elShip.textContent = shipping === 0 ? 'Miễn phí' : fmt(shipping);
+        if (elTotal) elTotal.textContent = fmt(total);
 
-    const allSel = cartItems.length > 0 && cartItems.every(i => i.selected);
-    const cbAll = document.getElementById('cbAll');
-    if (allSel) cbAll.classList.add('on'); else cbAll.classList.remove('on');
+        if (rowDisc) {
+            rowDisc.hidden = discountAmount <= 0;
+            const el = document.getElementById('sumDiscount');
+            if (el) el.textContent = '— ' + fmt(discountAmount);
+        }
+        if (rowPts) {
+            rowPts.hidden = pointsDiscount <= 0;
+            const el = document.getElementById('sumPoints');
+            if (el) el.textContent = '— ' + fmt(pointsDiscount);
+        }
+    }
 
-    // Update slider max
-    const maxPts = Math.min(TOTAL_POINTS, Math.floor(sub * MAX_POINTS_PCT / (10000 / POINTS_RATE)));
-    document.getElementById('pointsSlider').max = maxPts;
-}
+    function setCouponMsg(text, ok) {
+        const el = document.getElementById('couponMsg');
+        if (!el) return;
+        el.textContent = text || '';
+        el.className = 'promo-msg' + (text ? (ok ? ' ok' : ' err') : '');
+    }
 
-// ── Render cart ──
-function renderCart() {
-    const rows = document.getElementById('cartRows');
-    if (!cartItems.length) {
-        rows.innerHTML = `<div class="empty-cart">
-            <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-            <p>Giỏ hàng của bạn đang trống</p>
-            <a href="/Product" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">Khám phá sản phẩm</a>
-        </div>`;
+    async function applyCoupon() {
+        const input = document.getElementById('couponInput');
+        const code = (input?.value || '').trim();
+        if (!code) {
+            discountAmount = 0;
+            appliedCoupon = '';
+            setCouponMsg('Vui lòng nhập mã giảm giá.', false);
+            updateSummary();
+            return;
+        }
+
+        try {
+            const res = await fetch('/Cart/ValidateCoupon?code=' + encodeURIComponent(code));
+            const data = await res.json();
+            if (!data.success) {
+                discountAmount = 0;
+                appliedCoupon = '';
+                setCouponMsg(data.message || 'Mã không hợp lệ.', false);
+                updateSummary();
+                return;
+            }
+            discountAmount = data.discount;
+            appliedCoupon = data.code || code.toUpperCase();
+            if (input) input.value = appliedCoupon;
+            setCouponMsg('✓ ' + (data.label || 'Đã áp dụng mã'), true);
+            updateSummary();
+            if (typeof nevaToast === 'function') nevaToast('Đã áp dụng mã giảm giá', 'ok');
+        } catch {
+            setCouponMsg('Lỗi kết nối máy chủ.', false);
+        }
+    }
+
+    function syncSliderFromInput() {
+        const inp = document.getElementById('pointsInput');
+        const slider = document.getElementById('pointsSlider');
+        if (!inp || !slider) return;
+        let v = parseInt(inp.value, 10) || 0;
+        v = Math.min(Math.max(0, v), maxUsablePoints());
+        slider.value = v;
+        const saving = document.getElementById('ptsSaving');
+        if (saving) saving.textContent = 'Giảm: ' + fmt(calcPointsSaving(v));
+    }
+
+    function syncInputFromSlider() {
+        const inp = document.getElementById('pointsInput');
+        const slider = document.getElementById('pointsSlider');
+        if (!inp || !slider) return;
+        inp.value = slider.value;
+        syncSliderFromInput();
+    }
+
+    function applyPoints() {
+        const inp = document.getElementById('pointsInput');
+        let pts = parseInt(inp?.value, 10) || 0;
+        if (pts <= 0) {
+            if (typeof nevaToast === 'function') nevaToast('Vui lòng nhập số điểm muốn dùng!', 'err');
+            return;
+        }
+        const maxPts = maxUsablePoints();
+        if (pts > maxPts) {
+            pts = maxPts;
+            if (inp) inp.value = pts;
+            if (typeof nevaToast === 'function') nevaToast('Đã điều chỉnh theo mức tối đa (30% đơn hàng)', 'info');
+        }
+        if (pts > totalPoints) {
+            if (typeof nevaToast === 'function') nevaToast('Bạn không đủ điểm!', 'err');
+            return;
+        }
+
+        appliedPoints = pts;
+        pointsDiscount = calcPointsSaving(pts);
+
+        const applied = document.getElementById('pointsApplied');
+        const appliedText = document.getElementById('pointsAppliedText');
+        if (applied) applied.classList.add('show');
+        if (appliedText) {
+            appliedText.textContent = `Đã dùng ${pts.toLocaleString('vi-VN')} điểm · Giảm ${fmt(pointsDiscount)}`;
+        }
         updateSummary();
-        return;
+        if (typeof nevaToast === 'function') nevaToast('Đã áp dụng điểm thưởng', 'info');
     }
 
-    rows.innerHTML = cartItems.map((item, i) => `
-        <div class="cart-row">
-            <div class="cb ${item.selected ? 'on' : ''}" onclick="toggleItem(${i})"></div>
-            <div class="cart-product">
-                <div class="cart-thumb">
-                    <img src="${item.img}" alt="${item.name}" loading="lazy"
-                        onerror="this.parentElement.style.background='#14100a';this.style.display='none'">
-                </div>
-                <div>
-                    <div class="cart-pname">${item.name}</div>
-                    <div class="cart-pmeta">${item.meta}</div>
-                </div>
-            </div>
-            <div class="cart-price">${fmt(item.price)}</div>
-            <div class="qty-row">
-                <button class="qbtn" onclick="changeQty(${i},-1)">−</button>
-                <input class="qval" type="number" value="${item.qty}" min="1" onchange="setQty(${i},this.value)">
-                <button class="qbtn" onclick="changeQty(${i},1)">+</button>
-            </div>
-            <div class="cart-total">${fmt(item.price * item.qty)}</div>
-            <button class="cart-remove" onclick="removeItem(${i})">
-                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-            </button>
-        </div>`).join('');
-
-    updateSummary();
-}
-
-// ── Actions ──
-function toggleItem(i) { cartItems[i].selected = !cartItems[i].selected; renderCart(); }
-
-function toggleSelectAll() {
-    const allSel = cartItems.every(i => i.selected);
-    cartItems.forEach(i => i.selected = !allSel);
-    renderCart();
-}
-
-function deleteSelected() {
-    const count = cartItems.filter(i => i.selected).length;
-    if (!count) { nevaToast('Chưa chọn sản phẩm nào!', 'err'); return; }
-    cartItems = cartItems.filter(i => !i.selected);
-    renderCart();
-    nevaToast(`Đã xóa ${count} sản phẩm`);
-}
-
-function removeItem(i) { cartItems.splice(i, 1); renderCart(); nevaToast('Đã xóa sản phẩm'); }
-function changeQty(i, d) { cartItems[i].qty = Math.max(1, cartItems[i].qty + d); renderCart(); }
-function setQty(i, v) { cartItems[i].qty = Math.max(1, parseInt(v) || 1); renderCart(); }
-
-// ── Coupon ──
-function applyCoupon() {
-    const code = document.getElementById('couponInput').value.trim().toUpperCase();
-    if (code === 'NEVA20') { discount = calcSubtotal() * 0.2; renderCart(); nevaToast('✦ Giảm 20% đã được áp dụng!', 'info'); }
-    else if (code === 'SALE50K') { discount = 50000; renderCart(); nevaToast('✦ Giảm 50.000đ đã được áp dụng!', 'info'); }
-    else nevaToast('Mã giảm giá không hợp lệ!', 'err');
-}
-
-// ── Points ──
-function syncSlider() {
-    const v = parseInt(document.getElementById('pointsInput').value) || 0;
-    document.getElementById('pointsSlider').value = v;
-    updatePtsSaving(v);
-}
-
-function syncInput() {
-    const v = parseInt(document.getElementById('pointsSlider').value) || 0;
-    document.getElementById('pointsInput').value = v;
-    updatePtsSaving(v);
-}
-
-function updatePtsSaving(pts) {
-    const saving = Math.floor(pts / POINTS_RATE) * 10000;
-    document.getElementById('ptsSaving').textContent = 'Giảm: ' + fmt(saving);
-}
-
-function applyPoints() {
-    const sub = calcSubtotal();
-    let pts = parseInt(document.getElementById('pointsInput').value) || 0;
-    if (pts <= 0) { nevaToast('Vui lòng nhập số điểm muốn dùng!', 'err'); return; }
-    if (pts > TOTAL_POINTS) { nevaToast('Bạn không đủ điểm!', 'err'); return; }
-    const maxDisc = sub * MAX_POINTS_PCT;
-    const saving = Math.floor(pts / POINTS_RATE) * 10000;
-    if (saving > maxDisc) {
-        pts = Math.floor(maxDisc / 10000) * POINTS_RATE;
-        nevaToast('Điều chỉnh xuống mức tối đa cho phép (30% đơn hàng)', 'info');
+    function cancelPoints() {
+        appliedPoints = 0;
+        pointsDiscount = 0;
+        const inp = document.getElementById('pointsInput');
+        const slider = document.getElementById('pointsSlider');
+        if (inp) inp.value = '';
+        if (slider) slider.value = 0;
+        document.getElementById('pointsApplied')?.classList.remove('show');
+        const saving = document.getElementById('ptsSaving');
+        if (saving) saving.textContent = 'Giảm: 0đ';
+        updateSummary();
     }
-    pointsDiscount = Math.floor(pts / POINTS_RATE) * 10000;
-    document.getElementById('pointsApplied').classList.add('show');
-    document.getElementById('pointsAppliedText').textContent = `Đã dùng ${pts.toLocaleString('vi-VN')} điểm · Giảm ${fmt(pointsDiscount)}`;
-    document.getElementById('pointsDisplay').textContent = (TOTAL_POINTS - pts).toLocaleString('vi-VN') + ' điểm';
-    renderCart();
-    nevaToast('✦ Đã áp dụng điểm thưởng!', 'info');
-}
 
-function cancelPoints() {
-    pointsDiscount = 0;
-    document.getElementById('pointsInput').value = '';
-    document.getElementById('pointsSlider').value = 0;
-    document.getElementById('pointsApplied').classList.remove('show');
-    document.getElementById('ptsSaving').textContent = 'Giảm: 0đ';
-    document.getElementById('pointsDisplay').textContent = TOTAL_POINTS.toLocaleString('vi-VN') + ' điểm';
-    renderCart();
-    nevaToast('Đã hủy sử dụng điểm');
-}
+    async function goCheckout() {
+        const body = new URLSearchParams();
+        body.append('coupon', appliedCoupon);
+        body.append('usePoints', String(appliedPoints));
+        try {
+            await fetch('/Cart/SetCheckoutPromo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            });
+        } catch { /* vẫn chuyển trang */ }
+        window.location.href = '/Order/Checkout';
+    }
 
-function checkout() {
-    const sel = cartItems.filter(i => i.selected);
-    if (!sel.length) { nevaToast('Vui lòng chọn ít nhất 1 sản phẩm!', 'err'); return; }
-    window.location.href = '/Order/Checkout';
-}
+    function restoreSavedPromo(cfg) {
+        if (cfg.dataset.savedCoupon) {
+            applyCoupon();
+        }
+        const savedPts = parseInt(cfg.dataset.savedUsePoints, 10) || 0;
+        if (savedPts > 0) {
+            const inp = document.getElementById('pointsInput');
+            const slider = document.getElementById('pointsSlider');
+            if (inp) inp.value = savedPts;
+            if (slider) slider.value = savedPts;
+            applyPoints();
+        }
+    }
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', renderCart);
+    document.addEventListener('DOMContentLoaded', function () {
+        const cfg = document.getElementById('cartConfig');
+        if (!cfg) return;
+
+        subtotal = parseFloat(cfg.dataset.subtotal) || 0;
+        shipping = parseFloat(cfg.dataset.shipping) || 0;
+        totalPoints = parseInt(cfg.dataset.points, 10) || 0;
+
+        const slider = document.getElementById('pointsSlider');
+        if (slider) slider.max = maxUsablePoints();
+
+        document.getElementById('btnApplyCoupon')?.addEventListener('click', applyCoupon);
+        document.getElementById('couponInput')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); }
+        });
+        document.getElementById('btnApplyPoints')?.addEventListener('click', applyPoints);
+        document.getElementById('btnCancelPoints')?.addEventListener('click', cancelPoints);
+        document.getElementById('pointsInput')?.addEventListener('input', syncSliderFromInput);
+        document.getElementById('pointsSlider')?.addEventListener('input', syncInputFromSlider);
+        document.getElementById('btnCheckout')?.addEventListener('click', goCheckout);
+
+        updateSummary();
+        restoreSavedPromo(cfg);
+    });
+})();

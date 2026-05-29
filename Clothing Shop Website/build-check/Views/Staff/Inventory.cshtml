@@ -1,0 +1,206 @@
+@model List<Clothing_Shop_Website.Models.Product>
+@{
+    ViewData["Title"] = "Kho hàng";
+    Layout = null;
+    var categories = ViewBag.Categories as List<Clothing_Shop_Website.Models.Category>;
+    string GetSeason(int s) => s switch { 1=>"Xuân",2=>"Hạ",3=>"Thu",4=>"Đông",_=>"" };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEVA — Kho hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Josefin+Sans:wght@200;300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="~/css/neva-base.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true"/>
+<link rel="stylesheet" href="~/css/staff.css" asp-append-version="true"/>
+<!-- SheetJS từ CDN để parse file Excel phía client -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav class="admin-nav">
+    <span class="admin-nav-logo">NEVA</span><span class="admin-nav-sep">|</span><span class="staff-nav-badge">Nhân viên</span>
+</nav>
+<div class="admin-wrap">
+    <aside class="admin-sidebar">
+        <div class="sb-section">
+            <div class="sb-lbl">Nhân viên</div>
+            <a asp-controller="Staff" asp-action="Inventory" class="sitem active"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Kho hàng</a>
+            <a asp-controller="Staff" asp-action="Customers" class="sitem"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Khách hàng</a>
+            <a asp-controller="Staff" asp-action="Orders" class="sitem"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Đơn hàng</a>
+            <a asp-controller="Staff" asp-action="Statistics" class="sitem"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="3" width="4" height="18"/></svg>Thống kê</a>
+        </div>
+        <div class="sb-section" style="margin-top:12px">
+            <a asp-controller="Account" asp-action="Logout" class="sitem danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất</a>
+        </div>
+    </aside>
+    <main class="admin-main">
+
+        @if (TempData["Success"] != null)
+        {
+            <div style="padding:10px 16px;background:rgba(90,154,90,.1);border:1px solid rgba(90,154,90,.3);color:#7aba7a;font-size:11px;margin-bottom:16px">✦ @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div style="padding:10px 16px;background:rgba(180,80,80,.12);border:1px solid rgba(212,122,116,.35);color:#d4a8a4;font-size:11px;margin-bottom:16px">@TempData["Error"]</div>
+        }
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div>
+                <div class="page-title">Kho hàng</div>
+                <div class="page-sub">Theo dõi và cập nhật tồn kho · <strong style="color:var(--gold)">@Model.Count</strong> sản phẩm</div>
+            </div>
+            <button type="button" id="btnImportExcel" class="btn-add">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
+                Import Excel
+            </button>
+        </div>
+
+        <!-- Filter -->
+        <form method="get" asp-controller="Staff" asp-action="Inventory" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                <input type="text" name="search" value="@ViewBag.Search" placeholder="Tìm sản phẩm...">
+            </div>
+            <select name="categoryId" style="padding:9px 13px;border:1px solid var(--border);background:var(--dark2);font-size:12px;font-family:var(--font-b);color:var(--white);outline:none">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var cat in categories!)
+                {
+                    @if (ViewBag.CategoryId?.ToString() == cat.CategoryID.ToString())
+                    { <option value="@cat.CategoryID" selected>@cat.CategoryName</option> }
+                    else
+                    { <option value="@cat.CategoryID">@cat.CategoryName</option> }
+                }
+            </select>
+            <button type="submit" style="padding:9px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;font-family:var(--font-b);cursor:pointer">Lọc</button>
+            <a asp-controller="Staff" asp-action="Inventory" style="padding:9px 16px;border:1px solid var(--border);color:rgba(250,248,242,.5);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-family:var(--font-b);text-decoration:none">Xóa lọc</a>
+        </form>
+
+        <!-- Inventory table -->
+        <form method="post" asp-controller="Staff" asp-action="UpdateStock" id="importStockForm">
+            @Html.AntiForgeryToken()
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px"></th>
+                        <th>Sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Mùa</th>
+                        <th>Size</th>
+                        <th>Tồn kho</th>
+                        <th>Tình trạng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        if (p.ProductSizes == null || !p.ProductSizes.Any())
+                        {
+                            <tr>
+                                <td><div style="width:40px;height:50px;overflow:hidden"><img src="@p.ImageUrl" style="width:100%;height:100%;object-fit:cover;filter:brightness(.8)" onerror="this.style.display='none'"></div></td>
+                                <td style="font-family:'EB Garamond',serif;font-style:italic;font-size:14px">@p.ProductName</td>
+                                <td>@p.Category?.CategoryName</td>
+                                <td>@GetSeason(p.Session)</td>
+                                <td colspan="3" style="color:rgba(250,248,242,.25);font-size:11px;font-style:italic">Chưa có size</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            bool firstRow = true;
+                            foreach (var size in p.ProductSizes.OrderBy(s => s.SizeName))
+                            {
+                                var isLow = size.StockQuantity <= size.MinimumStock;
+                                <tr>
+                                    @if (firstRow)
+                                    {
+                                        <td rowspan="@p.ProductSizes.Count" style="vertical-align:top;padding-top:13px"><div style="width:40px;height:50px;overflow:hidden"><img src="@p.ImageUrl" style="width:100%;height:100%;object-fit:cover;filter:brightness(.8)" onerror="this.style.display='none'"></div></td>
+                                        <td rowspan="@p.ProductSizes.Count" style="vertical-align:top;padding-top:13px;font-family:'EB Garamond',serif;font-style:italic;font-size:14px">@p.ProductName</td>
+                                        <td rowspan="@p.ProductSizes.Count" style="vertical-align:top;padding-top:13px">@p.Category?.CategoryName</td>
+                                        <td rowspan="@p.ProductSizes.Count" style="vertical-align:top;padding-top:13px">@GetSeason(p.Session)</td>
+                                    }
+                                    <td>
+                                        <span style="font-size:11px;font-weight:400;letter-spacing:1px;color:var(--gold);background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);padding:2px 8px">@size.SizeName</span>
+                                    </td>
+                                    <td>
+                                        <span class="@(isLow ? "inv-stock-low" : "inv-stock-ok")" style="font-size:14px;font-weight:300">@size.StockQuantity</span>
+                                    </td>
+                                    <td>
+                                        @if (isLow)
+                                        {
+                                            <span class="inv-tag inv-tag-low">⚠ Tồn thấp</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inv-tag inv-tag-ok">✓ Đủ hàng</span>
+                                        }
+                                    </td>
+                                </tr>
+                                firstRow = false;
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </form>
+    </main>
+</div>
+
+<!-- ═══ POPUP IMPORT EXCEL ═══ -->
+<div id="excelMo" class="modal-overlay" style="display:none;backdrop-filter:blur(8px)">
+    <div class="modal-box" style="max-width:680px;width:95%">
+        <div class="modal-hdr">
+            IMPORT EXCEL — CẬP NHẬT TỒN KHO
+            <button id="excelMoClose" class="modal-x">×</button>
+        </div>
+
+        <!-- DROPZONE -->
+        <div id="excelDropzone" class="excel-dropzone">
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" hidden />
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
+            <div class="excel-dropzone-title">Kéo thả hoặc bấm để chọn file Excel</div>
+            <div class="excel-dropzone-sub">.xlsx · .xls · .csv — Hệ thống tự nhận diện cột</div>
+        </div>
+
+        <!-- PREVIEW (ẩn lúc đầu) -->
+        <div id="excelPreview" style="display:none">
+            <div style="padding:12px 18px;background:rgba(201,168,76,.05);border-bottom:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:3px" id="previewFileName"></div>
+                <div style="font-size:10px;color:rgba(250,248,242,.4);letter-spacing:.5px" id="previewDetected"></div>
+            </div>
+
+            <div style="padding:10px 18px 4px">
+                <div class="preview-section-title">Kết quả nhận diện — Kiểm tra và chỉnh sửa số lượng trước khi xác nhận</div>
+            </div>
+            <div style="max-height:320px;overflow-y:auto">
+                <table class="preview-table" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Size</th>
+                            <th>Số lượng nhập</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTableBody"></tbody>
+                </table>
+            </div>
+
+            <div style="padding:10px 18px;font-size:10px;color:rgba(250,248,242,.3);letter-spacing:1px;border-top:1px solid var(--border)">
+                💡 Hệ thống sẽ tự khớp tên sản phẩm và cộng thêm số lượng vào tồn kho hiện tại.
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" id="excelMoCancel" class="act-btn">Hủy</button>
+            <button type="button" id="btnConfirmImport" class="act-btn" style="border-color:var(--gold);color:var(--gold)" disabled>
+                Xác nhận cập nhật tồn kho
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/neva-base.js" asp-append-version="true"></script>
+<script src="~/js/staff-inventory.js" asp-append-version="true"></script>
+</body>
+</html>

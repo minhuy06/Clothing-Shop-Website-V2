@@ -1,0 +1,149 @@
+﻿@model List<Clothing_Shop_Website.Models.Order>
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string GetStatusLabel(int s) => s switch
+    {
+        0 => "Chờ xử lý",
+        1 => "Đã xác nhận",
+        2 => "Đang giao",
+        3 => "Hoàn thành",
+        4 => "Đã hủy",
+        _ => "Không rõ"
+    };
+    string GetStatusCss(int s) => s switch
+    {
+        0 => "sb-pending",
+        1 => "sb-shipping",
+        2 => "sb-shipping",
+        3 => "sb-done",
+        4 => "sb-cancel",
+        _ => ""
+    };
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/lich-su.css" asp-append-version="true" />
+}
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(90,154,90,.1);border-bottom:1px solid rgba(90,154,90,.25);color:#7aba7a;font-size:11px;letter-spacing:1.5px;padding:12px 52px;text-align:center">✦ @TempData["Success"]</div>
+}
+
+<div class="page-wrap" style="display:grid;grid-template-columns:250px 1fr;gap:16px;padding:28px 44px 60px;max-width:1280px;margin:0 auto">
+    <aside>
+        <div class="profile-card">
+            <div class="av-wrap">
+                <div class="av-ring"></div><div class="av-ring2"></div>
+                <div class="av-circle">@(Context.Session.GetString("FullName") is string fn && fn.Length >= 2 ? fn.Substring(0, 2).ToUpper() : "KH")</div>
+            </div>
+            <div class="p-name">@Context.Session.GetString("FullName")</div>
+            <div class="p-email">@Context.Session.GetString("Phone")</div>
+            <div class="p-pts">✦ @Context.Session.GetInt32("Points").GetValueOrDefault().ToString("N0") điểm</div>
+        </div>
+        <div class="side-menu">
+            <a asp-controller="Account" asp-action="Profile" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                Hồ sơ của tôi
+            </a>
+            <a asp-controller="Account" asp-action="Profile" asp-route-tab="address" class="smenu-item">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                Địa chỉ giao hàng
+            </a>
+            <a asp-controller="Order" asp-action="History" class="smenu-item active">
+                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                Lịch sử đơn hàng
+            </a>
+            <a asp-controller="Account" asp-action="Profile" asp-route-tab="settings" class="smenu-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                Cài đặt tài khoản
+            </a>
+            <a asp-controller="Account" asp-action="Logout" class="smenu-item danger">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <main>
+        <div class="orders-toolbar">
+            <div class="orders-title">Đơn hàng</div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty" style="text-align:center;padding:60px 20px;color:rgba(250,248,242,.2)">
+                <p style="font-size:12px;letter-spacing:1.5px;margin-bottom:16px">Bạn chưa có đơn hàng nào</p>
+                <a asp-controller="Product" asp-action="Index"
+                   style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--black);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-family:var(--font-b)">
+                    Mua sắm ngay
+                </a>
+            </div>
+        }
+
+        @foreach (var order in Model)
+        {
+            <div class="order-card">
+                <div class="order-head">
+                    <div>
+                        <div class="order-id"># NV-@order.OrderID.ToString("D8")</div>
+                        <div class="order-date">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <span class="status-badge @GetStatusCss(order.Status)">
+                        <span class="sb-dot"></span>@GetStatusLabel(order.Status)
+                    </span>
+                </div>
+                <div class="order-body">
+                    <div class="order-items">
+                        @foreach (var detail in order.OrderDetails.Take(2))
+                        {
+                            <div class="order-item">
+                                <div class="item-thumb">
+                                    <img src="@detail.ProductSize?.Product?.ImageUrl" alt="@detail.ProductSize?.Product?.ProductName"
+                                         onerror="this.style.display='none'">
+                                </div>
+                                <div>
+                                    <div class="item-name">@detail.ProductSize?.Product?.ProductName x@detail.Quantity</div>
+                                    <div class="item-meta">
+                                        @detail.UnitPrice.ToString("N0")đ
+                                        <span style="margin:0 4px;color:rgba(250,248,242,.2)">|</span>
+                                        <span style="color:var(--gold); font-size: 10px;">Size: @detail.ProductSize?.SizeName</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (order.OrderDetails.Count > 2)
+                        {
+                            <div class="items-more">+@(order.OrderDetails.Count - 2) sản phẩm</div>
+                        }
+                    </div>
+                    <div class="order-footer">
+                        <div>
+                            <div class="order-total-lbl">Tổng đơn hàng</div>
+                            <div class="order-total">@order.TotalAmount.ToString("N0")đ</div>
+                        </div>
+                        <div class="order-acts">
+                            @if (order.Status == 0) // Có thể đổi thành (int)OrderStatus.Pending nếu bạn đã import Enums vào View
+                            {
+                                <form method="post" asp-controller="Order" asp-action="Cancel">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@order.OrderID">
+                                    <button type="submit" class="btn-outline" onclick="return confirm('Hủy đơn hàng này?')" style="padding:8px 16px">Hủy đơn</button>
+                                </form>
+                            }
+                            @if (order.Status == 2)
+                            {
+                                <a asp-controller="Product" asp-action="Index" class="btn-gold" style="padding:8px 18px">Mua lại</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
+</div>
+
+@section Scripts {
+    <script src="~/js/lich-su.js" asp-append-version="true"></script>
+}

@@ -180,21 +180,21 @@ GO
 -- ==================================================================================
 SET IDENTITY_INSERT [Products] ON;
 INSERT INTO [Products] ([ProductID], [CategoryID], [ProductName], [Price], [ImageUrl], [Description], [Session], [Color], [Style], [Material], [Status]) VALUES
-(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/uploads/products/somi_nam.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton', 1),
-(2, 1, N'Áo thun nam polo basic', 250000.00, '/uploads/products/polo_nam.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu', 1),
-(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/uploads/products/quantay_nam.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa', 1),
-(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/uploads/products/short_kaki.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki', 1),
-(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/uploads/products/vay_hoanhi.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon', 1),
-(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/uploads/products/dam_dahoi.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin', 1),
-(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/uploads/products/cardigan_nu.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm', 1),
-(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/uploads/products/croptop_nu.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn', 1),
-(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/uploads/products/bo_thethao_nam.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester', 1),
-(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/uploads/products/set_gym_nu.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex', 1),
-(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/uploads/products/thatlung_da.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò', 0),
-(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/uploads/products/khoacgio_nam.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon', 0),
-(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/uploads/products/aoloclo_nu.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu', 0),
-(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/uploads/products/jean_nam.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim', 0),
-(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/uploads/products/chanvay_a.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn', 0);
+(1, 1, N'Áo sơ mi nam công sở NEVA', 350000.00, '/images/prod/1.jpg', N'Áo sơ mi nam chất liệu bền đẹp, tôn dáng lịch lãm.', 1, N'Trắng', N'Slimfit', N'Cotton', 1),
+(2, 1, N'Áo thun nam polo basic', 250000.00, '/images/prod/2.jpg', N'Áo thun polo thoáng khí, co giãn tốt.', 2, N'Xanh Navy', N'Regular', N'Cá sấu', 1),
+(3, 2, N'Quần tây nam baggy ống suông', 420000.00, '/images/prod/3.jpg', N'Quần tây nam sang trọng, trẻ trung phù hợp đi học, đi làm.', 1, N'Đen', N'Baggy', N'Tuyết mưa', 1),
+(4, 2, N'Quần short nam kaki dạo phố', 220000.00, '/images/prod/4.jpg', N'Quần short kaki dày dặn, năng động.', 2, N'Be', N'Shorts', N'Kaki', 1),
+(5, 3, N'Váy hoa nhí vintage tiểu thư', 380000.00, '/images/prod/5.jpg', N'Váy hoa nhí dịu dàng, thướt tha đón nắng hè.', 2, N'Vàng hoa', N'Vintage', N'Chiffon', 1),
+(6, 3, N'Đầm dạ hội lụa satin cao cấp', 750000.00, '/images/prod/6.jpg', N'Đầm dạ hội quý phái tôn vinh nét quyến rũ.', 3, N'Đỏ rượu', N'Dạ hội', N'Lụa satin', 1),
+(7, 4, N'Áo cardigan len mỏng Hàn Quốc', 290000.00, '/images/prod/7.jpg', N'Áo cardigan len nhẹ nhàng cho mùa thu se lạnh.', 3, N'Hồng phấn', N'Cardigan', N'Len tăm', 1),
+(8, 4, N'Áo thun croptop ôm dáng', 150000.00, '/images/prod/8.jpg', N'Áo croptop cotton co giãn cá tính.', 2, N'Trắng', N'Croptop', N'Cotton co giãn', 1),
+(9, 5, N'Bộ thể thao nam active năng động', 480000.00, '/images/prod/9.jpg', N'Bộ đồ thể thao nam thoáng khí tốt cho vận động.', 2, N'Xám', N'Sporty', N'Polyester', 1),
+(10, 5, N'Set tập gym yoga nữ co giãn', 390000.00, '/images/prod/10.jpg', N'Đồ tập gym yoga ôm dáng co giãn tối đa.', 2, N'Đen', N'Athletic', N'Spandex', 1),
+(11, 6, N'Thắt lưng da bò nam NEVA', 290000.00, '/images/prod/11.jpg', N'Thắt lưng da thật bền bỉ, phong cách cổ điển.', 1, N'Nâu', N'Classic', N'Da bò', 0),
+(12, 1, N'Áo khoác gió nam cản mưa nhẹ', 450000.00, '/images/prod/12.jpg', N'Áo khoác gió 2 lớp giữ ấm, cản gió nước nhẹ.', 4, N'Xanh rêu', N'Jacket', N'Nylon', 0),
+(13, 4, N'Áo len cổ lọ ấm áp đại hàn', 320000.00, '/images/prod/13.jpg', N'Áo len cổ lọ chất liệu len lông cừu cực ấm.', 4, N'Kem', N'Oversize', N'Len cừu', 0),
+(14, 2, N'Quần jeans nam streetwear rách gối', 490000.00, '/images/prod/14.jpg', N'Quần jean phong cách đường phố cá tính.', 3, N'Xanh sáng', N'Streetwear', N'Denim', 0),
+(15, 3, N'Chân váy chữ A công sở dáng lửng', 270000.00, '/images/prod/15.jpg', N'Chân váy chữ A lịch sự dễ phối đồ công sở.', 1, N'Đen', N'Chữ A', N'Kaki hàn', 0);
 SET IDENTITY_INSERT [Products] OFF;
 GO
 
@@ -636,9 +636,9 @@ GO
 -- ==================================================================================
 SET IDENTITY_INSERT [Advertisements] ON;
 INSERT INTO [Advertisements] ([AdID], [Title], [ImageUrl], [Position], [IsActive], [CreatedDate], [ProductID], [DiscountType], [DiscountValue], [StartDate], [EndDate]) VALUES
-(1, N'Sale Hè Rực Rỡ - Giảm 20%', '/images/ads/summer-sale.jpg', 'popup', 1, '2026-05-01 00:00:00', 1, 1, 20.00, '2026-05-01 00:00:00', '2026-12-31 23:59:59'),
-(2, N'Bộ Sưu Tập Công Sở - Giảm 15%', '/images/ads/office-collection.jpg', 'sidebar', 1, '2026-05-10 00:00:00', 3, 1, 15.00, '2026-05-10 00:00:00', '2026-12-31 23:59:59'),
-(3, N'Đầm Dạ Hội Cao Cấp - Giảm 10%', '/images/ads/evening-dress.jpg', 'popup', 1, '2026-05-15 00:00:00', 6, 1, 10.00, '2026-05-15 00:00:00', '2026-12-31 23:59:59');
+(1, N'Sale Hè Rực Rỡ - Giảm 20%', '/images/ads/1.jpg', 'popup', 1, '2026-05-01 00:00:00', 1, 1, 20.00, '2026-05-01 00:00:00', '2026-12-31 23:59:59'),
+(2, N'Bộ Sưu Tập Công Sở - Giảm 15%', '/images/ads/2.jpg', 'sidebar', 1, '2026-05-10 00:00:00', 3, 1, 15.00, '2026-05-10 00:00:00', '2026-12-31 23:59:59'),
+(3, N'Đầm Dạ Hội Cao Cấp - Giảm 10%', '/images/ads/3.jpg', 'popup', 1, '2026-05-15 00:00:00', 6, 1, 10.00, '2026-05-15 00:00:00', '2026-12-31 23:59:59');
 SET IDENTITY_INSERT [Advertisements] OFF;
 GO
 

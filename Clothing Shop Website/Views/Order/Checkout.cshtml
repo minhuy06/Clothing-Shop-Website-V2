@@ -129,13 +129,11 @@
             <div class="order-items">
                 @foreach (var item in Model.CartItems)
                 {
-                    var img = string.IsNullOrWhiteSpace(item.ProductSize.Product.ImageUrl)
-                        ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80"
-                        : item.ProductSize.Product.ImageUrl;
+                    var img = ProductImageHelper.Resolve(item.ProductSize.Product.ImageUrl, item.ProductSize.Product.ProductID);
                     <div class="oitem">
                         <div class="oitem-thumb">
                             <img src="@img" alt="@item.ProductSize.Product.ProductName"
-                                 onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80'">
+                                 onerror="this.src='@ProductImageHelper.PlaceholderPath'">
                             <div class="oitem-qty">@item.Quantity</div>
                         </div>
                         <div style="flex:1">

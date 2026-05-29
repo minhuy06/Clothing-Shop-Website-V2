@@ -2,11 +2,16 @@
 (function () {
     let currentProductId = null;
 
-    function imgFallback(url) {
-        if (!url || !String(url).trim()) {
-            return 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80';
+    const PLACEHOLDER_IMG = '/images/placeholder-product.svg';
+
+    function imgFallback(url, productId) {
+        if (url && String(url).trim() && !/^https?:\/\//i.test(url)) {
+            return url;
         }
-        return url;
+        if (productId) {
+            return '/images/prod/' + productId + '.jpg';
+        }
+        return PLACEHOLDER_IMG;
     }
 
     window.openModal = function (id) {
@@ -14,7 +19,7 @@
         if (!p) return;
 
         currentProductId = id;
-        document.getElementById('mImg').src = imgFallback(p.img);
+        document.getElementById('mImg').src = imgFallback(p.img, p.id);
         document.getElementById('mImg').alt = p.name;
         document.getElementById('mCat').textContent = (p.cat || '') + (p.season ? ' · ' + p.season : '');
         document.getElementById('mName').textContent = p.name;

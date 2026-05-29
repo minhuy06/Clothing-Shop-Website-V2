@@ -58,16 +58,14 @@
 
             @foreach (var item in Model)
             {
-                var cartImg = string.IsNullOrWhiteSpace(item.ProductSize.Product.ImageUrl)
-                    ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80"
-                    : item.ProductSize.Product.ImageUrl;
+                var cartImg = ProductImageHelper.Resolve(item.ProductSize.Product.ImageUrl, item.ProductSize.Product.ProductID);
                 var unit = item.UnitPrice ?? item.ProductSize.Product.Price;
                 <div class="cart-row">
                     <div></div>
                     <div class="cart-product">
                         <div class="cart-thumb">
                             <img src="@cartImg" alt="@item.ProductSize.Product.ProductName"
-                                 onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80'">
+                                 onerror="this.src='@ProductImageHelper.PlaceholderPath'">
                         </div>
                         <div>
                             <div class="cart-pname">@item.ProductSize.Product.ProductName</div>

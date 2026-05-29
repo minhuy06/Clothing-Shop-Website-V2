@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -77,6 +79,29 @@ namespace Clothing_Shop_Website
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            // Ảnh seed: DataWarehouse_Scripts/images/prod|ads → URL /images/prod|ads
+            var dwImagesRoot = Path.GetFullPath(Path.Combine(env.ContentRootPath, "..", "DataWarehouse_Scripts", "images"));
+            var prodImagesDir = Path.Combine(dwImagesRoot, "prod");
+            var adsImagesDir = Path.Combine(dwImagesRoot, "ads");
+
+            if (Directory.Exists(prodImagesDir))
+            {
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(prodImagesDir),
+                    RequestPath = "/images/prod"
+                });
+            }
+
+            if (Directory.Exists(adsImagesDir))
+            {
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(adsImagesDir),
+                    RequestPath = "/images/ads"
+                });
+            }
 
             app.UseRouting();
 

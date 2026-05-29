@@ -100,8 +100,14 @@
                         {
                             <div class="order-item">
                                 <div class="item-thumb">
-                                    <img src="@detail.ProductSize?.Product?.ImageUrl" alt="@detail.ProductSize?.Product?.ProductName"
-                                         onerror="this.style.display='none'">
+                                    @{
+                                        var pid = detail.ProductSize?.Product?.ProductID ?? 0;
+                                        var histImg = detail.ProductSize?.Product != null
+                                            ? ProductImageHelper.Resolve(detail.ProductSize.Product.ImageUrl, pid)
+                                            : ProductImageHelper.PlaceholderPath;
+                                    }
+                                    <img src="@histImg" alt="@detail.ProductSize?.Product?.ProductName"
+                                         onerror="this.src='@ProductImageHelper.PlaceholderPath'">
                                 </div>
                                 <div>
                                     <div class="item-name">@detail.ProductSize?.Product?.ProductName x@detail.Quantity</div>

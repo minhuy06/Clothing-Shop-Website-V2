@@ -30,7 +30,7 @@
 
         old = (adMap.ContainsKey(p.ProductID) ? (AdPromotionHelper.GetSalePrice(p.Price, adMap[p.ProductID]) < p.Price ? p.Price : 0) : 0),
 
-        img = p.ImageUrl ?? "",
+        img = ProductImageHelper.Resolve(p.ImageUrl, p.ProductID),
 
         season = GetSeason(p.Session),
 
@@ -271,11 +271,7 @@
 
             {
 
-                var img = string.IsNullOrWhiteSpace(p.ImageUrl)
-
-                    ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80"
-
-                    : p.ImageUrl;
+                var img = ProductImageHelper.Resolve(p.ImageUrl, p.ProductID);
 
                 Advertisement? ad = adMap.ContainsKey(p.ProductID) ? adMap[p.ProductID] : null;
                 var salePrice = AdPromotionHelper.GetSalePrice(p.Price, ad);
@@ -297,7 +293,7 @@
 
                             <img src="@img" alt="@p.ProductName" loading="lazy"
 
-                                onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80'">
+                                onerror="this.src='@ProductImageHelper.PlaceholderPath'">
 
                         </div>
 

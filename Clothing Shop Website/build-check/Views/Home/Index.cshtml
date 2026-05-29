@@ -1,0 +1,231 @@
+﻿@model Clothing_Shop_Website.ViewModels.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/trang-chu.css" asp-append-version="true" />
+}
+
+<!-- HERO BLOCK -->
+<div class="hero-block">
+
+    <!-- Gold strip -->
+    <div class="gs">
+        <span class="gs-n">N</span>
+        <span class="gs-arr">↓</span>
+    </div>
+
+    <!-- Hero slideshow -->
+    <div class="hp">
+        <div class="hs on">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=88" alt="NEVA Couture">
+        </div>
+        <div class="hs">
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=88" alt="NEVA Couture 2">
+        </div>
+        <div class="hs">
+            <img src="https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=900&q=88" alt="NEVA Couture 3">
+        </div>
+
+        <div class="hv"></div>
+
+        <!-- Hero text -->
+        <div class="ht">
+            <div class="crest-wrap">
+                <div class="crest-outer"></div>
+                <div class="crest-inner-ring"></div>
+                <div class="crest-body">
+                    <span class="crest-leaf-t">✦</span>
+                    <span class="crest-letter">N</span>
+                    <span class="crest-brand">NEVA</span>
+                    <span class="crest-leaf-b">✦</span>
+                </div>
+                <div class="crest-line-l"></div>
+                <div class="crest-line-r"></div>
+            </div>
+            <h1 class="ht-title">NEVA. Haute Couture.<br>Tuyệt Tác Đến Từ Bên Trong.</h1>
+            <a asp-controller="Product" asp-action="Index" class="ht-link">Khám Phá Di Sản</a>
+        </div>
+
+        <div class="sa sp" onclick="prevSlide()">‹</div>
+        <div class="sa sn" onclick="nextSlide()">›</div>
+        <div class="sdots" id="dots">
+            <div class="sd on"></div>
+            <div class="sd"></div>
+            <div class="sd"></div>
+        </div>
+    </div>
+
+    <!-- Right grid -->
+    <div class="rg">
+        <!-- Ambassador -->
+        <div class="ca">
+            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=88" alt="Ambassador">
+            <div class="cao">
+                <div class="ca-tag">Đại sứ thương hiệu · Hồ Ngọc Hà</div>
+                <div class="ca-name">Chạm Đến<br>Hoàn Mỹ.</div>
+                <div class="ca-sub">Eclipse Panthera Collection</div>
+                <a asp-controller="Product" asp-action="Index" class="ca-btn">Xem Chi Tiết</a>
+            </div>
+        </div>
+
+        <!-- Mid top -->
+        <div class="cm">
+            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=88" alt="Eclipse fabric">
+            <div class="cmo">
+                <div class="c-tag">Eclipse Panthera</div>
+                <div class="c-name">Khối Vọng Phương Đông</div>
+                <div class="c-code">2651W322607H021 · 1.350.000đ</div>
+            </div>
+        </div>
+
+        <!-- Mid bottom -->
+        <div class="cm">
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=88" alt="Eclipse outfit">
+            <div class="cmo">
+                <div class="c-tag">Eclipse Panthera</div>
+                <div class="c-name">Khối Vọng Phương Đông</div>
+                <div class="c-code">2651W322607H021 · 1.350.000đ</div>
+            </div>
+        </div>
+
+        <!-- Right tall -->
+        <div class="cr">
+            <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500&q=88" alt="Maxi dress">
+            <div class="cro">
+                <div class="c-tag">Eclipse Panthera</div>
+                <div class="c-name">Chân váy maxi bèo Eclipse Panthera</div>
+                <div class="c-code">2651W322607H021</div>
+                <div class="c-row">
+                    <div class="c-price">1.390.000đ</div>
+                    <a asp-controller="Product" asp-action="Index" class="c-bst">Xem BST</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="mq">
+    <div class="mqi">
+        <span>Miễn phí vận chuyển toàn quốc</span><span class="dot"> ◆ </span>
+        <span>Haute Couture · Thiết kế độc quyền</span><span class="dot"> ◆ </span>
+        <span>Chất liệu cao cấp được tuyển chọn</span><span class="dot"> ◆ </span>
+        <span>Đổi trả trong 30 ngày</span><span class="dot"> ◆ </span>
+        <span>VIP Member · Ưu đãi bậc quyền</span><span class="dot"> ◆ </span>
+        <span>Miễn phí vận chuyển toàn quốc</span><span class="dot"> ◆ </span>
+        <span>Haute Couture · Thiết kế độc quyền</span><span class="dot"> ◆ </span>
+        <span>Chất liệu cao cấp được tuyển chọn</span><span class="dot"> ◆ </span>
+        <span>Đổi trả trong 30 ngày</span><span class="dot"> ◆ </span>
+        <span>VIP Member · Ưu đãi bậc quyền</span><span class="dot"> ◆ </span>
+    </div>
+</div>
+
+<!-- SECOND ROW — La Roseraie -->
+<div class="sr">
+    <div class="sr-strip"></div>
+    <div class="sr-cell">
+        <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=450&q=88" alt="La Roseraie 1">
+        <div class="cmo">
+            <div class="c-tag">La Roseraie</div>
+            <div class="c-name">Đầm hoa hồng đỏ</div>
+            <div class="c-price">2.650.000đ</div>
+        </div>
+    </div>
+    <div class="sr-cell">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=450&q=88" alt="La Roseraie 2">
+        <div class="cmo">
+            <div class="c-tag">La Roseraie</div>
+            <div class="c-name">Kiệt tác hoa hồng</div>
+            <div class="c-price">1.890.000đ</div>
+        </div>
+    </div>
+    <div class="sr-cell">
+        <img src="https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=450&q=88" alt="La Roseraie 3">
+        <div class="cmo">
+            <div class="c-tag">La Roseraie</div>
+            <div class="c-name">Đầm vai trần cao cấp</div>
+            <div class="c-price">2.100.000đ</div>
+        </div>
+    </div>
+    <div class="tp">
+        <span class="tp-sp">Special Feature</span>
+        <div class="tp-t">LA ROSERAIE.<br><em>Kiệt Tác Hoa Hồng.</em></div>
+        <p class="tp-d">Vẻ đẹp thuần khiết giống như bông hoa hồng đầu tiên nở rộ. Mỗi đường chỉ mỗi nếp vải đều kể một câu chuyện về tình yêu và nghệ thuật.</p>
+        <div class="tp-p">2651W322607H021 · 1.350.000đ</div>
+        <a asp-controller="Product" asp-action="Index" class="tp-btn">Xem BST →</a>
+    </div>
+</div>
+
+<!-- VIP BAR -->
+<div class="vb">
+    <div class="vb-gs"></div>
+    <div class="vc">
+        <svg class="vc-svg" viewBox="0 0 32 32" fill="none" stroke="#c9a84c" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="16,2 30,11 25,28 7,28 2,11" />
+            <polyline points="2,11 16,18 30,11" />
+            <line x1="7" y1="28" x2="16" y2="18" />
+            <line x1="25" y1="28" x2="16" y2="18" />
+            <line x1="16" y1="2" x2="16" y2="18" />
+        </svg>
+        <div>
+            <div class="vc-t">VIP Member · Ưu Đãi Bậc Quyền</div>
+            <div class="vc-d">Sớm nhất được tiếp cận sản phẩm mới và nhận ưu đãi độc quyền dành riêng cho thành viên VIP.</div>
+        </div>
+    </div>
+    <div class="vc">
+        <svg class="vc-svg" viewBox="0 0 32 32" fill="none" stroke="#c9a84c" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3.5" />
+            <circle cx="8" cy="24" r="3.5" />
+            <line x1="11.5" y1="8" x2="27" y2="24" />
+            <line x1="11.5" y1="24" x2="18" y2="18" />
+            <line x1="27" y1="8" x2="18" y2="14.5" />
+        </svg>
+        <div>
+            <div class="vc-t">Dịch Vụ May Đo Riêng</div>
+            <div class="vc-d">Sản phẩm tùy chỉnh theo số đo và phong cách riêng của bạn. Trải nghiệm cao cấp chỉ có tại NEVA.</div>
+        </div>
+    </div>
+</div>
+
+@if (Model.PopupAds.Count > 0)
+{
+    <div id="adPopupStack" class="ad-popup" data-count="@Model.PopupAds.Count" hidden>
+        <div class="ad-popup-backdrop"></div>
+        <div class="ad-popup-stack" data-stack-count="@Model.PopupAds.Count">
+            @for (var i = 0; i < Model.PopupAds.Count; i++)
+            {
+                var ad = Model.PopupAds[i];
+                <article class="ad-popup-card" data-ad-id="@ad.AdID" style="--stack-index: @i">
+                    <div class="ad-popup-box">
+                        <button type="button" class="ad-popup-close" aria-label="Đóng quảng cáo">×</button>
+                        @if (Model.PopupAds.Count > 1)
+                        {
+                            <span class="ad-popup-stack-badge">@(i + 1)/@Model.PopupAds.Count</span>
+                        }
+                        @if (ad.ProductID.HasValue)
+                        {
+                            <a href="@Url.Action("Index", "Product", new { highlight = ad.ProductID })">
+                                <img src="@ad.ImageUrl" alt="@ad.Title" />
+                            </a>
+                        }
+                        else
+                        {
+                            <img src="@ad.ImageUrl" alt="@ad.Title" />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ad.Title))
+                        {
+                            <p class="ad-popup-title">@ad.Title</p>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/trang-chu.js" asp-append-version="true"></script>
+}
